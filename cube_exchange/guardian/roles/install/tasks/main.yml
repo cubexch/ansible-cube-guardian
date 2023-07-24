@@ -1,0 +1,6 @@
+---
+# tasks file for install
+
+- name: Hello World
+  ansible.builtin.debug:
+    msg: "Hello World"
