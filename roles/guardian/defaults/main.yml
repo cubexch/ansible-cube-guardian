@@ -1,0 +1,94 @@
+---
+# defaults file for guardian
+
+guardian_version: 26a31146
+guardian_archive_name: aurum-{{ guardian_version }}.tar.gz
+guardian_bin_name: cube-aurum
+
+guardian_chaintip_force_replacement: true
+
+# https://blockstream.info/blocks/recent
+guardian_chaintip_btc:
+  hash: "000000000000000000034cb43cb906466b03a2b7143697165996567f775d63bb"
+  height: 799672
+
+# https://etherscan.io/blocks
+guardian_chaintip_eth:
+  hash: "0x185e5b0d5adfb63b616440c814466cd37c64e0de46c1e93a46a3610f45d08b7e"
+  blocknumber: 17744584
+
+public_guardian_list:
+  - name: Cube Exchange
+    guardian_id: 1
+    public_address: guardian-420.guardians.prod.cube.exchange
+    public_port_node: 9420
+    public_port_web: 443
+  - name: Cube Exchange Temp Guardian 9001
+    guardian_id: 9001
+    public_address: guardian-421.guardians.prod.cube.exchange
+    public_port_node: 5991
+    public_port_web: 443
+  - name: Cube Exchange Temp Guardian 9002
+    guardian_id: 9002
+    public_address: guardian-421.guardians.prod.cube.exchange
+    public_port_node: 6991
+    public_port_web: 443
+
+guardian_user:
+  name: cube-guardian
+  group: cube-guardian
+  create_home: false
+  password: "!"
+  shell: /usr/sbin/nologin
+  system: true
+
+# guardian
+guardian_listen_node_interface: "{{ ansible_default_ipv4.interface }}"
+# guardian_listen_node_interface: enp2s0
+guardian_listen_node_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_node_interface]['ipv4']['address'] }}"
+guardian_listen_node_port: 9420
+
+guardian_listen_web_interface: "{{ ansible_default_ipv4.interface }}"
+# guardian_listen_web_interface: enp2s0
+guardian_listen_web_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_web_interface]['ipv4']['address'] }}"
+guardian_listen_web_port: 443
+
+guardian_dirs:
+  install: /opt/cube/guardian/bin
+  config: /opt/cube/guardian/config
+  log: /var/log/cube-guardian
+
+guardian_certificates:
+  source_path: "{{ playbook_dir }}/../.tmp/guardian-tls-certs"
+  tls_private_key_name: "{{ inventory_hostname }}.private_key.pem"
+  tls_certificate_name: "{{ inventory_hostname }}.certificate.crt"
+  tls_root_certificate_name: "{{ inventory_hostname }}.root-ca-certificate.crt"
+
+guardian_config_main:
+  cube_id: 1
+  guardian_id: 101
+  key_path: "{{ guardian_dirs.config }}/{{ guardian_certificates.tls_private_key_name }}"
+  certs_path: "{{ guardian_dirs.config }}/{{ guardian_certificates.tls_certificate_name }}"
+  roots_path: "{{ guardian_dirs.config }}/{{ guardian_certificates.tls_root_certificate_name }}"
+
+guardian_key_storage:
+  # file:
+  #   asdf:
+  hashicorp_vault:
+    secret_mount_path: "cube/guardian-{{ guardian_config_main.guardian_id }}"
+    approle_path_reader: "{{ guardian_dirs.config }}/{{ inventory_hostname }}.vault.reader.json"
+    approle_path_writer: "{{ guardian_dirs.config }}/{{ inventory_hostname }}.vault.writer.json"
+    approle_token_renew_seconds: 3600
+    vault_url: "https://prd-ty11-vvlt-1.vault.prd-ty11.cube.exchange:8200"
+    vault_tls_client_ca: "{{ guardian_dirs.config }}/vault-tls-ca.pem"
+    access_log_filename: "access.cbor"
+
+guardian_config_manager:
+  num_workers: 2
+  max_active_triple_jobs: 4
+  num_triples_to_cache: 64
+  public_shares_path: "{{ guardian_dirs.config }}/public_shares.json"
+  cached_triples_path: "{{ guardian_dirs.config }}/triples.json"
+
+guardian_bus_initial_capacity: 256
+guardian_web_btc_network: "Mainnet"

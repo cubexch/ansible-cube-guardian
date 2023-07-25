@@ -1,0 +1,34 @@
+# roles/install/meta/argument_specs.yml
+---
+argument_specs:
+  # roles/install/tasks/main.yml entry point
+  main:
+    short_description: Cube Exchange Guardian Role.
+    options:
+      guardian_user:
+        type: "dict"
+        required: true
+        default:
+          guardian_user:
+            name: cube-guardian
+            group: cube-guardian
+            create_home: false
+            password: "!"
+            shell: /usr/sbin/nologin
+            system: true
+        description: "Guardian Service Account Configuration"
+
+      myapp_str:
+        type: "str"
+        required: true
+        description: "The string value"
+
+  # # roles/myapp/tasks/alternate.yml entry point
+  # alternate:
+  #   short_description: The alternate entry point for the myapp role.
+  #   options:
+  #     myapp_int:
+  #       type: "int"
+  #       required: false
+  #       default: 1024
+  #       description: "The integer value, defaulting to 1024."

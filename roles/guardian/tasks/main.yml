@@ -1,0 +1,125 @@
+---
+# tasks file for guardian
+
+- name: Create Guardian User
+  ansible.builtin.user:
+    name: "{{ guardian_user.name }}"
+    create_home: "{{ guardian_user.create_home | bool }}"
+    password: "{{ guardian_user.password }}"
+    shell: "{{ guardian_user.shell }}"
+    system: "{{ guardian_user.system | bool }}"
+
+- name: Add Hashicorp signing key
+  ansible.builtin.get_url:
+    url: https://apt.releases.hashicorp.com/gpg
+    dest: /etc/apt/trusted.gpg.d/hashicorp.asc
+    owner: "root"
+    group: "root"
+    mode: u=rw,g=r,o=r
+
+- name: Gather distribution_release and network facts
+  ansible.builtin.setup:
+    gather_subset:
+      - distribution_release
+      - default_ipv4
+
+- name: Add Hashicorp signed apt repo
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/trusted.gpg.d/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    state: present
+
+- name: Install Hashicorp Vault (client)
+  ansible.builtin.apt:
+    name:
+      - vault
+    state: "present"
+    cache_valid_time: 14400 # 4hrs
+
+- name: Create install, config, and log directories
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: "u+rw,g+r,o=-"
+    # recurse: true
+  with_items:
+    - "{{ guardian_dirs.install }}"
+    - "{{ guardian_dirs.install }}/v{{ guardian_version }}"
+    - "{{ guardian_dirs.config }}"
+    - "{{ guardian_dirs.log }}"
+
+- name: Copy Guardian release
+  ansible.builtin.copy:
+    src: "{{ guardian_archive_name }}"
+    dest: "{{ guardian_dirs.install }}/"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rw,g=r,o=-
+
+- name: Extract Guardian release
+  ansible.builtin.unarchive:
+    src: "{{ guardian_dirs.install }}/{{ guardian_archive_name }}"
+    remote_src: true
+    dest: "{{ guardian_dirs.install }}/v{{ guardian_version }}"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rw,g=r,o=-
+    creates: "{{ guardian_dirs.install }}/v{{ guardian_version }}/{{ guardian_bin_name }}"
+
+- name: Update symlinks
+  ansible.builtin.file:
+    src: "{{ guardian_dirs.install }}/v{{ guardian_version }}"
+    dest: "{{ guardian_dirs.install }}/current"
+    state: link
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+
+- name: Deploy Guardian Config
+  ansible.builtin.template:
+    src: "production-instance.toml.j2"
+    dest: "{{ guardian_dirs.config }}/production-{{ guardian_config_main.guardian_id }}.toml"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rw,g=r,o=-
+    backup: true
+
+- name: Deploy Guardian Chaintip Configs
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ guardian_dirs.config }}/{{ item }}"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rw,g=r,o=-
+    force: "{{ guardian_chaintip_force_replacement | default(false) | bool }}"
+  with_items:
+    - "latest_blockhash.btc.json"
+    - "latest_blockhash.eth.json"
+
+- name: Deploy Guardian Certificates
+  ansible.builtin.copy:
+    src: "{{ guardian_certificates.source_path }}/{{ item }}"
+    dest: "{{ guardian_dirs.config }}/{{ item }}"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rw,go=-
+  with_items:
+    - "{{ guardian_certificates.tls_private_key_name }}"
+    - "{{ guardian_certificates.tls_certificate_name }}"
+    - "{{ guardian_certificates.tls_root_certificate_name }}"
+
+- name: Deploy Service Environment File
+  ansible.builtin.template:
+    src: "guardian-instance.service.env.j2"
+    dest: "{{ guardian_dirs.config }}/guardian-{{ guardian_config_main.guardian_id }}.service.env"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rw,g=r,o=-
+
+- name: Deploy Service File
+  ansible.builtin.template:
+    src: "etc/systemd/system/guardian-instance.service.j2"
+    dest: "/etc/systemd/system/guardian-{{ guardian_config_main.guardian_id }}.service"
+    owner: "root"
+    group: "root"
+    mode: ug=rw,o=r

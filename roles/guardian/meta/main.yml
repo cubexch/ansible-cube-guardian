@@ -1,4 +1,5 @@
 galaxy_info:
+  role_name: guardian
   author: Rick Davis <rdavis@cube.xyz> (https://www.cube.exchange/)
   description: Cube.Exchange Guardian Installer
   company: Cube Exchange (https://www.cube.exchange/)

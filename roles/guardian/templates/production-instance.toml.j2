@@ -1,0 +1,59 @@
+cube_id = {{ guardian_config_main.cube_id | int }}
+
+key_path = "{{ guardian_config_main.key_path }}"
+certs_path = "{{ guardian_config_main.certs_path }}"
+roots_path = "{{ guardian_config_main.roots_path }}"
+
+[bus]
+initial_capacity = {{ guardian_bus_initial_capacity | int }}
+
+{#
+# snoop will become optional
+[snoop]
+address = "{{ snoop_dest_address }}"
+bind = "{{ aurum_bind_ip }}:{{ item.snoop_bind_port }}"
+#}
+
+
+[nodes]
+{#
+core = {{ item.core }}
+#}
+
+guardians = [
+{% for guardian in public_guardian_list %}
+  { id = {{ guardian.guardian_id }}, address = "{{ guardian.public_address }}:{{ guardian.public_port_node }}" },
+{% endfor %}
+]
+
+
+
+[web]
+btc_network = "{{ guardian_web_btc_network }}"
+listen_address = "{{ guardian_listen_web_ip }}:{{ guardian_listen_web_port }}"
+
+
+
+[keys]
+
+{% if guardian_key_storage.hashicorp_vault is defined %}
+storage = "hashicorp_vault"
+read_path = "{{ guardian_key_storage.hashicorp_vault.approle_path_reader }}"
+write_path = "{{ guardian_key_storage.hashicorp_vault.approle_path_writer }}"
+base_url = "{{ guardian_key_storage.hashicorp_vault.vault_url }}"
+vault_cert_path = "{{ guardian_key_storage.hashicorp_vault.vault_tls_client_ca }}"
+secret_mount_path = "{{ guardian_key_storage.hashicorp_vault.secret_mount_path }}"
+token_renew_seconds = {{ guardian_key_storage.hashicorp_vault.approle_token_renew_seconds | int }}
+
+access_log_filename = "{{ guardian_key_storage.hashicorp_vault.access_log_filename }}"
+{% endif %}
+
+
+
+[manager]
+num_workers = {{ guardian_config_manager.num_workers | int }}
+max_active_triple_jobs = {{ guardian_config_manager.max_active_triple_jobs | int }}
+num_triples_to_cache = {{ guardian_config_manager.num_triples_to_cache | int }}
+
+public_shares_path = "{{ guardian_config_manager.public_shares_path }}"
+cached_triples_path = "{{ guardian_config_manager.cached_triples_path }}"
