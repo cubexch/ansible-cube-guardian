@@ -1,0 +1,7 @@
+collections:
+  - community.hashi_vault
+  - cubexch.guardian
+
+roles:
+  - name: geerlingguy.swap
+  - name: geerlingguy.certbot

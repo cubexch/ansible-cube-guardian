@@ -1,0 +1,14 @@
+- name: Deploy Guardian
+  hosts: example_guardian_group
+  gather_facts: false
+  become: true
+  become_user: root
+  pre_tasks:
+    - name: Gather OS Family
+      ansible.builtin.setup:
+        gather_subset:
+          - os_family
+  roles:
+    - cubexch.guardian.guardian_vault_config
+    - geerlingguy.certbot
+    - cubexch.guardian.guardian

@@ -1,0 +1,20 @@
+cube_vault_configs_dir: /opt/example-guardian-1-vault-configs
+cube_vault_auth_token: "{{ cube_vault_auth_token_vault }}"
+
+vault_ca_cert: "/tmp/vault-tls2489470720/vault-ca.pem"
+vault_url: "https://127.0.0.1:8200"
+
+vault_policy_generate: true
+vault_policy_deploy: true
+vault_secrets_engine_deploy: true
+vault_approle_enable: true
+vault_approle_retrieve: true
+
+guardian_instances:
+  - guardian_hostname: example-guardian-1
+    guardian_id: 204
+
+guardian_secret_mount_path_prefix: "cube-guardian"
+guardian_token_ttl: "72h"
+guardian_secret_id_bound_cidrs: "127.0.0.0/24"
+guardian_token_bound_cidrs: "127.0.0.0/24"

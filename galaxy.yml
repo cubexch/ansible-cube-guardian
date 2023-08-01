@@ -1,6 +1,6 @@
-namespace: cube_exchange
+namespace: cubexch
 name: guardian
-version: 0.0.1
+version: 1.0.0
 description: Cube Exchange Guardian Collection
 
 repository: https://github.com/cubexch/ansible-cube-guardian
@@ -43,4 +43,9 @@ dependencies: {}
 # artifact. A pattern is matched from the relative path of the file or directory of the collection directory. This
 # uses 'fnmatch' to match the files or directories. Some directories and files like 'galaxy.yml', '*.pyc', '*.retry',
 # and '.git' are always filtered
-build_ignore: []
+build_ignore:
+- "**/.ansible-galaxy-collections"
+- "**/.ansible-galaxy-roles"
+- "**/*.key"
+- ".tmp"
+- ".vscode"

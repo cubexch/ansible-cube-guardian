@@ -1,2 +1,6 @@
-**/.tmp/*
+**/.tmp
 *.tar.gz
+**/.ansible-galaxy-collections
+**/.ansible-galaxy-roles
+**/*.key
+.vscode

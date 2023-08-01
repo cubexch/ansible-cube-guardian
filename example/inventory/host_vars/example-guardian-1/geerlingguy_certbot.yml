@@ -1,0 +1,14 @@
+certbot_admin_email: rdavis@cube.xyz
+
+certbot_install_method: package
+certbot_auto_renew: true
+certbot_auto_renew_user: 'root'
+certbot_auto_renew_hour: '{{ 24 | random(seed=guardian_instance.public_fqdn) }}'
+certbot_auto_renew_minute: '{{ 60 | random(seed=guardian_instance.public_fqdn) }}'
+certbot_auto_renew_options: '--quiet'
+
+certbot_create_if_missing: true
+certbot_create_method: standalone
+certbot_certs:
+  - domains:
+      - '{{ guardian_instance.public_fqdn }}'

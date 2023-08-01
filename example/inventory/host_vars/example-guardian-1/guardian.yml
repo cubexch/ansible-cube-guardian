@@ -1,0 +1,30 @@
+# guardian_service_state: stopped
+guardian_access_token: "{{ guardian_access_token_vault }}"
+
+guardian_instance:
+  guardian_id: 204
+  public_fqdn: example-guardian-1.testing.cube.exchange
+
+guardian_approle_copy_remote_src: /opt/example-guardian-1-vault-configs
+
+guardian_key_storage:
+  hashicorp_vault:
+    secret_mount_path: "cube-guardian/guardian-{{ guardian_instance.guardian_id }}"
+    approle_path_reader: "{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.reader.json"
+    approle_path_writer: "{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.writer.json"
+    approle_token_renew_seconds: 3600
+    vault_url: "https://127.0.0.1:8200"
+    vault_tls_client_ca_filename: "vault-ca.pem"
+    vault_tls_client_ca_remote_source_dir: "/tmp/vault-tls2489470720"
+    # vault_tls_client_ca_local_source_dir: "{{ inventory_dir }}/../.tmp/vault-certs"
+    access_log_filename: "access.json"
+
+# # guardian_listen_node_interface: "{{ ansible_default_ipv4.interface }}"
+# guardian_listen_node_interface: enp1s0
+# guardian_listen_node_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_node_interface]['ipv4']['address'] }}"
+guardian_listen_node_port: 20104
+
+# # guardian_listen_web_interface: "{{ ansible_default_ipv4.interface }}"
+# guardian_listen_web_interface: enp1s0
+# guardian_listen_web_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_web_interface]['ipv4']['address'] }}"
+guardian_listen_web_port: 443
