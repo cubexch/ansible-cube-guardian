@@ -456,21 +456,26 @@ The list of roles can be adjusted if not all are desired.
 ansible-playbook -i ./inventory/hosts-example.ini playbooks/deploy_guardian.yml --diff -v
 ```
 
+If the Guardian service fails to start, please refer to [1.5. FAQ](#15-faq)
+
 ### 1.4.15. Verify inbound connectivity to your Guardian Node
 
 ```bash
 nc -vz -w 10 example-guardian-1.testing.cube.exchange 20104
-Connection to example-guardian-1.testing.cube.exchange port 20104 [tcp/*] succeeded!
+# Example Output
+# Connection to example-guardian-1.testing.cube.exchange port 20104 [tcp/*] succeeded!
 
 nc -vz -w 10 example-guardian-1.testing.cube.exchange 443
-Connection to example-guardian-1.testing.cube.exchange port 443 [tcp/https] succeeded!
+# Example Output
+# Connection to example-guardian-1.testing.cube.exchange port 443 [tcp/https] succeeded!
 ```
 
 ### 1.4.16. Verify your Guardian Certificate has the expected CN
 
 ```bash
 openssl s_client -showcerts -connect example-guardian-1.testing.cube.exchange:443 </dev/null 2>/dev/null | grep s:CN
- 0 s:CN = example-guardian-1.testing.cube.exchange
+# Example Output
+#  0 s:CN = example-guardian-1.testing.cube.exchange
 ```
 
 - The `CN` of the certificate should match your entry in `public_guardian_list` at [roles/guardian/defaults/main.yml](roles/guardian/defaults/main.yml).
