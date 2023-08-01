@@ -7,33 +7,36 @@
     - [1.1.3. Public Guardian List Approval](#113-public-guardian-list-approval)
   - [1.2. Conventions](#12-conventions)
   - [1.3. Usage Guide](#13-usage-guide)
-    - [1.3.1. Configure your virtual environment.](#131-configure-your-virtual-environment)
-    - [1.3.2. Install pip \& Ansible Galaxy requirements inside `cube-guardian` virtual environment.](#132-install-pip--ansible-galaxy-requirements-inside-cube-guardian-virtual-environment)
-    - [1.3.3. Create the `.ansible-vault.key` file to contain your Ansible Vault password.](#133-create-the-ansible-vaultkey-file-to-contain-your-ansible-vault-password)
-    - [1.3.4. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`](#134-create-ansiblecfg-and-set-the-vault_password_file-to-ansible-vaultkey)
-    - [1.3.5. Create an Ansible inventory for your Guardian node.](#135-create-an-ansible-inventory-for-your-guardian-node)
-    - [1.3.6. Create `host_vars` for the `geerlingguy.swap` role:](#136-create-host_vars-for-the-geerlingguyswap-role)
-    - [1.3.7. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:](#137-optional-create-host_vars-for-the-geerlingguycertbot-role)
-    - [1.3.8. Create `host_vars` for your sensitive Guardian Vault Configuration](#138-create-host_vars-for-your-sensitive-guardian-vault-configuration)
-    - [1.3.9. Create `host_vars` for your non-sensitive Guardian Vault Configuration](#139-create-host_vars-for-your-non-sensitive-guardian-vault-configuration)
-    - [1.3.10. Create `host_vars` for your sensitive Guardian Node Configuration](#1310-create-host_vars-for-your-sensitive-guardian-node-configuration)
-    - [1.3.11. Let's just double check that we have all the ansible-vault files encrypted:](#1311-lets-just-double-check-that-we-have-all-the-ansible-vault-files-encrypted)
-    - [1.3.12. Create `host_vars` for your non-sensitive Guardian Node Configuration](#1312-create-host_vars-for-your-non-sensitive-guardian-node-configuration)
-    - [1.3.13. Create an Ansible playbook to deploy](#1313-create-an-ansible-playbook-to-deploy)
-    - [1.3.14. Run the playbook to configure the Guardian Node](#1314-run-the-playbook-to-configure-the-guardian-node)
-    - [1.3.15. Verify inbound connectivity to your Guardian Node](#1315-verify-inbound-connectivity-to-your-guardian-node)
-    - [1.3.16. Verify your Guardian Certificate has the expected CN](#1316-verify-your-guardian-certificate-has-the-expected-cn)
-  - [1.4. FAQ](#14-faq)
-    - [1.4.1. How can I check the status of the Guardian service?](#141-how-can-i-check-the-status-of-the-guardian-service)
-    - [1.4.2. How can I check the deployed configuration?](#142-how-can-i-check-the-deployed-configuration)
-    - [1.4.3. How can I view the Guardian logs?](#143-how-can-i-view-the-guardian-logs)
-    - [1.4.4. Example Log Messages](#144-example-log-messages)
-      - [1.4.4.1. Successful Guardian Connection to Hashicorp Vault](#1441-successful-guardian-connection-to-hashicorp-vault)
-      - [1.4.4.2. Successful Guardian Key Initialization](#1442-successful-guardian-key-initialization)
-      - [1.4.4.3. Successful Guardian Peer Connection](#1443-successful-guardian-peer-connection)
-      - [1.4.4.4. Successful User Key Generation](#1444-successful-user-key-generation)
-      - [1.4.4.5. Failed Peer Connection - Received Invalid TLS Certificate Name](#1445-failed-peer-connection---received-invalid-tls-certificate-name)
-      - [1.4.4.6. Other Errors](#1446-other-errors)
+  - [1.4. Hashicorp Vault _**TESTING**_](#14-hashicorp-vault-testing)
+    - [1.4.1. Install Hashicorp Vault for _**TESTING**_](#141-install-hashicorp-vault-for-testing)
+    - [1.4.2. Start Hashicorp Vault for _**TESTING**_](#142-start-hashicorp-vault-for-testing)
+    - [1.4.3. Configure your virtual environment.](#143-configure-your-virtual-environment)
+    - [1.4.4. Install pip \& Ansible Galaxy requirements inside `cube-guardian` virtual environment.](#144-install-pip--ansible-galaxy-requirements-inside-cube-guardian-virtual-environment)
+    - [1.4.5. Create the `.ansible-vault.key` file to contain your Ansible Vault password.](#145-create-the-ansible-vaultkey-file-to-contain-your-ansible-vault-password)
+    - [1.4.6. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`](#146-create-ansiblecfg-and-set-the-vault_password_file-to-ansible-vaultkey)
+    - [1.4.7. Create an Ansible inventory for your Guardian node.](#147-create-an-ansible-inventory-for-your-guardian-node)
+    - [1.4.8. Create `host_vars` for the `geerlingguy.swap` role:](#148-create-host_vars-for-the-geerlingguyswap-role)
+    - [1.4.9. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:](#149-optional-create-host_vars-for-the-geerlingguycertbot-role)
+    - [1.4.10. Create `host_vars` for your sensitive Guardian Vault Configuration](#1410-create-host_vars-for-your-sensitive-guardian-vault-configuration)
+    - [1.4.11. Create `host_vars` for your non-sensitive Guardian Vault Configuration](#1411-create-host_vars-for-your-non-sensitive-guardian-vault-configuration)
+    - [1.4.12. Create `host_vars` for your sensitive Guardian Node Configuration](#1412-create-host_vars-for-your-sensitive-guardian-node-configuration)
+    - [1.4.13. Let's just double check that we have all the ansible vault files encrypted:](#1413-lets-just-double-check-that-we-have-all-the-ansible-vault-files-encrypted)
+    - [1.4.14. Create `host_vars` for your non-sensitive Guardian Node Configuration](#1414-create-host_vars-for-your-non-sensitive-guardian-node-configuration)
+    - [1.4.15. Create an Ansible playbook to deploy](#1415-create-an-ansible-playbook-to-deploy)
+    - [1.4.16. Run the playbook to configure the Guardian Node](#1416-run-the-playbook-to-configure-the-guardian-node)
+    - [1.4.17. Verify inbound connectivity to your Guardian Node](#1417-verify-inbound-connectivity-to-your-guardian-node)
+    - [1.4.18. Verify your Guardian Certificate has the expected CN](#1418-verify-your-guardian-certificate-has-the-expected-cn)
+  - [1.5. FAQ](#15-faq)
+    - [1.5.1. How can I check the status of the Guardian service?](#151-how-can-i-check-the-status-of-the-guardian-service)
+    - [1.5.2. How can I check the deployed configuration?](#152-how-can-i-check-the-deployed-configuration)
+    - [1.5.3. How can I view the Guardian logs?](#153-how-can-i-view-the-guardian-logs)
+    - [1.5.4. Example Log Messages](#154-example-log-messages)
+      - [1.5.4.1. Successful Guardian Connection to Hashicorp Vault](#1541-successful-guardian-connection-to-hashicorp-vault)
+      - [1.5.4.2. Successful Guardian Key Initialization](#1542-successful-guardian-key-initialization)
+      - [1.5.4.3. Successful Guardian Peer Connection](#1543-successful-guardian-peer-connection)
+      - [1.5.4.4. Successful User Key Generation](#1544-successful-user-key-generation)
+      - [1.5.4.5. Failed Peer Connection - Received Invalid TLS Certificate Name](#1545-failed-peer-connection---received-invalid-tls-certificate-name)
+      - [1.5.4.6. Other Errors](#1546-other-errors)
 
 ## 1.1. Requirements
 
@@ -41,6 +44,7 @@
 
 - 1x Guardian Server
   - Minimum Recommended Spec:
+    - OS: Ubuntu 20.04
     - CPU: 24 core
     - MEM: 64gb
     - DISK: 1TB NVME SSD
@@ -104,7 +108,80 @@ View the public list of Guardians at `public_guardian_list` in [roles/guardian/d
 >
 > As an option, you can use Python 3.8.10 within a `pyenv` virtual environment. Please refer to the [PyEnv Installation Guide](https://github.com/pyenv/pyenv#installation) for detailed instructions.
 
-### 1.3.1. Configure your virtual environment.
+## 1.4. Hashicorp Vault _**TESTING**_
+
+If you would like to setup a _**DEV**_ instance of Hashicorp Vault to test the Guardian deployment process, you can install Hashicorp Vault and run it with the `-dev-tls` option to create an in-memory instance.
+
+### 1.4.1. Install Hashicorp Vault for _**TESTING**_
+
+```bash
+# ssh to your Guardian Server
+
+# Add Hashicorp Vault apt repo
+# REF: https://www.hashicorp.com/official-packaging-guide
+sudo apt update && sudo apt install gpg
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+# Install Vault
+sudo apt update && sudo apt install vault
+```
+
+### 1.4.2. Start Hashicorp Vault for _**TESTING**_
+
+```bash
+# Start vault in DEV-TLS mode
+vault server -dev-tls
+
+### Example Output
+==> Vault server configuration:
+
+Administrative Namespace:
+             Api Address: https://127.0.0.1:8200
+                     Cgo: disabled
+         Cluster Address: https://127.0.0.1:8201
+   Environment Variables: DBUS_SESSION_BUS_ADDRESS, GODEBUG, GOTRACEBACK, HOME, LANG, LESSCLOSE, LESSOPEN, LOGNAME, LS_COLORS, MOTD_SHOWN, PATH, PWD, SHELL, SHLVL, SSH_CLIENT, SSH_CONNECTION, SSH_TTY, TERM, USER, XDG_DATA_DIRS, XDG_RUNTIME_DIR, XDG_SESSION_CLASS, XDG_SESSION_ID, XDG_SESSION_TYPE, _
+              Go Version: go1.20.5
+              Listener 1: tcp (addr: "127.0.0.1:8200", cluster address: "127.0.0.1:8201", max_request_duration: "1m30s", max_request_size: "33554432", tls: "enabled")
+               Log Level:
+                   Mlock: supported: true, enabled: false
+           Recovery Mode: false
+                 Storage: inmem
+                 Version: Vault v1.14.1, built 2023-07-21T10:15:14Z
+             Version Sha: bf23fe8636b04d554c0fa35a756c75c2f59026c0
+
+==> Vault server started! Log data will stream in below:
+
+...
+...
+...
+
+WARNING! dev mode is enabled! In this mode, Vault runs entirely in-memory
+and starts unsealed with a single unseal key. The root token is already
+authenticated to the CLI, so you can immediately begin using Vault.
+
+You may need to set the following environment variables:
+
+    $ export VAULT_ADDR='https://127.0.0.1:8200'
+    $ export VAULT_CACERT='/tmp/vault-tls4054009470/vault-ca.pem'
+
+
+The unseal key and root token are displayed below in case you want to
+seal/unseal the Vault or re-authenticate.
+
+Unseal Key: mn+seO/gqqIxh9naIr6rAkPkppEByJGceqo+jygijUo=
+Root Token: hvs.TG34CH1tc3fwd5GwfWdTa3Ta
+
+Development mode should NOT be used in production installations!
+```
+
+The key pieces of information from the output are the `VAULT_ADDR`, `VAULT_CACERT`, and `Root Token`. You can use these values to update their corresponding ansible inventory variables in the following steps.
+
+- `VAULT_ADDR='https://127.0.0.1:8200'` ->
+- `VAULT_CACERT='/tmp/vault-tls4054009470/vault-ca.pem'` ->
+- `Root Token: hvs.TG34CH1tc3fwd5GwfWdTa3Ta` ->
+
+### 1.4.3. Configure your virtual environment.
 
 1.  If you'd like to use `pyenv`
 
@@ -115,6 +192,11 @@ View the public list of Guardians at `public_guardian_list` in [roles/guardian/d
 
     # Get pyenv with automatic installer
     curl https://pyenv.run | bash
+
+    # Activate pyenv according to installer output
+    export PYENV_ROOT="$HOME/.pyenv"
+    command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
 
     # Setup pyenv and pyenv virtual environment
     pyenv install 3.8.10
@@ -131,14 +213,14 @@ View the public list of Guardians at `public_guardian_list` in [roles/guardian/d
     cd example
     ```
 
-### 1.3.2. Install pip & Ansible Galaxy requirements inside `cube-guardian` virtual environment.
+### 1.4.4. Install pip & Ansible Galaxy requirements inside `cube-guardian` virtual environment.
 
 ```bash
 pip install -r requirements.txt
 ansible-galaxy install -r requirements.yml --force
 ```
 
-### 1.3.3. Create the `.ansible-vault.key` file to contain your Ansible Vault password.
+### 1.4.5. Create the `.ansible-vault.key` file to contain your Ansible Vault password.
 
 `.ansible-vault.key`
 
@@ -146,7 +228,7 @@ ansible-galaxy install -r requirements.yml --force
 my_secret_ansible_vault_password
 ```
 
-### 1.3.4. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`
+### 1.4.6. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`
 
 ```ini
 [defaults]
@@ -160,7 +242,7 @@ retries = 3
 pipelining = true
 ```
 
-### 1.3.5. Create an Ansible inventory for your Guardian node.
+### 1.4.7. Create an Ansible inventory for your Guardian node.
 
 `inventory/hosts-example.ini`
 
@@ -179,7 +261,7 @@ ansible all -i inventory/hosts-example.ini -m ping --one-line
 example-guardian-1 | SUCCESS => {"ansible_facts": {"discovered_interpreter_python": "/usr/bin/python3"},"changed": false,"ping": "pong"}
 ```
 
-### 1.3.6. Create `host_vars` for the `geerlingguy.swap` role:
+### 1.4.8. Create `host_vars` for the `geerlingguy.swap` role:
 
 > It is strongly recommended to disable swap on both the Guardian _**and**_ all of your Vault Cluster Nodes
 
@@ -189,7 +271,7 @@ example-guardian-1 | SUCCESS => {"ansible_facts": {"discovered_interpreter_pytho
 swap_file_state: absent
 ```
 
-### 1.3.7. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:
+### 1.4.9. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:
 
 Unless you are providing your own public SSL certificates, use the recommended configurations below:
 
@@ -216,9 +298,9 @@ certbot_certs:
       - '{{ guardian_instance.public_fqdn }}'
 ```
 
-### 1.3.8. Create `host_vars` for your sensitive Guardian Vault Configuration
+### 1.4.10. Create `host_vars` for your sensitive Guardian Vault Configuration
 
-`inventory/host_vars/example-guardian-1/guardian_vault_config.ansible-vault.yml`
+`inventory/host_vars/example-guardian-1/guardian_vault_config.ansible_vault.yml`
 
 ```yml
 # Update the Vault Auth Token to use for deploying configurations to your Vault cluster
@@ -227,10 +309,10 @@ cube_vault_auth_token_vault: 'hvs.my_vault_auth_token'
 
 ```bash
 # Use ansible-vault to encrypt the contents of this sensitive configuration file
-ansible-vault encrypt inventory/host_vars/example-guardian-1/guardian_vault_config.ansible-vault.yml
+ansible-vault encrypt inventory/host_vars/example-guardian-1/guardian_vault_config.ansible_vault.yml
 ```
 
-### 1.3.9. Create `host_vars` for your non-sensitive Guardian Vault Configuration
+### 1.4.11. Create `host_vars` for your non-sensitive Guardian Vault Configuration
 
 `inventory/host_vars/example-guardian-1/guardian_vault_config.yml`
 
@@ -266,79 +348,81 @@ vault_approle_enable: true
 vault_approle_retrieve: true
 ```
 
-### 1.3.10. Create `host_vars` for your sensitive Guardian Node Configuration
+### 1.4.12. Create `host_vars` for your sensitive Guardian Node Configuration
 
-    `inventory/host_vars/example-guardian-1/guardian.ansible-vault.yml`
+`inventory/host_vars/example-guardian-1/guardian.ansible_vault.yml`
 
-    ```yml
-    guardian_access_token_vault: 'your_secret_guardian_access_token'
-    ```
+```yml
+# Use a secure password to control access to the Guardian Admin Interface
+# i.e. openssl rand -hex 32
+guardian_access_token_vault: 'my_guardian_access_token'
+```
 
-    ```bash
-    # Use ansible-vault to encrypt the contents of this sensitive configuration file
-    ansible-vault encrypt inventory/host_vars/example-guardian-1/guardian.ansible-vault.yml
-    ```
+```bash
+# Use ansible-vault to encrypt the contents of this sensitive configuration file
+ansible-vault encrypt inventory/host_vars/example-guardian-1/guardian.ansible_vault.yml
+```
 
-### 1.3.11. Let's just double check that we have all the ansible-vault files encrypted:
+### 1.4.13. Let's just double check that we have all the ansible vault files encrypted:
 
-    ```bash
-    for f in $(find inventory/ -type f -name "*.ansible-vault.yml") ;do ansible-vault encrypt $f ;done
-    ```
+```bash
+for f in $(find inventory/ -type f -name "*.ansible_vault.yml") ;do ansible-vault encrypt $f ;done
+```
 
-### 1.3.12. Create `host_vars` for your non-sensitive Guardian Node Configuration
+### 1.4.14. Create `host_vars` for your non-sensitive Guardian Node Configuration
 
-    `inventory/host_vars/example-guardian-1/guardian.yml`
+`inventory/host_vars/example-guardian-1/guardian.yml`
 
-    ```yml
-    # Update the guardian_id to match the Guardian ID number assigned to you by Cube.Exchange
-    # Update the public_fqdn to match the publicly available DNS name where your Guardian can be reached.
-    guardian_instance:
-      guardian_id: 204
-      public_fqdn: example-guardian-1.testing.cube.exchange
+```yml
+# Update the guardian_id to match the Guardian ID number assigned to you by Cube.Exchange
+# Update the public_fqdn to match the publicly available DNS name where your Guardian can be reached.
+guardian_instance:
+  guardian_id: 204
+  public_fqdn: example-guardian-1.testing.cube.exchange
 
-    # Update the Vault URL and vault_tls_client_ca_* to match your Vault cluster
-    # - If the vault_tls_client_ca_filename already exists on the Guardian Node, you can specify vault_tls_client_ca_remote_source_dir and it will be copied to the Guardian Config location
-    # - If the vault_tls_client_ca_filename is located on your ansible control machine, you can specify vault_tls_client_ca_local_source_dir and it will be copied to the Guardian Node and saved in the Guardian Config location
-    guardian_key_storage:
-      hashicorp_vault:
-        vault_url: 'https://127.0.0.1:8200'
-        vault_tls_client_ca_filename: 'vault-ca.pem'
-        vault_tls_client_ca_remote_source_dir: '/tmp/vault-tls2489470720'
-        # vault_tls_client_ca_local_source_dir: "{{ inventory_dir }}/../.tmp/vault-certs"
-        secret_mount_path: 'cube-guardian/guardian-{{ guardian_instance.guardian_id }}'
-        approle_path_reader: '{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.reader.json'
-        approle_path_writer: '{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.writer.json'
-        approle_token_renew_seconds: 3600
-        access_log_filename: 'access.json'
+# Update the Vault URL and vault_tls_client_ca_* to match your Vault cluster
+# - If the vault_tls_client_ca_filename already exists on the Guardian Node, you can specify vault_tls_client_ca_remote_source_dir and it will be copied to the Guardian Config location
+# - If the vault_tls_client_ca_filename is located on your ansible control machine, you can specify vault_tls_client_ca_local_source_dir and it will be copied to the Guardian Node and saved in the Guardian Config location
+guardian_key_storage:
+  hashicorp_vault:
+    vault_url: 'https://127.0.0.1:8200'
+    vault_tls_client_ca_filename: 'vault-ca.pem'
+    vault_tls_client_ca_remote_source_dir: '/tmp/vault-tls2489470720'
+    # vault_tls_client_ca_local_source_dir: "{{ inventory_dir }}/../.tmp/vault-certs"
+    secret_mount_path: 'cube-guardian/guardian-{{ guardian_instance.guardian_id }}'
+    approle_path_reader: '{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.reader.json'
+    approle_path_writer: '{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.writer.json'
+    approle_token_renew_seconds: 3600
+    access_log_filename: 'access.json'
 
-    # The Guardian will be configured to listen on the default port of 9420 for node-to-node communication.
-    # You can use the settings below to use a different interface if needed:
-    guardian_listen_node_port: 20104
+# The Guardian will be configured to listen on the default port of 9420 for node-to-node communication.
+# You can use the settings below to use a different interface if needed:
+guardian_listen_node_port: 20104
 
-    # If you would like Ansible to automatically create an iptables rule to allow the node-to-node traffic, set to guardian_listen_node_port_open_iptables: true
-    guardian_listen_node_port_open_iptables: true
+# If you would like Ansible to automatically create an iptables rule to allow the node-to-node traffic, set to guardian_listen_node_port_open_iptables: true
+guardian_listen_node_port_open_iptables: true
 
-    # The Guardian will be configured to listen on the default port of 443 for end user web communication (i.e. emergency withdrawals).
-    # It is strongly recommended that you do not change the default port of 443 in order to ensure that end users don't have any challenges accessing the Guardian instance if needed.
-    guardian_listen_web_port: 443
+# The Guardian will be configured to listen on the default port of 443 for end user web communication (i.e. emergency withdrawals).
+# It is strongly recommended that you do not change the default port of 443 in order to ensure that end users don't have any challenges accessing the Guardian instance if needed.
+guardian_listen_web_port: 443
 
-    # If you would like Ansible to automatically create an iptables rule to allow the web traffic, set to guardian_listen_node_port_open_iptables: true
-    guardian_listen_web_port_open_iptables: true
+# If you would like Ansible to automatically create an iptables rule to allow the web traffic, set to guardian_listen_node_port_open_iptables: true
+guardian_listen_web_port_open_iptables: true
 
-    # The Guardian will be configured to listen on the default interface detected by ansible as the default listening IP.
-    # You can use the settings below to use a different interface for node-to-node or web communication if needed:
-    # # guardian_listen_node_interface: "{{ ansible_default_ipv4.interface }}"
-    # guardian_listen_node_interface: enp1s0
-    # guardian_listen_node_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_node_interface]['ipv4']['address'] }}"
-    # # guardian_listen_web_interface: "{{ ansible_default_ipv4.interface }}"
-    # guardian_listen_web_interface: enp1s0
-    # guardian_listen_web_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_web_interface]['ipv4']['address'] }}"
+# The Guardian will be configured to listen on the default interface detected by ansible as the default listening IP.
+# You can use the settings below to use a different interface for node-to-node or web communication if needed:
+# # guardian_listen_node_interface: "{{ ansible_default_ipv4.interface }}"
+# guardian_listen_node_interface: enp1s0
+# guardian_listen_node_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_node_interface]['ipv4']['address'] }}"
+# # guardian_listen_web_interface: "{{ ansible_default_ipv4.interface }}"
+# guardian_listen_web_interface: enp1s0
+# guardian_listen_web_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_web_interface]['ipv4']['address'] }}"
 
-    guardian_approle_copy_remote_src: '{{ cube_vault_configs_dir }}' # References value defined in guardian_vault_config.yml for clarity
-    guardian_access_token: '{{ guardian_access_token_vault }}' # References value defined in guardian.ansible-vault.yml for clarity
-    ```
+guardian_approle_copy_remote_src: '{{ cube_vault_configs_dir }}' # References value defined in guardian_vault_config.yml for clarity
+guardian_access_token: '{{ guardian_access_token_vault }}' # References value defined in guardian.ansible_vault.yml for clarity
+```
 
-### 1.3.13. Create an Ansible playbook to deploy
+### 1.4.15. Create an Ansible playbook to deploy
 
 The list of roles can be adjusted if not all are desired.
 
@@ -365,13 +449,13 @@ The list of roles can be adjusted if not all are desired.
     - cubexch.guardian.guardian
 ```
 
-### 1.3.14. Run the playbook to configure the Guardian Node
+### 1.4.16. Run the playbook to configure the Guardian Node
 
 ```bash
 ansible-playbook -i ./inventory/hosts-example.ini playbooks/deploy_guardian.yml --diff -v
 ```
 
-### 1.3.15. Verify inbound connectivity to your Guardian Node
+### 1.4.17. Verify inbound connectivity to your Guardian Node
 
 ```bash
 nc -vz -w 10 example-guardian-1.testing.cube.exchange 20104
@@ -381,7 +465,7 @@ nc -vz -w 10 example-guardian-1.testing.cube.exchange 443
 Connection to example-guardian-1.testing.cube.exchange port 443 [tcp/https] succeeded!
 ```
 
-### 1.3.16. Verify your Guardian Certificate has the expected CN
+### 1.4.18. Verify your Guardian Certificate has the expected CN
 
 ```bash
 openssl s_client -showcerts -connect example-guardian-1.testing.cube.exchange:443 </dev/null 2>/dev/null | grep s:CN
@@ -420,9 +504,9 @@ openssl s_client -showcerts -connect example-guardian-1.testing.cube.exchange:44
   tls_name = "example-guardian-2.testing.cube.exchange"
   ```
 
-## 1.4. FAQ
+## 1.5. FAQ
 
-### 1.4.1. How can I check the status of the Guardian service?
+### 1.5.1. How can I check the status of the Guardian service?
 
 The Ansible role deploys the Guardian service as a systemd service named `guardian-{{ your_guardian_id }}`.
 
@@ -449,7 +533,7 @@ Aug 01 14:46:06 example-guardian-1 systemd[1]: Starting "Cube Guardian - 204"...
 Aug 01 14:46:19 example-guardian-1 systemd[1]: Started "Cube Guardian - 204".
 ```
 
-### 1.4.2. How can I check the deployed configuration?
+### 1.5.2. How can I check the deployed configuration?
 
 - Guardian configuration files are stored in `/opt/cube-guardian-{{ your_guardian_id }}/config` by default
 - Environment variables required by the Guardian service are in `guardian-{{ your_guardian_id }}.service.env`
@@ -471,7 +555,7 @@ drwxr-x--- 4 cube-guardian-204 cube-guardian-204 4096 Aug  1 14:45 ../
 -rw------- 1 cube-guardian-204 cube-guardian-204  114 Aug  1 14:45 vault.guardian.example-guardian-1.writer.json
 ```
 
-### 1.4.3. How can I view the Guardian logs?
+### 1.5.3. How can I view the Guardian logs?
 
 - Logs are written to `/var/log/cube-guardian-{{ your_guardian_id }}` by default.
 - The `aurum.log.*` file is the primary application log.
@@ -489,16 +573,16 @@ drwxrwxr-x 10 root              syslog             4096 Aug  1 14:45 ../
 -rw-r--r--  1 cube-guardian-204 cube-guardian-204     0 Aug  1 14:46 metrics.log.2023-08-01
 ```
 
-### 1.4.4. Example Log Messages
+### 1.5.4. Example Log Messages
 
-#### 1.4.4.1. Successful Guardian Connection to Hashicorp Vault
+#### 1.5.4.1. Successful Guardian Connection to Hashicorp Vault
 
 ```bash
 2023-08-01T14:46:07.023501Z  INFO cube_key_store::hashicorp_vault: login auth {"request_id":"20cd2583-7b8c-2ba2-53ef-1c12b6597344","auth":{"policies":["default","vault.guardian.204.writer.policy"],"token_policies":["default","vault.guardian.204.writer.policy"],"metadata":{"role_name":"cube-guardian-204.writer"}}}
 2023-08-01T14:46:07.023757Z  INFO cube_key_store::hashicorp_vault: login auth {"request_id":"c758de74-d71d-05e0-1d87-20a67931711b","auth":{"policies":["default","vault.guardian.204.reader.policy"],"token_policies":["default","vault.guardian.204.reader.policy"],"metadata":{"role_name":"cube-guardian-204.reader"}}}
 ```
 
-#### 1.4.4.2. Successful Guardian Key Initialization
+#### 1.5.4.2. Successful Guardian Key Initialization
 
 > The initial key generation process could take some time to complete.
 
@@ -507,7 +591,7 @@ drwxrwxr-x 10 root              syslog             4096 Aug  1 14:45 ../
 2023-08-01T14:42:18.109109Z  INFO cube_aurum::modules::manager: precomputing local key tables...
 ```
 
-#### 1.4.4.3. Successful Guardian Peer Connection
+#### 1.5.4.3. Successful Guardian Peer Connection
 
 ```bash
 2023-08-01T14:46:20.511870Z  INFO cube_aurum::modules::guardian_nodes: accepting connection from (token:5 id:203 address:guardian-203.testing.cube.exchange:20103)
@@ -517,7 +601,7 @@ drwxrwxr-x 10 root              syslog             4096 Aug  1 14:45 ../
 2023-08-01T15:52:38.255799Z  INFO cube_aurum::modules::manager: guardian=201: initialized keys
 ```
 
-#### 1.4.4.4. Successful User Key Generation
+#### 1.5.4.4. Successful User Key Generation
 
 ```bash
 2023-08-01T15:52:50.079367Z  INFO cube_aurum::modules::manager: job_id=56576470318841861 user_id=e480b799-0613-4fae-9ae1-3a49902d7d0e starting keygen
@@ -526,13 +610,13 @@ drwxrwxr-x 10 root              syslog             4096 Aug  1 14:45 ../
 2023-08-01T15:52:51.822734Z  INFO cube_aurum::modules::manager: generated user_id=e480b799-0613-4fae-9ae1-3a49902d7d0e subaccount_id=1 key_id=1690905169961379000 public_key=028c8b2bb57aadf893dc3f5e96e3fbd40e7f42572762bc720408c8f1a3813c7ddc
 ```
 
-#### 1.4.4.5. Failed Peer Connection - Received Invalid TLS Certificate Name
+#### 1.5.4.5. Failed Peer Connection - Received Invalid TLS Certificate Name
 
 ```bash
 2023-08-01T17:42:08.668311Z  WARN rustls::msgs::handshake: Illegal SNI hostname received "147.75.84.211"
 ```
 
-#### 1.4.4.6. Other Errors
+#### 1.5.4.6. Other Errors
 
 - Generally logs tagged as `ERROR` represent a failure that should be investigated.
 - Log messages for errors will typically include a descriptive message (and parameters if applicable) to indicate the source of the issue.
