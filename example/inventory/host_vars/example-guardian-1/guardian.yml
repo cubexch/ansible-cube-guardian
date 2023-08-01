@@ -23,8 +23,10 @@ guardian_key_storage:
 # guardian_listen_node_interface: enp1s0
 # guardian_listen_node_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_node_interface]['ipv4']['address'] }}"
 guardian_listen_node_port: 20104
+guardian_listen_node_port_open_iptables: true
 
 # # guardian_listen_web_interface: "{{ ansible_default_ipv4.interface }}"
 # guardian_listen_web_interface: enp1s0
 # guardian_listen_web_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_web_interface]['ipv4']['address'] }}"
 guardian_listen_web_port: 443
+guardian_listen_web_port_open_iptables: true
