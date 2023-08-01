@@ -1,0 +1,3 @@
+path "{{ guardian_secret_mount_path_prefix }}/guardian-{{ item.guardian_id }}/*" {
+  capabilities = ["read", "list"]
+}

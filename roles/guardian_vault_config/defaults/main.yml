@@ -1,0 +1,40 @@
+---
+# defaults file for guardian_vault_config
+
+vault_policy_generate: true
+# vault_policy_deploy: true
+# vault_secrets_engine_deploy: true
+# vault_approle_enable: true
+# vault_approle_retrieve: true
+
+cube_vault_configs_dir: /opt/my_cube_vault_configs_dir
+cube_vault_auth_token: "{{ cube_vault_auth_token_vault }}"
+# cube_vault_auth_token_vault: "my_cube_vault_auth_token_vault"
+
+vault_ca_cert: "/opt/my_vault_cluster_tls_client_ca.pem"
+vault_url: "https://my_vault_cluster_url.my_internal_fqdn:8200"
+
+guardian_instances:
+  - guardian_hostname: my_guardian_host
+    guardian_id: 204
+
+guardian_secret_mount_path_prefix: "cube-guardian"
+guardian_token_ttl: "72h"
+guardian_secret_id_bound_cidrs: "127.0.0.0/24"
+guardian_token_bound_cidrs: "127.0.0.0/24"
+
+# monitor_instances:
+#   - guardian_hostname: cube_guardian_host
+#     guardian_id: 201
+
+# monitor_secret_mount_path_prefix: "cube-monitor"
+# monitor_token_ttl: "72h"
+# monitor_secret_id_bound_cidrs: "127.0.0.0/24"
+# monitor_token_bound_cidrs: "127.0.0.0/24"
+
+# monitor_fee_payer_btc: "{{ monitor_fee_payer_btc_vault | string }}"
+# # monitor_fee_payer_btc_vault: 'my_monitor_fee_payer_btc_vault_private_key'
+# monitor_fee_payer_eth: "{{ monitor_fee_payer_eth_vault | string }}"
+# # monitor_fee_payer_eth_vault: 'my_monitor_fee_payer_eth_vault_private_key'
+# monitor_fee_payer_cubenet: "{{ monitor_fee_payer_cubenet_vault | string }}"
+# # monitor_fee_payer_cubenet_vault: "my_monitor_fee_payer_cubenet_vault_private_key"

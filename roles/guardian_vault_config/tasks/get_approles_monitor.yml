@@ -1,0 +1,78 @@
+---
+# tasks file for get_approles_monitor
+
+- name: Get AppRole Role ID - Guardian Reader
+  no_log: true
+  community.hashi_vault.vault_read:
+    url: "{{ vault_url }}"
+    path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.reader/role-id"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  register: monitor_reader_role_id
+
+- name: Get AppRole Secret ID - Guardian Reader
+  no_log: true
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.reader/secret-id"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  register: monitor_reader_secret_id
+
+- name: Create Vault Reader JSON
+  no_log: true
+  ansible.builtin.set_fact:
+    monitor_reader_approle_credentials:
+      role_id: '{{ monitor_reader_role_id.data.data.role_id }}'
+      secret_id: '{{ monitor_reader_secret_id.data.data.secret_id }}'
+
+- name: Write AppRole Credentials
+  no_log: true
+  ansible.builtin.copy:
+    content: "{{ monitor_reader_approle_credentials | to_json(indent=4, sort_keys=true) }}"
+    dest: "{{ cube_vault_configs_dir }}/vault.monitor.{{ item.guardian_hostname }}.reader.json"
+    owner: "root"
+    group: "root"
+    mode: u=rw,go=-
+
+- name: Get AppRole Role ID - Guardian Writer
+  no_log: true
+  community.hashi_vault.vault_read:
+    url: "{{ vault_url }}"
+    path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.writer/role-id"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  register: monitor_writer_role_id
+
+- name: Get AppRole Secret ID - Guardian Reader
+  no_log: true
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.writer/secret-id"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  register: monitor_writer_secret_id
+
+- name: Create Vault Reader JSON
+  no_log: true
+  ansible.builtin.set_fact:
+    monitor_writer_approle_credentials:
+      role_id: '{{ monitor_writer_role_id.data.data.role_id }}'
+      secret_id: '{{ monitor_writer_secret_id.data.data.secret_id }}'
+
+- name: Write AppRole Credentials
+  no_log: true
+  ansible.builtin.copy:
+    content: "{{ monitor_writer_approle_credentials | to_json(indent=4, sort_keys=true) }}"
+    dest: "{{ cube_vault_configs_dir }}/vault.monitor.{{ item.guardian_hostname }}.writer.json"
+    owner: "root"
+    group: "root"
+    mode: u=rw,go=-

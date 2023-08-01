@@ -1,0 +1,424 @@
+---
+# tasks file for guardian_vault_config
+
+- name: Install python pip
+  ansible.builtin.apt:
+    name: python3-pip
+    state: present
+    cache_valid_time: 14400 # 4hrs
+  tags:
+    - install_prereqs
+
+- name: Install hvac pip library
+  ansible.builtin.pip:
+    name: hvac
+    state: present
+  tags:
+    - install_prereqs
+
+- name: Create Vault Config Dir
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: "u+rw,go=-"
+  with_items:
+    - "{{ cube_vault_configs_dir }}"
+  tags:
+    - generate_policy
+  when:
+    - vault_policy_generate | default('true') | bool == true
+
+- name: Generate Vault Policy Templates - Guardian Readers
+  ansible.builtin.template:
+    src: "vault.guardian.instance.reader.policy.hcl.j2"
+    dest: "{{ cube_vault_configs_dir }}/vault.guardian.{{ item.guardian_hostname }}.reader.policy.hcl"
+    owner: "root"
+    group: "root"
+    mode: u=rw,go=-
+  with_items:
+    - "{{ guardian_instances }}"
+  tags:
+    - generate_policy
+  when:
+    - vault_policy_generate | default('true') | bool == true
+
+- name: Get Policy File Contents - Guardian Readers
+  ansible.builtin.slurp:
+    src: "{{ cube_vault_configs_dir }}/vault.guardian.{{ item.guardian_hostname }}.reader.policy.hcl"
+  with_items:
+    - "{{ guardian_instances }}"
+  register: vault_policies_guardian_readers
+  tags:
+    - guardian_readers
+  when:
+    - vault_policy_deploy | default('false') | bool == true
+
+- name: Write Policies to Vault - Guardian Readers
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "sys/policies/acl/vault.guardian.{{ item.item.guardian_id }}.reader.policy"
+    data:
+      policy: "{{ item.content }}"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ vault_policies_guardian_readers.results }}"
+  tags:
+    - guardian_readers
+  when:
+    - vault_policy_deploy | default('false') | bool == true
+
+- name: Generate Vault Policy Templates - Guardian Writers
+  ansible.builtin.template:
+    src: "vault.guardian.instance.writer.policy.hcl.j2"
+    dest: "{{ cube_vault_configs_dir }}/vault.guardian.{{ item.guardian_hostname }}.writer.policy.hcl"
+    owner: "root"
+    group: "root"
+    mode: u=rw,go=-
+  with_items:
+    - "{{ guardian_instances }}"
+  tags:
+    - generate_policy
+  when:
+    - vault_policy_generate | default('true') | bool == true
+
+- name: Get Policy File Contents - Guardian Writers
+  ansible.builtin.slurp:
+    src: "{{ cube_vault_configs_dir }}/vault.guardian.{{ item.guardian_hostname }}.writer.policy.hcl"
+  with_items:
+    - "{{ guardian_instances }}"
+  register: vault_policies_guardian_writers
+  tags:
+    - guardian_writers
+  when:
+    - vault_policy_deploy | default('false') | bool == true
+
+- name: Write Policies to Vault - Guardian Writers
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "sys/policies/acl/vault.guardian.{{ item.item.guardian_id }}.writer.policy"
+    data:
+      policy: "{{ item.content }}"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ vault_policies_guardian_writers.results }}"
+  tags:
+    - guardian_writers
+  when:
+    - vault_policy_deploy | default('false') | bool == true
+
+- name: Generate Vault Policy Templates - Monitor Readers
+  ansible.builtin.template:
+    src: "vault.monitor.instance.reader.policy.hcl.j2"
+    dest: "{{ cube_vault_configs_dir }}/vault.monitor.{{ item.guardian_hostname }}.reader.policy.hcl"
+    owner: "root"
+    group: "root"
+    mode: u=rw,go=-
+  with_items:
+    - "{{ monitor_instances }}"
+  tags:
+    - generate_policy
+  when:
+    - monitor_instances is defined
+    - vault_policy_generate | default('true') | bool == true
+
+- name: Get Policy File Contents - Monitor Readers
+  ansible.builtin.slurp:
+    src: "{{ cube_vault_configs_dir }}/vault.monitor.{{ item.guardian_hostname }}.reader.policy.hcl"
+  with_items:
+    - "{{ monitor_instances }}"
+  register: vault_policies_monitor_readers
+  when:
+    - monitor_instances is defined
+    - vault_policy_deploy | default('false') | bool == true
+  tags:
+    - monitor_readers
+
+- name: Write Policies to Vault - Monitor Readers
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "sys/policies/acl/vault.monitor.{{ item.item.guardian_id }}.reader.policy"
+    data:
+      policy: "{{ item.content }}"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ vault_policies_monitor_readers.results }}"
+  when:
+    - monitor_instances is defined
+    - vault_policy_deploy | default('false') | bool == true
+  tags:
+    - monitor_readers
+
+- name: Generate Vault Policy Templates - Monitor Writers
+  ansible.builtin.template:
+    src: "vault.monitor.instance.writer.policy.hcl.j2"
+    dest: "{{ cube_vault_configs_dir }}/vault.monitor.{{ item.guardian_hostname }}.writer.policy.hcl"
+    owner: "root"
+    group: "root"
+    mode: u=rw,go=-
+  with_items:
+    - "{{ monitor_instances }}"
+  tags:
+    - generate_policy
+  when:
+    - monitor_instances is defined
+    - vault_policy_generate | default('true') | bool == true
+
+- name: Get Policy File Contents - Monitor Writers
+  ansible.builtin.slurp:
+    src: "{{ cube_vault_configs_dir }}/vault.monitor.{{ item.guardian_hostname }}.writer.policy.hcl"
+  with_items:
+    - "{{ monitor_instances }}"
+  register: vault_policies_monitor_writers
+  when:
+    - monitor_instances is defined
+    - vault_policy_deploy | default('false') | bool == true
+  tags:
+    - monitor_writers
+
+- name: Write Policies to Vault - Monitor Writers
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "sys/policies/acl/vault.monitor.{{ item.item.guardian_id }}.writer.policy"
+    data:
+      policy: "{{ item.content }}"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ vault_policies_monitor_writers.results }}"
+  when:
+    - monitor_instances is defined
+    - vault_policy_deploy | default('false') | bool == true
+  tags:
+    - monitor_writers
+
+- name: Enable Secrets Engine - Guardian
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "sys/mounts/{{ guardian_secret_mount_path_prefix }}/guardian-{{ item.guardian_id }}"
+    data:
+      type: 'kv'
+      description: 'Cube Exchange Secrets Engine - Guardian'
+      options:
+        version: 2
+      config:
+        max_versions: 0
+        cas_required: false
+        delete_version_after: '0s'
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ guardian_instances }}"
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  tags:
+    - enable_secrets_engine
+  when:
+    - vault_secrets_engine_deploy | default('false') | bool == true
+
+- name: Enable Secrets Engine - Monitor
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "sys/mounts/{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
+    data:
+      type: 'kv'
+      description: 'Cube Exchange Secrets Engine - Monitor'
+      options:
+        version: 2
+      config:
+        max_versions: 0
+        cas_required: false
+        delete_version_after: '0s'
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ monitor_instances }}"
+  tags:
+    - enable_secrets_engine
+  when:
+    - monitor_instances is defined
+    - vault_secrets_engine_deploy | default('false') | bool == true
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+
+- name: Enable AppRole Authentication
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "sys/auth/approle"
+    data:
+      type: 'approle'
+      description: 'Cube Exchange AppRole'
+      config:
+        default_lease_ttl: '0s'
+        max_lease_ttl: '0s'
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  tags:
+    - create_approle
+  when:
+    - vault_approle_enable | default('false') | bool == true
+
+- name: Create AppRole Role - Guardian Reader
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "auth/approle/role/cube-guardian-{{ item.guardian_id }}.reader"
+    data:
+      secret_id_bound_cidrs: "{{ guardian_secret_id_bound_cidrs }}"
+      token_bound_cidrs: "{{ guardian_token_bound_cidrs }}"
+      token_policies: "vault.guardian.{{ item.guardian_id }}.reader.policy"
+      token_ttl: "{{ guardian_token_ttl }}"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ guardian_instances }}"
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  tags:
+    - create_approle
+  when:
+    - vault_approle_enable | default('false') | bool == true
+
+- name: Create AppRole Role - Guardian Writer
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "auth/approle/role/cube-guardian-{{ item.guardian_id }}.writer"
+    data:
+      secret_id_bound_cidrs: "{{ guardian_secret_id_bound_cidrs }}"
+      token_bound_cidrs: "{{ guardian_token_bound_cidrs }}"
+      token_policies: "vault.guardian.{{ item.guardian_id }}.writer.policy"
+      token_ttl: "{{ guardian_token_ttl }}"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ guardian_instances }}"
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  tags:
+    - create_approle
+  when:
+    - vault_approle_enable | default('false') | bool == true
+
+- name: Create AppRole Role - Monitor Reader
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.reader"
+    data:
+      secret_id_bound_cidrs: "{{ monitor_secret_id_bound_cidrs }}"
+      token_bound_cidrs: "{{ monitor_token_bound_cidrs }}"
+      token_policies: "vault.monitor.{{ item.guardian_id }}.reader.policy"
+      token_ttl: "{{ monitor_token_ttl }}"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ monitor_instances }}"
+  when:
+    - monitor_instances is defined
+    - vault_approle_enable | default('false') | bool == true
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  tags:
+    - create_approle
+
+- name: Create AppRole Role - Monitor Writer
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.writer"
+    data:
+      secret_id_bound_cidrs: "{{ monitor_secret_id_bound_cidrs }}"
+      token_bound_cidrs: "{{ monitor_token_bound_cidrs }}"
+      token_policies: "vault.monitor.{{ item.guardian_id }}.writer.policy"
+      token_ttl: "{{ monitor_token_ttl }}"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ monitor_instances }}"
+  when:
+    - monitor_instances is defined
+    - vault_approle_enable | default('false') | bool == true
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  tags:
+    - create_approle
+
+- name: Get AppRole Credentials - Guardian
+  ansible.builtin.include_tasks: get_approles_guardian.yml
+  with_items:
+    - "{{ guardian_instances }}"
+  tags:
+    - retrieve_approle
+  when:
+    - vault_approle_retrieve | default('false') | bool == true
+
+- name: Get AppRole Credentials - Monitor
+  ansible.builtin.include_tasks: get_approles_monitor.yml
+  with_items:
+    - "{{ monitor_instances }}"
+  when:
+    - monitor_instances is defined
+    - vault_approle_retrieve | default('false') | bool == true
+  tags:
+    - retrieve_approle
+
+- name: Write Fee Payer - Cubenet
+  community.hashi_vault.vault_kv2_write:
+    url: "{{ vault_url }}"
+    engine_mount_point: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
+    path: fee-payer/cube-aurum
+    data:
+      value: "{{ monitor_fee_payer_cubenet | string }}"
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ monitor_instances }}"
+  when:
+    - monitor_instances is defined
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  tags:
+    - write_fee_payers
+
+- name: Write Fee Payer - BTC
+  community.hashi_vault.vault_kv2_write:
+    url: "{{ vault_url }}"
+    engine_mount_point: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
+    path: fee-payer/btc
+    data:
+      value: '{{ monitor_fee_payer_btc }}'
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ monitor_instances }}"
+  when:
+    - monitor_instances is defined
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  tags:
+    - write_fee_payers
+
+- name: Write Fee Payer - ETH
+  community.hashi_vault.vault_kv2_write:
+    url: "{{ vault_url }}"
+    engine_mount_point: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
+    path: fee-payer/eth
+    data:
+      value: '{{ monitor_fee_payer_eth }}'
+    auth_method: "token"
+    token: "{{ cube_vault_auth_token }}"
+    ca_cert: "{{ vault_ca_cert }}"
+  with_items:
+    - "{{ monitor_instances }}"
+  when:
+    - monitor_instances is defined
+  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  tags:
+    - write_fee_payers

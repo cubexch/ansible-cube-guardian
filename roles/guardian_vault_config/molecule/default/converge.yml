@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include guardian_vault_config"
+      include_role:
+        name: "guardian_vault_config"

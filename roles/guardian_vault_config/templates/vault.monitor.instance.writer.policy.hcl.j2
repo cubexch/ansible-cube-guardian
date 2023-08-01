@@ -1,0 +1,3 @@
+path "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}/*" {
+  capabilities = ["create", "read", "update", "patch", "delete", "list"]
+}
