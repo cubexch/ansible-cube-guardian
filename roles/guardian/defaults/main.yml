@@ -6,7 +6,7 @@ guardian_archive_name: aurum-{{ guardian_version }}.tar.gz
 guardian_bin_name: cube-aurum
 guardian_app_environment: production
 guardian_access_token: "{{ guardian_access_token_vault }}"
-# guardian_access_token_vault: "my_guardian_access_token_vault"
+# guardian_access_token_vault: "my_guardian_access_token"
 
 # rust_backtrace: "full"
 
@@ -33,7 +33,7 @@ public_guardian_list:
     public_fqdn: example-guardian-1.testing.cube.exchange
     public_port_node: 20104
     public_port_web: 443
-  - name: Cube Exchange Temp Guardian 204
+  - name: Cube Exchange Temp Guardian 205
     guardian_id: 205
     public_fqdn: example-guardian-2.testing.cube.exchange
     public_port_node: 20105
@@ -51,13 +51,13 @@ guardian_listen_node_interface: "{{ ansible_default_ipv4.interface }}"
 # guardian_listen_node_interface: enp2s0
 guardian_listen_node_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_node_interface]['ipv4']['address'] }}"
 guardian_listen_node_port: 9420
-guardian_listen_node_port_open_iptables: true
+# guardian_listen_node_port_open_iptables: true
 
 guardian_listen_web_interface: "{{ ansible_default_ipv4.interface }}"
 # guardian_listen_web_interface: enp2s0
 guardian_listen_web_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_web_interface]['ipv4']['address'] }}"
 guardian_listen_web_port: 443
-guardian_listen_web_port_open_iptables: true
+# guardian_listen_web_port_open_iptables: true
 
 guardian_dirs:
   install: "/opt/cube-guardian-{{ guardian_instance.guardian_id }}/bin"
@@ -94,9 +94,9 @@ guardian_key_storage:
     access_log_filename: "access.json"
 
 guardian_config_manager:
-  num_workers: 2
-  max_active_triple_jobs: 4
-  num_triples_to_cache: 64
+  num_workers: 16
+  max_active_triple_jobs: 16
+  num_triples_to_cache: 256
   public_shares_path: "{{ guardian_dirs.config }}/public_shares.json"
   cached_triples_path: "{{ guardian_dirs.config }}/triples.json"
 

@@ -4,3 +4,4 @@
 **/.ansible-galaxy-roles
 **/*.key
 .vscode
+.venv

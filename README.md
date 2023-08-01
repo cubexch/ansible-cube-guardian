@@ -135,7 +135,7 @@ View the public list of Guardians at `public_guardian_list` in [roles/guardian/d
 
 ```bash
 pip install -r requirements.txt
-ansible-galaxy install -r requirements.yml
+ansible-galaxy install -r requirements.yml --force
 ```
 
 ### 1.3.3. Create the `.ansible-vault.key` file to contain your Ansible Vault password.

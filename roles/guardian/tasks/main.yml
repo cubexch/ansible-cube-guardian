@@ -11,30 +11,10 @@
     shell: "{{ guardian_user.shell }}"
     system: "{{ guardian_user.system | bool }}"
 
-# - name: Add Hashicorp signing key
-#   ansible.builtin.get_url:
-#     url: https://apt.releases.hashicorp.com/gpg
-#     dest: /etc/apt/trusted.gpg.d/hashicorp.asc
-#     owner: "root"
-#     group: "root"
-#     mode: u=rw,g=r,o=r
-
 - name: Gather network facts
   ansible.builtin.setup:
     gather_subset:
       - default_ipv4
-
-# - name: Add Hashicorp signed apt repo
-#   ansible.builtin.apt_repository:
-#     repo: "deb [signed-by=/etc/apt/trusted.gpg.d/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
-#     state: present
-
-# - name: Install Hashicorp Vault (client)
-#   ansible.builtin.apt:
-#     name:
-#       - vault
-#     state: "present"
-#     cache_valid_time: 14400 # 4hrs
 
 - name: Create install, config, and log directories
   ansible.builtin.file:
@@ -211,7 +191,7 @@
     state: "present"
     cache_valid_time: 14400 # 4hrs
   when:
-    - guardian_listen_node_port_open_iptables | bool == true
+    - guardian_listen_node_port_open_iptables | default(false) | bool == true
 
 - name: Open Firewall Rule - Node Port
   ansible.builtin.iptables:
@@ -222,7 +202,7 @@
     syn: match
     jump: ACCEPT
   when:
-    - guardian_listen_node_port_open_iptables | bool == true
+    - guardian_listen_node_port_open_iptables | default(false) | bool == true
 
 - name: Open Firewall Rule - Web Port
   ansible.builtin.iptables:
@@ -233,7 +213,7 @@
     syn: match
     jump: ACCEPT
   when:
-    - guardian_listen_node_port_open_iptables | bool == true
+    - guardian_listen_node_port_open_iptables | default(false) | bool == true
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
