@@ -6,34 +6,35 @@
     name: "{{ guardian_user.name }}"
     create_home: "{{ guardian_user.create_home | bool }}"
     password: "{{ guardian_user.password }}"
+    groups: "syslog"
+    append: true
     shell: "{{ guardian_user.shell }}"
     system: "{{ guardian_user.system | bool }}"
 
-- name: Add Hashicorp signing key
-  ansible.builtin.get_url:
-    url: https://apt.releases.hashicorp.com/gpg
-    dest: /etc/apt/trusted.gpg.d/hashicorp.asc
-    owner: "root"
-    group: "root"
-    mode: u=rw,g=r,o=r
+# - name: Add Hashicorp signing key
+#   ansible.builtin.get_url:
+#     url: https://apt.releases.hashicorp.com/gpg
+#     dest: /etc/apt/trusted.gpg.d/hashicorp.asc
+#     owner: "root"
+#     group: "root"
+#     mode: u=rw,g=r,o=r
 
-- name: Gather distribution_release and network facts
+- name: Gather network facts
   ansible.builtin.setup:
     gather_subset:
-      - distribution_release
       - default_ipv4
 
-- name: Add Hashicorp signed apt repo
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/etc/apt/trusted.gpg.d/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
-    state: present
+# - name: Add Hashicorp signed apt repo
+#   ansible.builtin.apt_repository:
+#     repo: "deb [signed-by=/etc/apt/trusted.gpg.d/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+#     state: present
 
-- name: Install Hashicorp Vault (client)
-  ansible.builtin.apt:
-    name:
-      - vault
-    state: "present"
-    cache_valid_time: 14400 # 4hrs
+# - name: Install Hashicorp Vault (client)
+#   ansible.builtin.apt:
+#     name:
+#       - vault
+#     state: "present"
+#     cache_valid_time: 14400 # 4hrs
 
 - name: Create install, config, and log directories
   ansible.builtin.file:
@@ -42,7 +43,6 @@
     owner: "{{ guardian_user.name }}"
     group: "{{ guardian_user.group }}"
     mode: "u+rw,g+r,o=-"
-    # recurse: true
   with_items:
     - "{{ guardian_dirs.install }}"
     - "{{ guardian_dirs.install }}/v{{ guardian_version }}"
@@ -64,41 +64,53 @@
     dest: "{{ guardian_dirs.install }}/v{{ guardian_version }}"
     owner: "{{ guardian_user.name }}"
     group: "{{ guardian_user.group }}"
-    mode: u=rw,g=r,o=-
     creates: "{{ guardian_dirs.install }}/v{{ guardian_version }}/{{ guardian_bin_name }}"
+  notify:
+    - Restart guardian service
 
-- name: Update symlinks
+- name: Update symlinks for bins
   ansible.builtin.file:
     src: "{{ guardian_dirs.install }}/v{{ guardian_version }}"
     dest: "{{ guardian_dirs.install }}/current"
     state: link
     owner: "{{ guardian_user.name }}"
     group: "{{ guardian_user.group }}"
+  notify:
+    - Restart guardian service
 
-- name: Deploy Guardian Config
-  ansible.builtin.template:
-    src: "production-instance.toml.j2"
-    dest: "{{ guardian_dirs.config }}/production-{{ guardian_config_main.guardian_id }}.toml"
-    owner: "{{ guardian_user.name }}"
-    group: "{{ guardian_user.group }}"
-    mode: u=rw,g=r,o=-
-    backup: true
-
-- name: Deploy Guardian Chaintip Configs
-  ansible.builtin.template:
-    src: "{{ item }}.j2"
+- name: Copy Vault CA Cert (Local to Remote)
+  ansible.builtin.copy:
+    src: "{{ guardian_key_storage.hashicorp_vault.vault_tls_client_ca_local_source_dir }}/{{ item }}"
     dest: "{{ guardian_dirs.config }}/{{ item }}"
     owner: "{{ guardian_user.name }}"
     group: "{{ guardian_user.group }}"
     mode: u=rw,g=r,o=-
-    force: "{{ guardian_chaintip_force_replacement | default(false) | bool }}"
   with_items:
-    - "latest_blockhash.btc.json"
-    - "latest_blockhash.eth.json"
+    - "{{ guardian_key_storage.hashicorp_vault.vault_tls_client_ca_filename }}"
+  when:
+    - guardian_key_storage.hashicorp_vault.vault_tls_client_ca_local_source_dir is defined
+  tags:
+    - molecule-notest
 
-- name: Deploy Guardian Certificates
+- name: Copy Vault CA Cert (Remote to Config Path)
   ansible.builtin.copy:
-    src: "{{ guardian_certificates.source_path }}/{{ item }}"
+    src: "{{ guardian_key_storage.hashicorp_vault.vault_tls_client_ca_remote_source_dir }}/{{ item }}"
+    remote_src: true
+    dest: "{{ guardian_dirs.config }}/{{ item }}"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rw,g=r,o=-
+  with_items:
+    - "{{ guardian_key_storage.hashicorp_vault.vault_tls_client_ca_filename }}"
+  when:
+    - guardian_key_storage.hashicorp_vault.vault_tls_client_ca_remote_source_dir is defined
+  tags:
+    - molecule-notest
+
+- name: Copy Remote Guardian Certificates to Config Dir
+  ansible.builtin.copy:
+    src: "{{ guardian_certificates.remote_path }}/{{ item }}"
+    remote_src: true
     dest: "{{ guardian_dirs.config }}/{{ item }}"
     owner: "{{ guardian_user.name }}"
     group: "{{ guardian_user.group }}"
@@ -107,19 +119,130 @@
     - "{{ guardian_certificates.tls_private_key_name }}"
     - "{{ guardian_certificates.tls_certificate_name }}"
     - "{{ guardian_certificates.tls_root_certificate_name }}"
+  tags:
+    - molecule-notest
+  notify:
+    - Restart guardian service
+
+- name: Find Remote Vault AppRole Credentials
+  no_log: false
+  ansible.builtin.find:
+    paths: "{{ guardian_approle_copy_remote_src }}"
+    patterns: "*.json"
+  register: remote_approles
+  when: guardian_approle_copy_remote_src is defined
+  tags:
+    - deploy_approles
+
+- name: Copy Remote Vault AppRole Credentials to Config Dir
+  no_log: false
+  ansible.builtin.copy:
+    src: "{{ item.path }}"
+    remote_src: true
+    dest: "{{ guardian_dirs.config }}/"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: "u=rw,go=-"
+  with_items:
+    - "{{ remote_approles.files }}"
+  when: guardian_approle_copy_remote_src is defined
+  tags:
+    - deploy_approles
+
+- name: Deploy Guardian Config
+  ansible.builtin.template:
+    src: "production-instance.toml.j2"
+    dest: "{{ guardian_dirs.config }}/production-{{ guardian_instance.guardian_id }}.toml"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rw,g=r,o=-
+    backup: true
+  notify:
+    - Restart guardian service
+
+- name: Deploy Guardian Monitor KYT Token
+  ansible.builtin.copy:
+    content: "{{ guardian_monitor.kyt_token_file_content }}"
+    dest: "{{ guardian_monitor.kyt_token_file }}"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rw,g=r,o=-
+  when:
+    - guardian_monitor is defined
+  notify:
+    - Restart guardian service
+
+- name: Deploy Guardian Monitor BTC RPC Auth
+  ansible.builtin.copy:
+    content: "{{ guardian_monitor.btc.rpc_cookie_file_content }}"
+    dest: "{{ guardian_monitor.btc.rpc_cookie_file }}"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rw,g=r,o=-
+  when:
+    - guardian_monitor is defined
+  notify:
+    - Restart guardian service
 
 - name: Deploy Service Environment File
   ansible.builtin.template:
     src: "guardian-instance.service.env.j2"
-    dest: "{{ guardian_dirs.config }}/guardian-{{ guardian_config_main.guardian_id }}.service.env"
+    dest: "{{ guardian_dirs.config }}/guardian-{{ guardian_instance.guardian_id }}.service.env"
     owner: "{{ guardian_user.name }}"
     group: "{{ guardian_user.group }}"
     mode: u=rw,g=r,o=-
+  notify:
+    - Restart guardian service
 
 - name: Deploy Service File
   ansible.builtin.template:
     src: "etc/systemd/system/guardian-instance.service.j2"
-    dest: "/etc/systemd/system/guardian-{{ guardian_config_main.guardian_id }}.service"
+    dest: "/etc/systemd/system/guardian-{{ guardian_instance.guardian_id }}.service"
     owner: "root"
     group: "root"
     mode: ug=rw,o=r
+  notify:
+    - Restart guardian service
+
+- name: Install iptables if guardian_listen_node_port_open_iptables is true
+  ansible.builtin.apt:
+    name:
+      - iptables
+    state: "present"
+    cache_valid_time: 14400 # 4hrs
+  when:
+    - guardian_listen_node_port_open_iptables | bool == true
+
+- name: Open Firewall Rule - Node Port
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ guardian_listen_node_port | int }}"
+    ctstate: NEW
+    syn: match
+    jump: ACCEPT
+  when:
+    - guardian_listen_node_port_open_iptables | bool == true
+
+- name: Open Firewall Rule - Web Port
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ guardian_listen_web_port | int }}"
+    ctstate: NEW
+    syn: match
+    jump: ACCEPT
+  when:
+    - guardian_listen_node_port_open_iptables | bool == true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+  tags:
+    - molecule-notest
+
+- name: Ensure guardian service started
+  ansible.builtin.systemd:
+    name: guardian-{{ guardian_instance.guardian_id }}.service
+    state: "{{ guardian_service_state | default('started') }}"
+  tags:
+    - molecule-notest

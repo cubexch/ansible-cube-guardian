@@ -1,2 +1,12 @@
 ---
 # handlers file for guardian
+
+- name: Restart guardian service
+  ansible.builtin.systemd:
+    name: guardian-{{ guardian_instance.guardian_id }}.service
+    state: "{{ guardian_service_state | default('restarted') }}"
+    daemon_reload: true
+    enabled: true
+  when: "'molecule-notest' not in ansible_skip_tags"
+  tags:
+    - molecule-notest

@@ -2,6 +2,67 @@
 - name: Converge
   hosts: all
   gather_facts: false
+  vars:
+    guardian_access_token_vault: 'my_guardian_access_token_vault'
+
+    snoop_enabled: true
+    snoop_dest_ip: '127.0.0.1'
+    snoop_dest_port: 1001
+    snoop_dest_address: '{{ snoop_dest_ip }}:{{ snoop_dest_port }}'
+    snoop_bind_internal_interface: '{{ ansible_default_ipv4.interface }}'
+    # snoop_bind_internal_interface: enp2s0
+    snoop_bind_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ snoop_bind_internal_interface]['ipv4']['address'] }}"
+    snoop_bind_port: '{{ 10000 + guardian_instance.guardian_id }}'
+
+    guardian_monitor:
+      guardian_iridium_url: http://127.0.0.1:111
+      aurum_bearer_token: 'my_aurum_bearer_token'
+      cube_psql_config: 'my_cube_psql_config'
+      cubenet_rpc_url: 'http://127.0.0.1:8899'
+      cubenet_quic_address: '127.0.0.1:8009'
+      tradepool_program_id: 'my_tradepool_program_id'
+      kyt_token_file: '{{ guardian_dirs.config }}/kyt_token.hex'
+      kyt_token_file_content: ''
+      kyt_base_url: 'http://127.0.0.1:20000'
+      hashicorp_vault:
+        secret_mount_path: 'cube-monitor/monitor-{{ guardian_instance.guardian_id }}'
+        approle_path_reader: '{{ guardian_dirs.config }}/vault.monitor.{{ inventory_hostname }}.reader.json'
+        approle_path_writer: '{{ guardian_dirs.config }}/vault.monitor.{{ inventory_hostname }}.writer.json'
+        approle_token_renew_seconds: 3600
+        vault_url: 'http://127.0.0.1:8200'
+        vault_tls_client_ca: '{{ guardian_dirs.config }}/vault.127.0.0.1-agent-ca.pem'
+      btc:
+        latest_blockhash_path: '{{ guardian_dirs.config }}/latest_blockhash.btc.json'
+        # https://blockstream.info/blocks/recent
+        latest_blockhash_height: 799672
+        latest_blockhash_hash: '000000000000000000034cb43cb906466b03a2b7143697165996567f775d63bb'
+        latest_blockhash_path_force_replacement: false
+        network: '{{ guardian_web_btc_network }}'
+        rpc_url: 'http://127.0.0.1:18443'
+        zmq_sequence: 'tcp://127.0.0.1:18501'
+        zmq_raw_tx: 'tcp://127.0.0.1:18500'
+        rpc_cookie_file: '{{ guardian_dirs.config }}/btc-mainnet.rpc.auth'
+        rpc_cookie_file_content: 'my_rpc_cookie_file_content_user:my_rpc_cookie_file_content_pass'
+        max_feerate: 20
+        try_settle_period: 120
+        pending_stale_threshold: 5
+      eth:
+        latest_blockhash_path: '{{ guardian_dirs.config }}/latest_blockhash.eth.json'
+        # https://etherscan.io/blocks
+        latest_blockhash_blocknumber: 17744584
+        latest_blockhash_hash: '0x185e5b0d5adfb63b616440c814466cd37c64e0de46c1e93a46a3610f45d08b7e'
+        latest_blockhash_force_replacement: false
+        chain_id: 420
+        rpc_url: 'http://127.0.0.1:34421'
+        ws_addr: '127.0.0.1:34521'
+        ws_url: 'ws://127.0.0.1:34521'
+        max_fee_per_gas: 20_000_000_000
+        max_priority_fee_per_gas: 2_000_000_000
+        try_settle_period: 10
+        pending_stale_threshold: 5
+      audit:
+        filename: 'monitor.cbor'
+
   tasks:
     - name: 'Include guardian'
       include_role:

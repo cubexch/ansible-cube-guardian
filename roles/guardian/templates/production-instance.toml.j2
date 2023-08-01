@@ -4,27 +4,21 @@ key_path = "{{ guardian_config_main.key_path }}"
 certs_path = "{{ guardian_config_main.certs_path }}"
 roots_path = "{{ guardian_config_main.roots_path }}"
 
-[bus]
-initial_capacity = {{ guardian_bus_initial_capacity | int }}
-
-{#
-# snoop will become optional
-[snoop]
-address = "{{ snoop_dest_address }}"
-bind = "{{ aurum_bind_ip }}:{{ item.snoop_bind_port }}"
-#}
 
 
 [nodes]
-{#
-core = {{ item.core }}
-#}
+listen_ip = "{{ guardian_listen_node_ip }}"
+listen_port = {{ guardian_listen_node_port | int }}
 
-guardians = [
+
+
 {% for guardian in public_guardian_list %}
-  { id = {{ guardian.guardian_id }}, address = "{{ guardian.public_address }}:{{ guardian.public_port_node }}" },
+[[nodes.guardians]]
+id = {{ guardian.guardian_id }}
+addr = "{{ guardian.public_fqdn }}:{{ guardian.public_port_node }}"
+tls_name = "{{ guardian.public_fqdn }}"
+
 {% endfor %}
-]
 
 
 
@@ -32,6 +26,9 @@ guardians = [
 btc_network = "{{ guardian_web_btc_network }}"
 listen_address = "{{ guardian_listen_web_ip }}:{{ guardian_listen_web_port }}"
 
+{% if guardian_monitor is defined %}
+iridium_url = "{{ guardian_monitor.guardian_iridium_url }}"
+{% endif %}
 
 
 [keys]
@@ -41,7 +38,7 @@ storage = "hashicorp_vault"
 read_path = "{{ guardian_key_storage.hashicorp_vault.approle_path_reader }}"
 write_path = "{{ guardian_key_storage.hashicorp_vault.approle_path_writer }}"
 base_url = "{{ guardian_key_storage.hashicorp_vault.vault_url }}"
-vault_cert_path = "{{ guardian_key_storage.hashicorp_vault.vault_tls_client_ca }}"
+vault_cert_path = "{{ guardian_dirs.config }}/{{ guardian_key_storage.hashicorp_vault.vault_tls_client_ca_filename }}"
 secret_mount_path = "{{ guardian_key_storage.hashicorp_vault.secret_mount_path }}"
 token_renew_seconds = {{ guardian_key_storage.hashicorp_vault.approle_token_renew_seconds | int }}
 
@@ -57,3 +54,59 @@ num_triples_to_cache = {{ guardian_config_manager.num_triples_to_cache | int }}
 
 public_shares_path = "{{ guardian_config_manager.public_shares_path }}"
 cached_triples_path = "{{ guardian_config_manager.cached_triples_path }}"
+
+{% if snoop_enabled is defined and snoop_enabled == true %}
+[snoop]
+address = "{{ snoop_dest_address }}"
+bind = "{{ snoop_bind_ip }}:{{ snoop_bind_port }}"
+{% endif %}
+
+{% if guardian_monitor is defined %}
+[monitor]
+cube_rpc_url = "{{ guardian_monitor.cubenet_rpc_url }}"
+quic_address = "{{ guardian_monitor.cubenet_quic_address }}"
+tradepool_program_id = "{{ guardian_monitor.tradepool_program_id }}"
+kyt_token_file = "{{ guardian_monitor.kyt_token_file }}"
+kyt_base_url = "{{ guardian_monitor.kyt_base_url }}"
+
+storage = "hashicorp_vault"
+read_path = "{{ guardian_monitor.hashicorp_vault.approle_path_reader }}"
+base_url = "{{ guardian_monitor.hashicorp_vault.vault_url }}"
+secret_mount_path = "{{ guardian_monitor.hashicorp_vault.secret_mount_path }}"
+
+vault_cert_path = "{{ guardian_dirs.config }}/{{ guardian_monitor.hashicorp_vault.vault_tls_client_ca_filename }}"
+
+[monitor.btc]
+blockhash = "{{ guardian_monitor.btc.initial_blockhash_hash | string }}"
+height = {{ guardian_monitor.btc.initial_blockhash_height | int }}
+latest_blockhash_path = "{{ guardian_monitor.btc.latest_blockhash_path }}"
+network = "{{ guardian_monitor.btc.network }}"
+rpc_url = "{{ guardian_monitor.btc.rpc_url }}"
+rpc_cookie_file = "{{ guardian_monitor.btc.rpc_cookie_file }}"
+zmq_sequence = "{{ guardian_monitor.btc.zmq_sequence }}"
+zmq_raw_tx = "{{ guardian_monitor.btc.zmq_raw_tx }}"
+
+max_feerate = {{ guardian_monitor.btc.max_feerate | int }}
+try_settle_trade_period = {{ guardian_monitor.btc.try_settle_trade_period | int }}
+try_settle_withdrawal_period = {{ guardian_monitor.btc.try_settle_withdrawal_period | int }}
+pending_stale_threshold = {{ guardian_monitor.btc.pending_stale_threshold | int }}
+
+[monitor.eth]
+blockhash = "{{ guardian_monitor.eth.initial_blockhash_hash | string }}"
+height = {{ guardian_monitor.eth.initial_blockhash_height | int }}
+latest_blockhash_path = "{{ guardian_monitor.eth.latest_blockhash_path }}"
+chain_id = {{ guardian_monitor.eth.chain_id | int }}
+rpc_url = "{{ guardian_monitor.eth.rpc_url }}"
+ws_addr = "{{ guardian_monitor.eth.ws_addr }}"
+ws_url = "{{ guardian_monitor.eth.ws_url }}"
+
+max_fee_per_gas = {{ guardian_monitor.eth.max_fee_per_gas | int }}
+max_priority_fee_per_gas = {{ guardian_monitor.eth.max_priority_fee_per_gas | int }}
+try_settle_trade_period = {{ guardian_monitor.eth.try_settle_trade_period | int }}
+try_settle_withdrawal_period = {{ guardian_monitor.eth.try_settle_withdrawal_period | int }}
+
+pending_stale_threshold = {{ guardian_monitor.eth.pending_stale_threshold | int }}
+
+[monitor.audit]
+filename = "{{ guardian_monitor.audit.filename }}"
+{% endif %}

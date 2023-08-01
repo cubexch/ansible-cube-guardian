@@ -1,87 +1,97 @@
 ---
 # defaults file for guardian
 
-guardian_version: 26a31146
+guardian_version: 0557de7e
 guardian_archive_name: aurum-{{ guardian_version }}.tar.gz
 guardian_bin_name: cube-aurum
+guardian_app_environment: production
+guardian_access_token: "{{ guardian_access_token_vault }}"
+# guardian_access_token_vault: "my_guardian_access_token_vault"
 
-guardian_chaintip_force_replacement: true
+# rust_backtrace: "full"
 
-# https://blockstream.info/blocks/recent
-guardian_chaintip_btc:
-  hash: "000000000000000000034cb43cb906466b03a2b7143697165996567f775d63bb"
-  height: 799672
-
-# https://etherscan.io/blocks
-guardian_chaintip_eth:
-  hash: "0x185e5b0d5adfb63b616440c814466cd37c64e0de46c1e93a46a3610f45d08b7e"
-  blocknumber: 17744584
+# guardian_service_state: stopped
 
 public_guardian_list:
-  - name: Cube Exchange
-    guardian_id: 1
-    public_address: guardian-420.guardians.prod.cube.exchange
-    public_port_node: 9420
+  - name: Cube Exchange Temp Guardian 201
+    guardian_id: 201
+    public_fqdn: guardian-201.testing.cube.exchange
+    public_port_node: 20101
+    public_port_web: 20441
+  - name: Cube Exchange Temp Guardian 202
+    guardian_id: 202
+    public_fqdn: guardian-202.testing.cube.exchange
+    public_port_node: 20102
+    public_port_web: 20442
+  - name: Cube Exchange Temp Guardian 203
+    guardian_id: 203
+    public_fqdn: guardian-203.testing.cube.exchange
+    public_port_node: 20103
+    public_port_web: 20443
+  - name: Cube Exchange Temp Guardian 204
+    guardian_id: 204
+    public_fqdn: example-guardian-1.testing.cube.exchange
+    public_port_node: 20104
     public_port_web: 443
-  - name: Cube Exchange Temp Guardian 9001
-    guardian_id: 9001
-    public_address: guardian-421.guardians.prod.cube.exchange
-    public_port_node: 5991
-    public_port_web: 443
-  - name: Cube Exchange Temp Guardian 9002
-    guardian_id: 9002
-    public_address: guardian-421.guardians.prod.cube.exchange
-    public_port_node: 6991
+  - name: Cube Exchange Temp Guardian 204
+    guardian_id: 205
+    public_fqdn: example-guardian-2.testing.cube.exchange
+    public_port_node: 20105
     public_port_web: 443
 
 guardian_user:
-  name: cube-guardian
-  group: cube-guardian
+  name: "cube-guardian-{{ guardian_instance.guardian_id }}"
+  group: "cube-guardian-{{ guardian_instance.guardian_id }}"
   create_home: false
   password: "!"
   shell: /usr/sbin/nologin
   system: true
 
-# guardian
 guardian_listen_node_interface: "{{ ansible_default_ipv4.interface }}"
 # guardian_listen_node_interface: enp2s0
 guardian_listen_node_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_node_interface]['ipv4']['address'] }}"
 guardian_listen_node_port: 9420
+guardian_listen_node_port_open_iptables: true
 
 guardian_listen_web_interface: "{{ ansible_default_ipv4.interface }}"
 # guardian_listen_web_interface: enp2s0
 guardian_listen_web_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_web_interface]['ipv4']['address'] }}"
 guardian_listen_web_port: 443
+guardian_listen_web_port_open_iptables: true
 
 guardian_dirs:
-  install: /opt/cube/guardian/bin
-  config: /opt/cube/guardian/config
-  log: /var/log/cube-guardian
+  install: "/opt/cube-guardian-{{ guardian_instance.guardian_id }}/bin"
+  config: "/opt/cube-guardian-{{ guardian_instance.guardian_id }}/config"
+  log: "/var/log/cube-guardian-{{ guardian_instance.guardian_id }}"
 
 guardian_certificates:
-  source_path: "{{ playbook_dir }}/../.tmp/guardian-tls-certs"
-  tls_private_key_name: "{{ inventory_hostname }}.private_key.pem"
-  tls_certificate_name: "{{ inventory_hostname }}.certificate.crt"
-  tls_root_certificate_name: "{{ inventory_hostname }}.root-ca-certificate.crt"
+  remote_path: "/etc/letsencrypt/live/{{ guardian_instance.public_fqdn }}"
+  tls_private_key_name: "privkey.pem"
+  tls_certificate_name: "cert.pem"
+  tls_root_certificate_name: "fullchain.pem"
+
+guardian_instance:
+  guardian_id: 204
+  public_fqdn: guardian-204.testing.cube.exchange
 
 guardian_config_main:
-  cube_id: 1
-  guardian_id: 101
+  cube_id: 201
   key_path: "{{ guardian_dirs.config }}/{{ guardian_certificates.tls_private_key_name }}"
   certs_path: "{{ guardian_dirs.config }}/{{ guardian_certificates.tls_certificate_name }}"
   roots_path: "{{ guardian_dirs.config }}/{{ guardian_certificates.tls_root_certificate_name }}"
 
+# guardian_approle_copy_remote_src: /opt/example-guardian-1-vault-configs
+
 guardian_key_storage:
-  # file:
-  #   asdf:
   hashicorp_vault:
-    secret_mount_path: "cube/guardian-{{ guardian_config_main.guardian_id }}"
-    approle_path_reader: "{{ guardian_dirs.config }}/{{ inventory_hostname }}.vault.reader.json"
-    approle_path_writer: "{{ guardian_dirs.config }}/{{ inventory_hostname }}.vault.writer.json"
+    secret_mount_path: "cube-guardian/guardian-{{ guardian_instance.guardian_id }}"
+    approle_path_reader: "{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.reader.json"
+    approle_path_writer: "{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.writer.json"
     approle_token_renew_seconds: 3600
-    vault_url: "https://prd-ty11-vvlt-1.vault.prd-ty11.cube.exchange:8200"
-    vault_tls_client_ca: "{{ guardian_dirs.config }}/vault-tls-ca.pem"
-    access_log_filename: "access.cbor"
+    vault_url: "https://my_vault_cluster_url.my_internal_fqdn:8200"
+    vault_tls_client_ca_filename: "my_vault_cluster_tls_client_ca.pem"
+    vault_tls_client_ca_local_source_dir: "{{ inventory_dir }}/../.tmp/my_vault_tls_cert_local_dir"
+    access_log_filename: "access.json"
 
 guardian_config_manager:
   num_workers: 2
@@ -90,5 +100,4 @@ guardian_config_manager:
   public_shares_path: "{{ guardian_dirs.config }}/public_shares.json"
   cached_triples_path: "{{ guardian_dirs.config }}/triples.json"
 
-guardian_bus_initial_capacity: 256
 guardian_web_btc_network: "Mainnet"

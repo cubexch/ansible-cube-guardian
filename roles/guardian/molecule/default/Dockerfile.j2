@@ -20,7 +20,8 @@ RUN apt update -qq \
     curl \
     git \
     iproute2 \
-    sudo
+    sudo \
+    rsyslog
 
 RUN set -xe \
     && groupadd -r ${ANSIBLE_USER} \

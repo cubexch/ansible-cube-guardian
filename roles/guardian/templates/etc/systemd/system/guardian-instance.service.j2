@@ -1,26 +1,25 @@
 [Unit]
-Description="Cube Guardian - {{ guardian_config_main.guardian_id }}"
+Description="Cube Guardian - {{ guardian_instance.guardian_id }}"
 Documentation=https://docs.cube.exchange
 Requires=network-online.target
 After=network-online.target
-StartLimitIntervalSec=60
-StartLimitBurst=3
 
 [Service]
 Type=notify
 WorkingDirectory={{ guardian_dirs.config }}
-EnvironmentFile={{ guardian_dirs.config }}/guardian-{{ guardian_config_main.guardian_id }}.service.env
+EnvironmentFile={{ guardian_dirs.config }}/guardian-{{ guardian_instance.guardian_id }}.service.env
 User={{ guardian_user.name }}
 Group={{ guardian_user.group }}
-ExecStart={{ guardian_dirs.install }}/current/cube-aurum
+ExecStart={{ guardian_dirs.install }}/current/{{ guardian_bin_name }}
 ExecReload=/bin/kill --signal HUP $MAINPID
 KillMode=process
 KillSignal=SIGINT
 Restart=always
-RestartSec=5
+RestartSec=30
 TimeoutStopSec=30
 LimitNOFILE=65536
 #LimitMEMLOCK=infinity
+AmbientCapabilities=CAP_NET_BIND_SERVICE
 
 [Install]
 WantedBy=multi-user.target
