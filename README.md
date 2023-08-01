@@ -5,27 +5,27 @@
     - [1.1.1. Guardian Server](#111-guardian-server)
     - [1.1.2. Hashicorp Vault Cluster](#112-hashicorp-vault-cluster)
     - [1.1.3. Public Guardian List Approval](#113-public-guardian-list-approval)
-  - [1.2. Conventions](#12-conventions)
-  - [1.3. Usage Guide](#13-usage-guide)
-  - [1.4. Hashicorp Vault _**TESTING**_](#14-hashicorp-vault-testing)
-    - [1.4.1. Install Hashicorp Vault for _**TESTING**_](#141-install-hashicorp-vault-for-testing)
-    - [1.4.2. Start Hashicorp Vault for _**TESTING**_](#142-start-hashicorp-vault-for-testing)
-    - [1.4.3. Configure your virtual environment.](#143-configure-your-virtual-environment)
-    - [1.4.4. Install pip \& Ansible Galaxy requirements inside `cube-guardian` virtual environment.](#144-install-pip--ansible-galaxy-requirements-inside-cube-guardian-virtual-environment)
-    - [1.4.5. Create the `.ansible-vault.key` file to contain your Ansible Vault password.](#145-create-the-ansible-vaultkey-file-to-contain-your-ansible-vault-password)
-    - [1.4.6. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`](#146-create-ansiblecfg-and-set-the-vault_password_file-to-ansible-vaultkey)
-    - [1.4.7. Create an Ansible inventory for your Guardian node.](#147-create-an-ansible-inventory-for-your-guardian-node)
-    - [1.4.8. Create `host_vars` for the `geerlingguy.swap` role:](#148-create-host_vars-for-the-geerlingguyswap-role)
-    - [1.4.9. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:](#149-optional-create-host_vars-for-the-geerlingguycertbot-role)
-    - [1.4.10. Create `host_vars` for your sensitive Guardian Vault Configuration](#1410-create-host_vars-for-your-sensitive-guardian-vault-configuration)
-    - [1.4.11. Create `host_vars` for your non-sensitive Guardian Vault Configuration](#1411-create-host_vars-for-your-non-sensitive-guardian-vault-configuration)
-    - [1.4.12. Create `host_vars` for your sensitive Guardian Node Configuration](#1412-create-host_vars-for-your-sensitive-guardian-node-configuration)
-    - [1.4.13. Let's just double check that we have all the ansible vault files encrypted:](#1413-lets-just-double-check-that-we-have-all-the-ansible-vault-files-encrypted)
-    - [1.4.14. Create `host_vars` for your non-sensitive Guardian Node Configuration](#1414-create-host_vars-for-your-non-sensitive-guardian-node-configuration)
-    - [1.4.15. Create an Ansible playbook to deploy](#1415-create-an-ansible-playbook-to-deploy)
-    - [1.4.16. Run the playbook to configure the Guardian Node](#1416-run-the-playbook-to-configure-the-guardian-node)
-    - [1.4.17. Verify inbound connectivity to your Guardian Node](#1417-verify-inbound-connectivity-to-your-guardian-node)
-    - [1.4.18. Verify your Guardian Certificate has the expected CN](#1418-verify-your-guardian-certificate-has-the-expected-cn)
+  - [1.2. Hashicorp Vault _**TESTING**_](#12-hashicorp-vault-testing)
+    - [1.2.1. Install Hashicorp Vault for _**TESTING**_](#121-install-hashicorp-vault-for-testing)
+    - [1.2.2. Start Hashicorp Vault for _**TESTING**_](#122-start-hashicorp-vault-for-testing)
+  - [1.3. Conventions](#13-conventions)
+  - [1.4. Usage Guide](#14-usage-guide)
+    - [1.4.1. Configure your virtual environment.](#141-configure-your-virtual-environment)
+    - [1.4.2. Install pip \& Ansible Galaxy requirements inside `cube-guardian` virtual environment.](#142-install-pip--ansible-galaxy-requirements-inside-cube-guardian-virtual-environment)
+    - [1.4.3. Create the `.ansible-vault.key` file to contain your Ansible Vault password.](#143-create-the-ansible-vaultkey-file-to-contain-your-ansible-vault-password)
+    - [1.4.4. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`](#144-create-ansiblecfg-and-set-the-vault_password_file-to-ansible-vaultkey)
+    - [1.4.5. Create an Ansible inventory for your Guardian node.](#145-create-an-ansible-inventory-for-your-guardian-node)
+    - [1.4.6. Create `host_vars` for the `geerlingguy.swap` role:](#146-create-host_vars-for-the-geerlingguyswap-role)
+    - [1.4.7. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:](#147-optional-create-host_vars-for-the-geerlingguycertbot-role)
+    - [1.4.8. Create `host_vars` for your sensitive Guardian Vault Configuration](#148-create-host_vars-for-your-sensitive-guardian-vault-configuration)
+    - [1.4.9. Create `host_vars` for your non-sensitive Guardian Vault Configuration](#149-create-host_vars-for-your-non-sensitive-guardian-vault-configuration)
+    - [1.4.10. Create `host_vars` for your sensitive Guardian Node Configuration](#1410-create-host_vars-for-your-sensitive-guardian-node-configuration)
+    - [1.4.11. Let's just double check that we have all the ansible vault files encrypted:](#1411-lets-just-double-check-that-we-have-all-the-ansible-vault-files-encrypted)
+    - [1.4.12. Create `host_vars` for your non-sensitive Guardian Node Configuration](#1412-create-host_vars-for-your-non-sensitive-guardian-node-configuration)
+    - [1.4.13. Create an Ansible playbook to deploy](#1413-create-an-ansible-playbook-to-deploy)
+    - [1.4.14. Run the playbook to configure the Guardian Node](#1414-run-the-playbook-to-configure-the-guardian-node)
+    - [1.4.15. Verify inbound connectivity to your Guardian Node](#1415-verify-inbound-connectivity-to-your-guardian-node)
+    - [1.4.16. Verify your Guardian Certificate has the expected CN](#1416-verify-your-guardian-certificate-has-the-expected-cn)
   - [1.5. FAQ](#15-faq)
     - [1.5.1. How can I check the status of the Guardian service?](#151-how-can-i-check-the-status-of-the-guardian-service)
     - [1.5.2. How can I check the deployed configuration?](#152-how-can-i-check-the-deployed-configuration)
@@ -70,49 +70,11 @@ Cube Exchange will add new Guardians to the public list after they have been rev
 
 View the public list of Guardians at `public_guardian_list` in [roles/guardian/defaults/main.yml](roles/guardian/defaults/main.yml)
 
-## 1.2. Conventions
-
-- Variables containing sensitive information have a `_vault` suffix to indicate that they should be encrypted with Ansible Vault
-
-  - This allows you to easily search for where the base variable is used even when the file containing the sensitive variable definition is encrypted.
-
-    ```bash
-    for f in $(find . -type f -name "*.ansible_vault.yml") ;do ansible-vault encrypt $f ;done
-    Encryption successful
-    Encryption successful
-
-    grep -R guardian_access_token .
-    ./inventory/host_vars/example-guardian-1/guardian.yml:guardian_access_token: "{{ guardian_access_token_vault }}"
-
-    for f in $(find . -type f -name "*.ansible_vault.yml") ;do ansible-vault decrypt $f ;done
-    Decryption successful
-    Decryption successful
-
-    grep -R guardian_access_token .
-    ./inventory/host_vars/example-guardian-1/guardian.ansible_vault.yml:guardian_access_token_vault: "my_guardian_access_token"
-    ./inventory/host_vars/example-guardian-1/guardian.yml:guardian_access_token: "{{ guardian_access_token_vault }}"
-    ```
-
-- Files containing sensitive variables have a `.ansible_vault.yml` suffix to indicate they contain sensitive variable definitions and should be encrypted with Ansible Vault.
-
-  - You can use the following commands to easily encrypt/decrypt all sensitive files
-
-    ```bash
-    for f in $(find . -type f -name "*.ansible_vault.yml") ;do ansible-vault decrypt $f ;done
-    for f in $(find . -type f -name "*.ansible_vault.yml") ;do ansible-vault encrypt $f ;done
-    ```
-
-## 1.3. Usage Guide
-
-> While any Python 3.8+ version should be sufficient for running this collection with Ansible, only Python 3.8.10 has been verified.
->
-> As an option, you can use Python 3.8.10 within a `pyenv` virtual environment. Please refer to the [PyEnv Installation Guide](https://github.com/pyenv/pyenv#installation) for detailed instructions.
-
-## 1.4. Hashicorp Vault _**TESTING**_
+## 1.2. Hashicorp Vault _**TESTING**_
 
 If you would like to setup a _**DEV**_ instance of Hashicorp Vault to test the Guardian deployment process, you can install Hashicorp Vault and run it with the `-dev-tls` option to create an in-memory instance.
 
-### 1.4.1. Install Hashicorp Vault for _**TESTING**_
+### 1.2.1. Install Hashicorp Vault for _**TESTING**_
 
 ```bash
 # ssh to your Guardian Server
@@ -127,7 +89,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashi
 sudo apt update && sudo apt install vault
 ```
 
-### 1.4.2. Start Hashicorp Vault for _**TESTING**_
+### 1.2.2. Start Hashicorp Vault for _**TESTING**_
 
 ```bash
 # Start vault in DEV-TLS mode
@@ -169,8 +131,8 @@ You may need to set the following environment variables:
 The unseal key and root token are displayed below in case you want to
 seal/unseal the Vault or re-authenticate.
 
-Unseal Key: mn+seO/gqqIxh9naIr6rAkPkppEByJGceqo+jygijUo=
-Root Token: hvs.TG34CH1tc3fwd5GwfWdTa3Ta
+Unseal Key: MY_UNSEAL_KEY
+Root Token: hvs.MY_ROOT_TOKEN_VALUE
 
 Development mode should NOT be used in production installations!
 ```
@@ -179,9 +141,47 @@ The key pieces of information from the output are the `VAULT_ADDR`, `VAULT_CACER
 
 - `VAULT_ADDR='https://127.0.0.1:8200'` ->
 - `VAULT_CACERT='/tmp/vault-tls4054009470/vault-ca.pem'` ->
-- `Root Token: hvs.TG34CH1tc3fwd5GwfWdTa3Ta` ->
+- `Root Token: hvs.MY_ROOT_TOKEN_VALUE` ->
 
-### 1.4.3. Configure your virtual environment.
+## 1.3. Conventions
+
+- Variables containing sensitive information have a `_vault` suffix to indicate that they should be encrypted with Ansible Vault
+
+  - This allows you to easily search for where the base variable is used even when the file containing the sensitive variable definition is encrypted.
+
+    ```bash
+    for f in $(find inventory/ -type f -name "*.ansible_vault.yml") ;do ansible-vault encrypt $f ;done
+    Encryption successful
+    Encryption successful
+
+    grep -R guardian_access_token .
+    ./inventory/host_vars/example-guardian-1/guardian.yml:guardian_access_token: "{{ guardian_access_token_vault }}"
+
+    for f in $(find inventory/ -type f -name "*.ansible_vault.yml") ;do ansible-vault decrypt $f ;done
+    Decryption successful
+    Decryption successful
+
+    grep -R guardian_access_token .
+    ./inventory/host_vars/example-guardian-1/guardian.ansible_vault.yml:guardian_access_token_vault: "my_guardian_access_token"
+    ./inventory/host_vars/example-guardian-1/guardian.yml:guardian_access_token: "{{ guardian_access_token_vault }}"
+    ```
+
+- Files containing sensitive variables have a `.ansible_vault.yml` suffix to indicate they contain sensitive variable definitions and should be encrypted with Ansible Vault.
+
+  - You can use the following commands to easily encrypt/decrypt all sensitive files
+
+    ```bash
+    for f in $(find inventory/ -type f -name "*.ansible_vault.yml") ;do ansible-vault decrypt $f ;done
+    for f in $(find inventory/ -type f -name "*.ansible_vault.yml") ;do ansible-vault encrypt $f ;done
+    ```
+
+## 1.4. Usage Guide
+
+> While any Python 3.8+ version should be sufficient for running this collection with Ansible, only Python 3.8.10 has been verified.
+>
+> As an option, you can use Python 3.8.10 within a `pyenv` virtual environment. Please refer to the [PyEnv Installation Guide](https://github.com/pyenv/pyenv#installation) for detailed instructions.
+
+### 1.4.1. Configure your virtual environment.
 
 1.  If you'd like to use `pyenv`
 
@@ -213,14 +213,14 @@ The key pieces of information from the output are the `VAULT_ADDR`, `VAULT_CACER
     cd example
     ```
 
-### 1.4.4. Install pip & Ansible Galaxy requirements inside `cube-guardian` virtual environment.
+### 1.4.2. Install pip & Ansible Galaxy requirements inside `cube-guardian` virtual environment.
 
 ```bash
 pip install -r requirements.txt
 ansible-galaxy install -r requirements.yml --force
 ```
 
-### 1.4.5. Create the `.ansible-vault.key` file to contain your Ansible Vault password.
+### 1.4.3. Create the `.ansible-vault.key` file to contain your Ansible Vault password.
 
 `.ansible-vault.key`
 
@@ -228,7 +228,9 @@ ansible-galaxy install -r requirements.yml --force
 my_secret_ansible_vault_password
 ```
 
-### 1.4.6. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`
+### 1.4.4. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`
+
+`ansible.cfg`
 
 ```ini
 [defaults]
@@ -242,13 +244,13 @@ retries = 3
 pipelining = true
 ```
 
-### 1.4.7. Create an Ansible inventory for your Guardian node.
+### 1.4.5. Create an Ansible inventory for your Guardian node.
 
 `inventory/hosts-example.ini`
 
 ```ini
 [all]
-example-guardian-1 ansible_host=145.40.68.61 ansible_user=ansible ansible_ssh_private_key_file=~/.ssh/id_ed25519
+example-guardian-1 ansible_host=127.0.0.1 ansible_user=ansible ansible_ssh_private_key_file=~/.ssh/id_ed25519
 
 [example_guardian_group]
 example-guardian-1
@@ -258,10 +260,9 @@ example-guardian-1
 
 ```bash
 ansible all -i inventory/hosts-example.ini -m ping --one-line
-example-guardian-1 | SUCCESS => {"ansible_facts": {"discovered_interpreter_python": "/usr/bin/python3"},"changed": false,"ping": "pong"}
 ```
 
-### 1.4.8. Create `host_vars` for the `geerlingguy.swap` role:
+### 1.4.6. Create `host_vars` for the `geerlingguy.swap` role:
 
 > It is strongly recommended to disable swap on both the Guardian _**and**_ all of your Vault Cluster Nodes
 
@@ -271,7 +272,7 @@ example-guardian-1 | SUCCESS => {"ansible_facts": {"discovered_interpreter_pytho
 swap_file_state: absent
 ```
 
-### 1.4.9. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:
+### 1.4.7. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:
 
 Unless you are providing your own public SSL certificates, use the recommended configurations below:
 
@@ -298,7 +299,7 @@ certbot_certs:
       - '{{ guardian_instance.public_fqdn }}'
 ```
 
-### 1.4.10. Create `host_vars` for your sensitive Guardian Vault Configuration
+### 1.4.8. Create `host_vars` for your sensitive Guardian Vault Configuration
 
 `inventory/host_vars/example-guardian-1/guardian_vault_config.ansible_vault.yml`
 
@@ -312,7 +313,7 @@ cube_vault_auth_token_vault: 'hvs.my_vault_auth_token'
 ansible-vault encrypt inventory/host_vars/example-guardian-1/guardian_vault_config.ansible_vault.yml
 ```
 
-### 1.4.11. Create `host_vars` for your non-sensitive Guardian Vault Configuration
+### 1.4.9. Create `host_vars` for your non-sensitive Guardian Vault Configuration
 
 `inventory/host_vars/example-guardian-1/guardian_vault_config.yml`
 
@@ -348,7 +349,7 @@ vault_approle_enable: true
 vault_approle_retrieve: true
 ```
 
-### 1.4.12. Create `host_vars` for your sensitive Guardian Node Configuration
+### 1.4.10. Create `host_vars` for your sensitive Guardian Node Configuration
 
 `inventory/host_vars/example-guardian-1/guardian.ansible_vault.yml`
 
@@ -363,13 +364,13 @@ guardian_access_token_vault: 'my_guardian_access_token'
 ansible-vault encrypt inventory/host_vars/example-guardian-1/guardian.ansible_vault.yml
 ```
 
-### 1.4.13. Let's just double check that we have all the ansible vault files encrypted:
+### 1.4.11. Let's just double check that we have all the ansible vault files encrypted:
 
 ```bash
 for f in $(find inventory/ -type f -name "*.ansible_vault.yml") ;do ansible-vault encrypt $f ;done
 ```
 
-### 1.4.14. Create `host_vars` for your non-sensitive Guardian Node Configuration
+### 1.4.12. Create `host_vars` for your non-sensitive Guardian Node Configuration
 
 `inventory/host_vars/example-guardian-1/guardian.yml`
 
@@ -422,7 +423,7 @@ guardian_approle_copy_remote_src: '{{ cube_vault_configs_dir }}' # References va
 guardian_access_token: '{{ guardian_access_token_vault }}' # References value defined in guardian.ansible_vault.yml for clarity
 ```
 
-### 1.4.15. Create an Ansible playbook to deploy
+### 1.4.13. Create an Ansible playbook to deploy
 
 The list of roles can be adjusted if not all are desired.
 
@@ -449,13 +450,13 @@ The list of roles can be adjusted if not all are desired.
     - cubexch.guardian.guardian
 ```
 
-### 1.4.16. Run the playbook to configure the Guardian Node
+### 1.4.14. Run the playbook to configure the Guardian Node
 
 ```bash
 ansible-playbook -i ./inventory/hosts-example.ini playbooks/deploy_guardian.yml --diff -v
 ```
 
-### 1.4.17. Verify inbound connectivity to your Guardian Node
+### 1.4.15. Verify inbound connectivity to your Guardian Node
 
 ```bash
 nc -vz -w 10 example-guardian-1.testing.cube.exchange 20104
@@ -465,7 +466,7 @@ nc -vz -w 10 example-guardian-1.testing.cube.exchange 443
 Connection to example-guardian-1.testing.cube.exchange port 443 [tcp/https] succeeded!
 ```
 
-### 1.4.18. Verify your Guardian Certificate has the expected CN
+### 1.4.16. Verify your Guardian Certificate has the expected CN
 
 ```bash
 openssl s_client -showcerts -connect example-guardian-1.testing.cube.exchange:443 </dev/null 2>/dev/null | grep s:CN
