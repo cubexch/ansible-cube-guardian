@@ -346,7 +346,7 @@ The list of roles can be adjusted if not all are desired.
 - `geerlingguy.certbot` installs certbot and creates the Guardian's TLS certificates
 - `cubexch.guardian.guardian` installs and configures the Guardian service
 
-`playbooks/guardian_vault_config.yml`
+`playbooks/deploy_guardian.yml`
 
 ```yml
 - name: Deploy Guardian
@@ -368,7 +368,7 @@ The list of roles can be adjusted if not all are desired.
 ### 1.3.14. Run the playbook to configure the Guardian Node
 
 ```bash
-ansible-playbook -i ./inventory/hosts-example.ini playbooks/guardian_vault_config.yml --diff -v
+ansible-playbook -i ./inventory/hosts-example.ini playbooks/deploy_guardian.yml --diff -v
 ```
 
 ### 1.3.15. Verify inbound connectivity to your Guardian Node
