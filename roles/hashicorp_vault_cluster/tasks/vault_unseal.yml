@@ -1,0 +1,47 @@
+- name: Load vault_init_data for members
+  ansible.builtin.include_vars:
+    file: "{{ hashicorp_vault_init_data_local_dir }}/hashicorp_vault_init_data.ansible_vault.yml"
+    name: "loaded_vault_init_data"
+
+- name: Show loaded_vault_init_data for members
+  ansible.builtin.debug:
+    msg: "key is: {{ item }}"
+  loop: "{{ loaded_vault_init_data['keys'] |flatten() }}"
+
+- name: Unseal Vault Member Nodes
+  community.hashi_vault.vault_write:
+    url: "https://{{ hashicorp_vault_listener_tcp_address }}"
+    ca_cert: "{{ hashicorp_vault_listener_tcp_tls_client_ca_file }}"
+    path: "/sys/unseal"
+    auth_method: "none"
+    data:
+      key: "{{ item }}"
+  register: vault_unseal_result
+  until: vault_unseal_result.data.sealed | default(true) | bool == false
+  retries: 0
+  delay: 10
+  loop: "{{ loaded_vault_init_data['keys'] |flatten() }}"
+
+- name: Good job, you get to rest for a minute...
+  ansible.builtin.wait_for:
+    timeout: 60
+
+- name: Check vault_unseal_confirmed
+  community.hashi_vault.vault_read:
+    url: "https://{{ hashicorp_vault_listener_tcp_address }}"
+    path: "/sys/seal-status"
+    auth_method: "none"
+    ca_cert: "{{ hashicorp_vault_listener_tcp_tls_client_ca_file }}"
+  register: vault_unseal_confirmed
+
+- name: Show vault_unseal_confirmed
+  ansible.builtin.debug:
+    var: vault_unseal_confirmed
+  tags:
+    - vault_unseal
+
+- name: Assert vault_unseal_confirmed
+  ansible.builtin.assert:
+    that: vault_unseal_confirmed.data.sealed | bool == false
+    success_msg: "Vault has been unsealed"
+    fail_msg: "Vault unsealing failed"

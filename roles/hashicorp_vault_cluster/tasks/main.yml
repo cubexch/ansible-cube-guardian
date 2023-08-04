@@ -1,0 +1,237 @@
+---
+# tasks file for hashicorp_vault_cluster
+
+- name: Add Hashicorp signing key
+  ansible.builtin.get_url:
+    url: https://apt.releases.hashicorp.com/gpg
+    dest: /etc/apt/trusted.gpg.d/hashicorp.asc
+    owner: "root"
+    group: "root"
+    mode: u=rw,g=r,o=r
+
+- name: Gather distribution_release info
+  ansible.builtin.setup:
+    gather_subset:
+      - distribution_release
+      - all_ipv4_addresses
+
+- name: Add Hashicorp signed apt repo
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/trusted.gpg.d/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    state: present
+
+- name: Install Hashicorp Vault
+  ansible.builtin.apt:
+    name:
+      - vault
+
+- name: Add /etc/hosts entries for vault servers
+  ansible.builtin.lineinfile:
+    path: "/etc/hosts"
+    regexp: "^{{ hostvars[item]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ fqdn_suffix }}$"
+    line: "{{ hostvars[item]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ fqdn_suffix }}"
+    state: "present"
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ groups[hashicorp_vault_cluster_group_name] }}"
+  when: create_etc_hosts_entries | default(false) | bool == true
+  notify:
+    - Restart vault
+
+- name: Create hashicorp_vault_dir_tls
+  ansible.builtin.file:
+    dest: "{{ hashicorp_vault_dir_tls }}"
+    state: directory
+    owner: "vault"
+    group: "vault"
+    mode: "u+rw,g+r,o=-"
+
+- name: Copy Local Certs to hashicorp_vault_dir_tls
+  no_log: true
+  ansible.builtin.copy:
+    src: "{{ self_signed_certs_local_dir }}/{{ fqdn_suffix }}/{{ inventory_hostname }}.{{ fqdn_suffix }}/{{ item }}"
+    dest: "{{ hashicorp_vault_dir_tls }}/{{ item }}"
+    owner: "vault"
+    group: "vault"
+    mode: u=rw,go=-
+  with_items:
+    - "{{ self_signed_cert_files.ca_cert }}"
+    - "{{ self_signed_cert_files.client_cert }}"
+    - "{{ self_signed_cert_files.client_key }}"
+  notify:
+    - Restart vault
+
+- name: Deploy Vault Server Config
+  ansible.builtin.template:
+    src: "vault.hcl.j2"
+    dest: "/etc/vault.d/vault.hcl"
+    owner: "vault"
+    group: "vault"
+    mode: u=rw,go=r
+  notify:
+    - Restart vault
+
+- name: Allow connections to API port if open_iptables == true
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ hashicorp_vault_cluster_port_api | int }}"
+    source: "{{ hashicorp_vault_cluster_port_api_source_network }}"
+    ctstate: NEW
+    jump: ACCEPT
+  when: open_iptables | default(false) | bool == true
+  tags:
+    - open_iptables
+  notify:
+    - Restart vault
+
+- name: Allow connections to CLUSTER port if open_iptables == true
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ hashicorp_vault_cluster_port_cluster | int }}"
+    source: "{{ hashicorp_vault_cluster_port_cluster_source_network }}"
+    ctstate: NEW
+    jump: ACCEPT
+  when: open_iptables | default(false) | bool == true
+  tags:
+    - open_iptables
+  notify:
+    - Restart vault
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Stop vault
+  ansible.builtin.systemd:
+    state: stopped
+    name: vault
+  tags:
+    - wipe_cluster_data
+    - never
+
+- name: Wipe data dir
+  ansible.builtin.file:
+    path: /opt/vault/data/
+    state: absent
+  tags:
+    - wipe_cluster_data
+    - never
+
+- name: Create data dir
+  ansible.builtin.file:
+    path: /opt/vault/data/
+    state: directory
+    owner: vault
+    group: vault
+  tags:
+    - wipe_cluster_data
+    - never
+
+- name: Ensure vault started
+  ansible.builtin.systemd:
+    state: started
+    name: vault
+
+- name: Install python pip
+  ansible.builtin.apt:
+    name:
+      - python3-pip
+    cache_valid_time: 14400 # 4hrs
+
+- name: Install hvac pip lib
+  ansible.builtin.pip:
+    name:
+      - hvac
+
+- name: Check Cluster Creator ha_init_status
+  delegate_to: "{{ cluster_creator_hostname }}"
+  run_once: true
+  community.hashi_vault.vault_read:
+    url: "https://{{ cluster_creator_hostname }}.{{ hostvars[cluster_creator_hostname]['fqdn_suffix'] }}:{{ hashicorp_vault_cluster_port_api | int }}"
+    path: "/sys/init"
+    auth_method: "none"
+    ca_cert: "{{ hashicorp_vault_listener_tcp_tls_client_ca_file }}"
+  register: ha_init_status
+  tags:
+    - ha_init
+
+- name: Show Cluster Creator ha_init_status
+  delegate_to: "{{ cluster_creator_hostname }}"
+  run_once: true
+  ansible.builtin.debug:
+    var: ha_init_status
+  tags:
+    - ha_init
+
+- name: Include ha_init tasks
+  ansible.builtin.include_tasks:
+    file: ha_init.yml
+    apply:
+      tags:
+        - ha_init
+  when: ha_init_status.data.initialized | bool == false
+  tags:
+    - ha_init
+
+- name: Load vault_init_data
+  delegate_to: "{{ cluster_creator_hostname }}"
+  run_once: true
+  ansible.builtin.include_vars:
+    file: "{{ hashicorp_vault_init_data_local_dir }}/hashicorp_vault_init_data.ansible_vault.yml"
+    name: "loaded_vault_init_data"
+  tags:
+    - vault_ha_status
+
+- name: Check all_init_status
+  community.hashi_vault.vault_read:
+    url: "{{ hashicorp_vault_cluster_addr_api }}"
+    path: "/sys/init"
+    auth_method: "none"
+    ca_cert: "{{ hashicorp_vault_listener_tcp_tls_client_ca_file }}"
+  register: all_init_status
+  tags:
+    - all_init_status
+
+- name: Show all_init_status
+  ansible.builtin.debug:
+    var: all_init_status
+  tags:
+    - all_init_status
+
+- name: Include ha_join
+  ansible.builtin.include_tasks:
+    file: ha_join.yml
+    apply:
+      tags:
+        - all_init_status
+  when: all_init_status.data.initialized | bool == false
+  tags:
+    - all_init_status
+
+- name: Check vault_unseal
+  community.hashi_vault.vault_read:
+    url: "https://{{ hashicorp_vault_listener_tcp_address }}"
+    path: "/sys/seal-status"
+    auth_method: "none"
+    ca_cert: "{{ hashicorp_vault_listener_tcp_tls_client_ca_file }}"
+  tags:
+    - vault_unseal
+  register: vault_unseal_status
+
+- name: Show vault_unseal_status
+  ansible.builtin.debug:
+    var: vault_unseal_status
+  tags:
+    - vault_unseal
+
+- name: Include vault_unseal
+  ansible.builtin.include_tasks:
+    file: vault_unseal.yml
+    apply:
+      tags:
+        - vault_unseal
+  when: vault_unseal_status.data.sealed | bool == true
+  tags:
+    - vault_unseal

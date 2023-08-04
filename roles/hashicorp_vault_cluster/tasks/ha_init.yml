@@ -1,0 +1,74 @@
+---
+# tasks file for hashicorp_vault_cluster
+
+- name: Initialize Cluster Creator Node
+  delegate_to: "{{ cluster_creator_hostname }}"
+  run_once: true
+  community.hashi_vault.vault_write:
+    url: "https://{{ hashicorp_vault_listener_tcp_address }}"
+    ca_cert: "{{ hashicorp_vault_listener_tcp_tls_client_ca_file }}"
+    path: "/sys/init"
+    auth_method: "none"
+    data:
+      secret_shares: "{{ vault_init_secret_shares }}"
+      secret_threshold: "{{ vault_init_secret_threshold }}"
+  register: vault_init_result
+
+- name: Show vault_init_result
+  delegate_to: "{{ cluster_creator_hostname }}"
+  run_once: true
+  ansible.builtin.debug:
+    var: vault_init_result
+
+- name: Create hashicorp_vault_init_data_local_dir
+  delegate_to: localhost
+  run_once: true
+  become: false
+  ansible.builtin.file:
+    path: "{{ hashicorp_vault_init_data_local_dir }}"
+    state: directory
+
+- name: Write vault init data
+  delegate_to: localhost
+  run_once: true
+  become: false
+  ansible.builtin.copy:
+    content: "{{ vault_init_result.data | to_yaml(indent=2) }}"
+    dest: "{{ hashicorp_vault_init_data_local_dir }}/hashicorp_vault_init_data.ansible_vault.yml"
+
+- name: Load vault_init_data
+  delegate_to: "{{ cluster_creator_hostname }}"
+  run_once: true
+  ansible.builtin.include_vars:
+    file: "{{ hashicorp_vault_init_data_local_dir }}/hashicorp_vault_init_data.ansible_vault.yml"
+    name: "loaded_vault_init_data"
+
+- name: Show loaded_vault_init_data
+  delegate_to: "{{ cluster_creator_hostname }}"
+  run_once: true
+  ansible.builtin.debug:
+    msg: "key is: {{ item }}"
+  loop: "{{ loaded_vault_init_data['keys'] |flatten() }}"
+
+- name: Unseal Vault Creator Node
+  delegate_to: "{{ cluster_creator_hostname }}"
+  run_once: true
+  community.hashi_vault.vault_write:
+    url: "{{ hashicorp_vault_cluster_addr_api }}"
+    ca_cert: "{{ hashicorp_vault_listener_tcp_tls_client_ca_file }}"
+    path: "/sys/unseal"
+    auth_method: "none"
+    data:
+      key: "{{ item }}"
+  register: vault_unseal_result
+  until: vault_unseal_result.data.sealed | bool == false
+  retries: 0
+  delay: 10
+  loop: "{{ loaded_vault_init_data['keys'] | flatten() }}"
+  ignore_errors: true # fails until unsealed
+
+- name: Show vault_unseal_result
+  delegate_to: "{{ cluster_creator_hostname }}"
+  run_once: true
+  ansible.builtin.debug:
+    var: vault_unseal_result

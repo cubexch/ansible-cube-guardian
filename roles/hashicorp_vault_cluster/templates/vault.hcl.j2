@@ -1,0 +1,53 @@
+api_addr      = "{{ hashicorp_vault_cluster_addr_api }}"
+cluster_addr  = "{{ hashicorp_vault_cluster_addr_cluster }}"
+{% if hashicorp_vault_cluster_name is defined %}
+cluster_name  = "{{ hashicorp_vault_cluster_name }}"
+{% endif %}
+
+# https://developer.hashicorp.com/vault/docs/configuration#disable_mlock
+# sudo setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
+disable_mlock = {{ hashicorp_vault_disable_mlock | bool | lower }}
+
+# https://developer.hashicorp.com/vault/docs/configuration#enable_response_header_raft_node_id
+# Include X-Vault-Raft-Node-ID http response header
+enable_response_header_raft_node_id = true
+
+# https://developer.hashicorp.com/vault/docs/configuration/log-requests-level
+# log_requests_level = "debug"
+
+log_level = "{{ hashicorp_vault_log_level }}"
+
+# log_format - Equivalent to the -log-format command-line flag.
+# log_file - Equivalent to the -log-file command-line flag.
+# log_rotate_duration - Equivalent to the -log-rotate-duration command-line flag.
+# log_rotate_bytes - Equivalent to the -log-rotate-bytes command-line flag.
+# log_rotate_max_files - Equivalent to the -log-rotate-max-files command-line flag.
+
+ui = {{ hashicorp_vault_enable_ui | bool | lower }}
+
+user_lockout "all" {
+  lockout_threshold = "{{ hashicorp_vault_user_lockout_all_threshold | int }}"
+  lockout_duration = "{{ hashicorp_vault_user_lockout_all_duration | string }}"
+  lockout_counter_reset = "{{ hashicorp_vault_user_lockout_all_counter_reset | string }}"
+}
+
+telemetry {
+  prometheus_retention_time = "{{ hashicorp_vault_telemetry_prometheus_retention_time }}"
+  disable_hostname = {{ hashicorp_vault_telemetry_disable_hostname | bool | lower }}
+}
+
+listener "tcp" {
+  address            = "{{ hashicorp_vault_listener_tcp_address }}"
+  tls_disable        = "{{ hashicorp_vault_listener_tcp_address | bool | lower }}"
+  tls_key_file       = "{{ hashicorp_vault_listener_tcp_tls_key_file }}"
+  tls_cert_file      = "{{ hashicorp_vault_listener_tcp_tls_cert_file }}"
+  tls_client_ca_file = "{{ hashicorp_vault_listener_tcp_tls_client_ca_file }}"
+  telemetry {
+    unauthenticated_metrics_access = {{ hashicorp_vault_listener_tcp_telemetry_unauthenticated_metrics_access | bool | lower }}
+  }
+}
+
+storage "raft" {
+  path    = "{{ hashicorp_vault_storage_raft_path }}"
+  node_id = "{{ inventory_hostname }}"
+}

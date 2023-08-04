@@ -1,0 +1,96 @@
+---
+# defaults file for hashicorp_vault_cluster
+
+### Hashicorp Vault Initialization ###
+hashicorp_vault_init_data_local_dir: "{{ inventory_dir }}/hashicorp-vault-init"
+
+# Number of shamir secret shares to create
+vault_init_secret_shares: 5
+
+# Threshold of how many shamir secret shares needed to unseal the vault
+vault_init_secret_threshold: 3
+
+cluster_creator_hostname: "{{ groups[hashicorp_vault_cluster_group_name][0] }}"
+
+### Hashicorp Vault Cluster Config ###
+
+### Option to create /etc/hosts entries ###
+# Option to create /etc/hosts entries for each cluster member
+create_etc_hosts_entries: false
+
+### Required Inventory Variables when creating /etc/hosts entries ###
+# Select an interface to get an IP address from when creating /etc/hosts entries
+#
+## Select the default interface detected by ansible
+# hashicorp_vault_interface_api_interface: "{{ ansible_default_ipv4.interface }}"
+## Or specify an interface name
+# hashicorp_vault_interface_api_interface: "bond0"
+# hashicorp_vault_interface_api_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }}"
+###########################################
+
+# Inventory Group Name for your Hashicorp Vault Cluster
+hashicorp_vault_cluster_group_name: "example_hashicorp_vault_cluster"
+# FQDN suffix to use for each host (i.e. example-vault-1.vault.example.com)
+fqdn_suffix: "vault.example.com"
+# hashicorp_vault_cluster_name: "example_vault_cluster_name"
+
+# Port used for API communications to the cluster
+hashicorp_vault_cluster_port_api: 8200
+# Port used for internal cluster node-to-node communication
+hashicorp_vault_cluster_port_cluster: 8201
+
+# Optional: Open Firewall Rules with iptables
+open_iptables: false
+open_iptables_source_network_api_port: "127.0.0.0/24"
+open_iptables_source_network_cluster_port: "127.0.0.0/24"
+
+self_signed_certs_generate: false
+self_signed_certs_local_dir: "{{ inventory_dir }}/hashicorp-vault-certs"
+self_signed_cert_files:
+  ca_cert: "{{ fqdn_suffix }}.ca.cert.pem"
+  client_cert: "{{ inventory_hostname }}.{{ fqdn_suffix }}.cert.pem"
+  client_key: "{{ inventory_hostname }}.{{ fqdn_suffix }}.private.key"
+
+hashicorp_vault_dir_base: "/opt/vault"
+hashicorp_vault_dir_tls: "{{ hashicorp_vault_dir_base }}/tls-{{ fqdn_suffix }}"
+
+hashicorp_vault_cluster_addr_api: "https://{{ inventory_hostname }}.{{ fqdn_suffix }}:{{ hashicorp_vault_cluster_port_api | int }}"
+hashicorp_vault_cluster_addr_cluster: "https://{{ inventory_hostname }}.{{ fqdn_suffix }}:{{ hashicorp_vault_cluster_port_cluster | int }}"
+
+# https://developer.hashicorp.com/vault/docs/configuration#disable_mlock
+# sudo setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
+hashicorp_vault_disable_mlock: true
+
+# https://developer.hashicorp.com/vault/docs/configuration#log_level
+hashicorp_vault_log_level: "info"
+
+# https://developer.hashicorp.com/vault/docs/configuration#ui
+# https://developer.hashicorp.com/vault/docs/configuration/ui
+hashicorp_vault_enable_ui: false
+
+# https://developer.hashicorp.com/vault/docs/configuration#user_lockout
+# https://developer.hashicorp.com/vault/docs/configuration/user-lockout
+hashicorp_vault_user_lockout_all_threshold: 3
+hashicorp_vault_user_lockout_all_duration: "10m"
+hashicorp_vault_user_lockout_all_counter_reset: "10m"
+
+# https://developer.hashicorp.com/vault/docs/configuration#telemetry
+# https://developer.hashicorp.com/vault/docs/configuration/telemetry
+hashicorp_vault_telemetry_prometheus_retention_time: "1h"
+hashicorp_vault_telemetry_disable_hostname: true
+
+# https://developer.hashicorp.com/vault/docs/configuration/listener/tcp
+hashicorp_vault_listener_tcp_address: "{{ inventory_hostname }}.{{ fqdn_suffix }}:{{ hashicorp_vault_cluster_port_api | int }}"
+hashicorp_vault_listener_tcp_tls_disable: false
+hashicorp_vault_listener_tcp_tls_key_file: "{{ hashicorp_vault_dir_tls }}/{{ inventory_hostname }}.{{ fqdn_suffix }}.private.key"
+hashicorp_vault_listener_tcp_tls_cert_file: "{{ hashicorp_vault_dir_tls }}/{{ inventory_hostname }}.{{ fqdn_suffix }}.cert.pem"
+hashicorp_vault_listener_tcp_tls_client_ca_file: "{{ hashicorp_vault_dir_tls }}/{{ fqdn_suffix }}.ca.cert.pem"
+hashicorp_vault_listener_tcp_telemetry_unauthenticated_metrics_access: true
+
+# tls_key_file = "/opt/vault/tls/vault-server-vault-prod.prd-ty11.cube.exchange-{{ inventory_hostname }}-key.pem"
+# tls_cert_file = "/opt/vault/tls/vault-server-vault-prod.prd-ty11.cube.exchange-{{ inventory_hostname }}.pem"
+# tls_client_ca_file = "/opt/vault/tls/vault-prod.prd-ty11.cube.exchange-agent-ca.pem"
+
+# https://developer.hashicorp.com/vault/docs/configuration/storage/raft
+hashicorp_vault_storage_raft_path: "{{ hashicorp_vault_dir_base }}/data"
+hashicorp_vault_storage_raft_node_id: "{{ inventory_hostname }}"

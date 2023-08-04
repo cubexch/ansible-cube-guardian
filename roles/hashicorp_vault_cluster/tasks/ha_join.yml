@@ -1,0 +1,56 @@
+---
+# tasks file for hashicorp_vault_cluster
+
+- name: Read ca_cert from server
+  ansible.builtin.slurp:
+    src: "{{ hashicorp_vault_dir_tls }}/{{ self_signed_cert_files.ca_cert }}"
+  register: ca_cert
+
+- name: Read client_cert from server
+  ansible.builtin.slurp:
+    src: "{{ hashicorp_vault_dir_tls }}/{{ self_signed_cert_files.client_cert }}"
+  register: client_cert
+
+- name: Read client_key from server
+  ansible.builtin.slurp:
+    src: "{{ hashicorp_vault_dir_tls }}/{{ self_signed_cert_files.client_key }}"
+  register: client_key
+
+- name: Join Nodes
+  community.hashi_vault.vault_write:
+    url: "{{ hashicorp_vault_cluster_addr_api }}"
+    ca_cert: "{{ hashicorp_vault_listener_tcp_tls_client_ca_file }}"
+    path: "/sys/storage/raft/join"
+    auth_method: "none"
+    data:
+      leader_api_addr: "https://{{ cluster_creator_hostname }}.{{ hostvars[cluster_creator_hostname]['fqdn_suffix'] }}:{{ hashicorp_vault_cluster_port_api | int }}"
+      leader_ca_cert: "{{ ca_cert.content | b64decode }}"
+      leader_client_cert: "{{ client_cert.content | b64decode }}"
+      leader_client_key: "{{ client_key.content | b64decode }}"
+  register: vault_ha_join_result
+
+- name: Assert member joined successfully
+  ansible.builtin.assert:
+    that:
+      - vault_ha_join_result.data.joined | bool == true
+    success_msg: "{{ inventory_hostname }} successfully joined Vault Cluster"
+    fail_msg: "{{ inventory_hostname }} failed to join Vault Cluster"
+
+- name: Check Member Init Status
+  community.hashi_vault.vault_read:
+    url: "https://{{ hashicorp_vault_listener_tcp_address }}"
+    path: "/sys/init"
+    auth_method: "none"
+    ca_cert: "{{ hashicorp_vault_listener_tcp_tls_client_ca_file }}"
+  until: member_init_status.data.initialized | default(false) | bool == true
+  retries: 30
+  delay: 10
+  register: member_init_status
+  tags:
+    - member_init
+
+- name: Show member_init_status
+  ansible.builtin.debug:
+    var: member_init_status
+  tags:
+    - member_init
