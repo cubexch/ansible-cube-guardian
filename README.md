@@ -34,14 +34,13 @@
   - [7.2. Verify Connectivity to Guardian Node with Ansible](#72-verify-connectivity-to-guardian-node-with-ansible)
   - [7.3. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:](#73-optional-create-host_vars-for-the-geerlingguycertbot-role)
   - [7.4. Create `host_vars` for your non-sensitive Guardian Vault Configuration](#74-create-host_vars-for-your-non-sensitive-guardian-vault-configuration)
-  - [7.5. TODO - Unused??](#75-todo---unused)
-  - [7.6. SENSITIVE: Create `host_vars` for sensitive Guardian Node Configuration](#76-sensitive-create-host_vars-for-sensitive-guardian-node-configuration)
-  - [7.7. SENSITIVE: Encrypt `host_vars` for sensitive Guardian Node Configuration with Ansible Vault](#77-sensitive-encrypt-host_vars-for-sensitive-guardian-node-configuration-with-ansible-vault)
-  - [7.8. Create `host_vars` for your non-sensitive Guardian Node Configuration](#78-create-host_vars-for-your-non-sensitive-guardian-node-configuration)
-  - [7.9. Create an Ansible playbook to deploy](#79-create-an-ansible-playbook-to-deploy)
-  - [7.10. Run the playbook to configure the Guardian Node](#710-run-the-playbook-to-configure-the-guardian-node)
-  - [7.11. Verify inbound connectivity to your Guardian Node](#711-verify-inbound-connectivity-to-your-guardian-node)
-  - [7.12. Verify your Guardian Certificate has the expected CN](#712-verify-your-guardian-certificate-has-the-expected-cn)
+  - [7.5. SENSITIVE: Create `host_vars` for sensitive Guardian Node Configuration](#75-sensitive-create-host_vars-for-sensitive-guardian-node-configuration)
+  - [7.6. SENSITIVE: Encrypt `host_vars` for sensitive Guardian Node Configuration with Ansible Vault](#76-sensitive-encrypt-host_vars-for-sensitive-guardian-node-configuration-with-ansible-vault)
+  - [7.7. Create `host_vars` for your non-sensitive Guardian Node Configuration](#77-create-host_vars-for-your-non-sensitive-guardian-node-configuration)
+  - [7.8. Create an Ansible playbook to deploy](#78-create-an-ansible-playbook-to-deploy)
+  - [7.9. Run the playbook to configure the Guardian Node](#79-run-the-playbook-to-configure-the-guardian-node)
+  - [7.10. Verify inbound connectivity to your Guardian Node](#710-verify-inbound-connectivity-to-your-guardian-node)
+  - [7.11. Verify your Guardian Certificate has the expected CN](#711-verify-your-guardian-certificate-has-the-expected-cn)
 - [8. SENSITIVE: Ensure All Sensitive Information Encrypted with Ansible Vault](#8-sensitive-ensure-all-sensitive-information-encrypted-with-ansible-vault)
 - [9. FAQ](#9-faq)
   - [9.1. How can I check the status of the Guardian service?](#91-how-can-i-check-the-status-of-the-guardian-service)
@@ -478,8 +477,6 @@ certbot_certs:
 
 ### 7.4. Create `host_vars` for your non-sensitive Guardian Vault Configuration
 
-### 7.5. TODO - Unused??
-
 `inventory/host_vars/example-guard-1/guardian_vault_config.yml`
 
 ```yml
@@ -498,7 +495,7 @@ vault_url: 'https://example-vault-1.hashicorp-vault.testing.cube.exchange:8200'
 # Update the guardian_hostname to match the hostname set in inventory (i.e. inventory_hostname)
 # Update the guardian_id to match the Guardian ID number assigned to you by Cube.Exchange
 guardian_instances:
-  - guardian_hostname: example-guardian-1
+  - guardian_hostname: example-guard-1
     guardian_id: 000
 
 # It is strongly recommended to limit the CIDR's allowed to use the AppRole and Token created in Vault
@@ -517,7 +514,7 @@ vault_approle_enable: true
 vault_approle_retrieve: true
 ```
 
-### 7.6. SENSITIVE: Create `host_vars` for sensitive Guardian Node Configuration
+### 7.5. SENSITIVE: Create `host_vars` for sensitive Guardian Node Configuration
 
 `inventory/host_vars/example-guard-1/guardian.ansible_vault.yml`
 
@@ -527,13 +524,13 @@ vault_approle_retrieve: true
 guardian_access_token_vault: 'my_guardian_access_token'
 ```
 
-### 7.7. SENSITIVE: Encrypt `host_vars` for sensitive Guardian Node Configuration with Ansible Vault
+### 7.6. SENSITIVE: Encrypt `host_vars` for sensitive Guardian Node Configuration with Ansible Vault
 
 ```bash
 for f in $(find . -type f -name "*.ansible_vault.yml") ;do echo Encrypting $f ;ansible-vault encrypt $f ;done
 ```
 
-### 7.8. Create `host_vars` for your non-sensitive Guardian Node Configuration
+### 7.7. Create `host_vars` for your non-sensitive Guardian Node Configuration
 
 `inventory/host_vars/example-guard-1/guardian.yml`
 
@@ -541,8 +538,8 @@ for f in $(find . -type f -name "*.ansible_vault.yml") ;do echo Encrypting $f ;a
 # Update the guardian_id to match the Guardian ID number assigned to you by Cube.Exchange
 # Update the public_fqdn to match the publicly available DNS name where your Guardian can be reached.
 guardian_instance:
-  guardian_id: 204
-  public_fqdn: example-guardian-1.testing.cube.exchange
+  guardian_id: 000
+  public_fqdn: example-guard-1.testing.cube.exchange
 
 vault_cluster_fqdn: 'hashicorp-vault.testing.cube.exchange'
 self_signed_certs_local_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
@@ -589,7 +586,7 @@ guardian_listen_web_port_open_iptables: true
 guardian_access_token: '{{ guardian_access_token_vault }}' # References value defined in guardian.ansible_vault.yml for clarity
 ```
 
-### 7.9. Create an Ansible playbook to deploy
+### 7.8. Create an Ansible playbook to deploy
 
 The list of roles can be adjusted if not all are desired.
 
@@ -617,15 +614,15 @@ The list of roles can be adjusted if not all are desired.
     - cubexch.guardian.guardian
 ```
 
-### 7.10. Run the playbook to configure the Guardian Node
+### 7.9. Run the playbook to configure the Guardian Node
 
 ```bash
 ansible-playbook -i ./inventory/hosts-example.ini playbooks/deploy_guardian.yml --diff -v
 ```
 
-If the Guardian service fails to start, please refer to [1.5. FAQ](#15-faq)
+If the Guardian service fails to start, please refer to [9. FAQ](#9-faq)
 
-### 7.11. Verify inbound connectivity to your Guardian Node
+### 7.10. Verify inbound connectivity to your Guardian Node
 
 ```bash
 nc -vz -w 10 example-guardian-1.testing.cube.exchange 20104
@@ -637,7 +634,7 @@ nc -vz -w 10 example-guardian-1.testing.cube.exchange 443
 # Connection to example-guardian-1.testing.cube.exchange port 443 [tcp/https] succeeded!
 ```
 
-### 7.12. Verify your Guardian Certificate has the expected CN
+### 7.11. Verify your Guardian Certificate has the expected CN
 
 ```bash
 openssl s_client -showcerts -connect example-guardian-1.testing.cube.exchange:443 </dev/null 2>/dev/null | grep s:CN
