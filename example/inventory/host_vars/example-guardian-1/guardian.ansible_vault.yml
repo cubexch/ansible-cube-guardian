@@ -1,3 +1,0 @@
-# Use a secure password to control access to the Guardian Admin Interface
-# i.e. openssl rand -hex 32
-guardian_access_token_vault: "my_guardian_access_token"

@@ -1,0 +1,49 @@
+# Update the guardian_id to match the Guardian ID number assigned to you by Cube.Exchange
+# Update the public_fqdn to match the publicly available DNS name where your Guardian can be reached.
+guardian_instance:
+  guardian_id: 206
+  public_fqdn: example-guard-1.testing.cube.exchange
+
+vault_cluster_fqdn: 'hashicorp-vault.testing.cube.exchange'
+self_signed_certs_local_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
+self_signed_cert_files:
+  ca_cert: '{{ vault_cluster_fqdn }}.ca.cert.pem'
+
+# Update the Vault URL and vault_tls_client_ca_* to match your Vault cluster
+# - If the vault_tls_client_ca_filename already exists on the Guardian Node, you can specify vault_tls_client_ca_remote_source_dir and it will be copied to the Guardian Config location
+# - If the vault_tls_client_ca_filename is located on your ansible control machine, you can specify vault_tls_client_ca_local_source_dir and it will be copied to the Guardian Node and saved in the Guardian Config location
+guardian_key_storage:
+  hashicorp_vault:
+    vault_url: 'https://example-vault-1.hashicorp-vault.testing.cube.exchange:8200'
+    vault_tls_client_ca_filename: '{{ self_signed_cert_files.ca_cert }}'
+    vault_tls_client_ca_local_source_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
+    secret_mount_path: 'cube-guardian/guardian-{{ guardian_instance.guardian_id }}'
+    approle_path_reader: '{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.reader.json'
+    approle_path_writer: '{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.writer.json'
+    approle_token_renew_seconds: 3600
+    access_log_filename: 'access.json'
+
+# The Guardian will be configured to listen on the default port of 9420 for node-to-node communication.
+# You can use the settings below to use a different interface if needed:
+guardian_listen_node_port: 20106
+
+# If you would like Ansible to automatically create an iptables rule to allow the node-to-node traffic, set to guardian_listen_node_port_open_iptables: true
+guardian_listen_node_port_open_iptables: true
+
+# The Guardian will be configured to listen on the default port of 443 for end user web communication (i.e. emergency withdrawals).
+# It is strongly recommended that you do not change the default port of 443 in order to ensure that end users don't have any challenges accessing the Guardian instance if needed.
+guardian_listen_web_port: 443
+
+# If you would like Ansible to automatically create an iptables rule to allow the web traffic, set to guardian_listen_node_port_open_iptables: true
+guardian_listen_web_port_open_iptables: true
+
+# The Guardian will be configured to listen on the default interface detected by ansible as the default listening IP.
+# You can use the settings below to use a different interface for node-to-node or web communication if needed:
+# # guardian_listen_node_interface: "{{ ansible_default_ipv4.interface }}"
+# guardian_listen_node_interface: enp1s0
+# guardian_listen_node_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_node_interface]['ipv4']['address'] }}"
+# # guardian_listen_web_interface: "{{ ansible_default_ipv4.interface }}"
+# guardian_listen_web_interface: enp1s0
+# guardian_listen_web_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_web_interface]['ipv4']['address'] }}"
+
+guardian_access_token: '{{ guardian_access_token_vault }}' # References value defined in guardian.ansible_vault.yml for clarity

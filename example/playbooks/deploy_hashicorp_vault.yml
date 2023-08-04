@@ -1,0 +1,8 @@
+- name: Deploy Hashicorp Vault Cluster
+  hosts: example_hashicorp_vault_cluster
+  gather_facts: false
+  become: true
+  become_user: root
+  roles:
+    - geerlingguy.swap
+    - cubexch.guardian.hashicorp_vault_cluster

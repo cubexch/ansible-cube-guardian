@@ -1,0 +1,32 @@
+# The guardian_vault_config role will generate *.hcl config files in the cube_vault_configs_dir
+cube_vault_configs_dir: /opt/example-guard-1-vault-configs
+
+vault_cluster_fqdn: 'hashicorp-vault.testing.cube.exchange'
+self_signed_certs_local_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
+self_signed_cert_files:
+  ca_cert: '{{ vault_cluster_fqdn }}.ca.cert.pem'
+
+# Update the Vault URL to point to your Vault Cluster
+# vault_url: 'https://127.0.0.1:8200'
+vault_url: 'https://example-vault-1.hashicorp-vault.testing.cube.exchange:8200'
+
+# Update the guardian_hostname to match the hostname set in inventory (i.e. inventory_hostname)
+# Update the guardian_id to match the Guardian ID number assigned to you by Cube.Exchange
+guardian_instances:
+  - guardian_hostname: example-guard-1
+    guardian_id: 206
+
+# It is strongly recommended to limit the CIDR's allowed to use the AppRole and Token created in Vault
+# Update the guardian_secret_id_bound_cidrs and guardian_token_bound_cidrs to correspond with the internal IP used by the Guardian to talk to the Vault cluster
+guardian_secret_id_bound_cidrs: '147.75.0.0/16'
+guardian_token_bound_cidrs: '147.75.0.0/16'
+
+# The guardian_vault_config role is able to handle all the Vault configuration required, but you must explicitly enable the actions below to allow it to connect to your cluster and make changes.
+# Set vault_policy_deploy to false if you prefer to manually deploy the vault configurations
+vault_policy_deploy: true
+# Set vault_secrets_engine_deploy to false if you prefer to manually configure the Secrets Engine
+vault_secrets_engine_deploy: true
+# Set vault_approle_enable to false if you prefer to manually enable the AppRole authentication method
+vault_approle_enable: true
+# Set vault_approle_retrieve to false if you prefer to manually configure the AppRole ID and SecretsID
+vault_approle_retrieve: true
