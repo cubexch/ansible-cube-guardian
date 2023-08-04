@@ -82,7 +82,7 @@
 
 ### 2.3. Public Guardian List Approval
 
-Cube Exchange will add new Guardians to the public list after they have been reviewed and approved. Guardians will not communicate with each other if they have not been added to the approved list.
+Guardian software will only communicate with instances that have been added to the approved list by Cube Exchange. Cube Exchange will add new Guardians to the public list after they have been reviewed and approved.
 
 View the public list of Guardians at `public_guardian_list` in [roles/guardian/defaults/main.yml](roles/guardian/defaults/main.yml)
 
