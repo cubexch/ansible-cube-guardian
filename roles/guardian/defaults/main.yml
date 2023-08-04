@@ -38,6 +38,11 @@ public_guardian_list:
     public_fqdn: example-guardian-2.testing.cube.exchange
     public_port_node: 20105
     public_port_web: 443
+  - name: Cube Exchange Temp Guardian 206
+    guardian_id: 206
+    public_fqdn: example-guard-1.testing.cube.exchange
+    public_port_node: 20106
+    public_port_web: 443
 
 guardian_user:
   name: "cube-guardian-{{ guardian_instance.guardian_id }}"
@@ -71,8 +76,8 @@ guardian_certificates:
   tls_root_certificate_name: "fullchain.pem"
 
 guardian_instance:
-  guardian_id: 204
-  public_fqdn: guardian-204.testing.cube.exchange
+  guardian_id: 000
+  public_fqdn: example-guardian-1.testing.cube.exchange
 
 guardian_config_main:
   cube_id: 201
@@ -80,7 +85,7 @@ guardian_config_main:
   certs_path: "{{ guardian_dirs.config }}/{{ guardian_certificates.tls_certificate_name }}"
   roots_path: "{{ guardian_dirs.config }}/{{ guardian_certificates.tls_root_certificate_name }}"
 
-# guardian_approle_copy_remote_src: /opt/example-guardian-1-vault-configs
+guardian_approle_copy_remote_src: /opt/cube-vault-configs
 
 guardian_key_storage:
   hashicorp_vault:
@@ -90,7 +95,7 @@ guardian_key_storage:
     approle_token_renew_seconds: 3600
     vault_url: "https://my_vault_cluster_url.my_internal_fqdn:8200"
     vault_tls_client_ca_filename: "my_vault_cluster_tls_client_ca.pem"
-    vault_tls_client_ca_local_source_dir: "{{ inventory_dir }}/../.tmp/my_vault_tls_cert_local_dir"
+    vault_tls_client_ca_local_source_dir: "{{ inventory_dir }}/hashicorp-vault-certs"
     access_log_filename: "access.json"
 
 guardian_config_manager:

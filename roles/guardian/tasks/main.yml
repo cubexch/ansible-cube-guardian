@@ -16,7 +16,7 @@
     gather_subset:
       - default_ipv4
 
-- name: Create install, config, and log directories
+- name: Create install and config dirs
   ansible.builtin.file:
     dest: "{{ item }}"
     state: directory
@@ -27,6 +27,15 @@
     - "{{ guardian_dirs.install }}"
     - "{{ guardian_dirs.install }}/v{{ guardian_version }}"
     - "{{ guardian_dirs.config }}"
+
+- name: Create install and config dirs
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: "u+rw,go+r"
+  with_items:
     - "{{ guardian_dirs.log }}"
 
 - name: Copy Guardian release
@@ -60,15 +69,13 @@
 
 - name: Copy Vault CA Cert (Local to Remote)
   ansible.builtin.copy:
-    src: "{{ guardian_key_storage.hashicorp_vault.vault_tls_client_ca_local_source_dir }}/{{ item }}"
-    dest: "{{ guardian_dirs.config }}/{{ item }}"
+    src: "{{ self_signed_certs_local_dir }}/{{ vault_cluster_fqdn }}/{{ self_signed_cert_files.ca_cert }}"
+    dest: "{{ guardian_dirs.config }}/{{ self_signed_cert_files.ca_cert }}"
     owner: "{{ guardian_user.name }}"
     group: "{{ guardian_user.group }}"
     mode: u=rw,g=r,o=-
-  with_items:
-    - "{{ guardian_key_storage.hashicorp_vault.vault_tls_client_ca_filename }}"
   when:
-    - guardian_key_storage.hashicorp_vault.vault_tls_client_ca_local_source_dir is defined
+    - self_signed_certs_local_dir is defined
   tags:
     - molecule-notest
 
@@ -107,10 +114,10 @@
 - name: Find Remote Vault AppRole Credentials
   no_log: false
   ansible.builtin.find:
-    paths: "{{ guardian_approle_copy_remote_src }}"
+    paths: "{{ cube_vault_configs_dir }}"
     patterns: "*.json"
   register: remote_approles
-  when: guardian_approle_copy_remote_src is defined
+  when: cube_vault_configs_dir is defined
   tags:
     - deploy_approles
 
@@ -164,7 +171,7 @@
   notify:
     - Restart guardian service
 
-- name: Deploy Service Environment File
+- name: Deploy Service Environment Variables
   ansible.builtin.template:
     src: "guardian-instance.service.env.j2"
     dest: "{{ guardian_dirs.config }}/guardian-{{ guardian_instance.guardian_id }}.service.env"
@@ -219,6 +226,10 @@
   ansible.builtin.meta: flush_handlers
   tags:
     - molecule-notest
+
+- name: Good job, you get to rest for a minute...
+  ansible.builtin.wait_for:
+    timeout: 60
 
 - name: Ensure guardian service started
   ansible.builtin.systemd:

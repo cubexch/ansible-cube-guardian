@@ -30,6 +30,49 @@
   when:
     - vault_policy_generate | default('true') | bool == true
 
+- name: Copy Vault CA Cert (Local to Remote)
+  ansible.builtin.copy:
+    src: "{{ self_signed_certs_local_dir }}/{{ vault_cluster_fqdn }}/{{ self_signed_cert_files.ca_cert }}"
+    dest: "{{ cube_vault_configs_dir }}/{{ self_signed_cert_files.ca_cert }}"
+    owner: "root"
+    group: "root"
+    mode: u=rw,g=r,o=-
+  when:
+    - self_signed_cert_files is defined and self_signed_cert_files.ca_cert is defined
+  tags:
+    - molecule-notest
+
+- name: Gather network facts
+  ansible.builtin.setup:
+    gather_subset:
+      - default_ipv4
+
+- name: Gather network facts from hashicorp_vault_cluster_group_name
+  ansible.builtin.setup:
+    gather_subset:
+      - all_ipv4_addresses
+  delegate_facts: true
+  delegate_to: "{{ item }}"
+  with_items:
+    - "{{ groups[hashicorp_vault_cluster_group_name] }}"
+
+- name: Add /etc/hosts entries for vault servers
+  ansible.builtin.lineinfile:
+    path: "/etc/hosts"
+    regexp: "^{{ hostvars[item]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ fqdn_suffix }}$"
+    line: "{{ hostvars[item]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ fqdn_suffix }}"
+    state: "present"
+    owner: "root"
+    group: "root"
+  with_items:
+    - "{{ groups[hashicorp_vault_cluster_group_name] }}"
+  when: create_etc_hosts_entries | default(false) | bool == true
+
+- name: Load vault_init_data
+  ansible.builtin.include_vars:
+    file: "{{ hashicorp_vault_init_data_local_dir }}/hashicorp_vault_init_data.ansible_vault.yml"
+    name: "loaded_vault_init_data"
+
 - name: Generate Vault Policy Templates - Guardian Readers
   ansible.builtin.template:
     src: "vault.guardian.instance.reader.policy.hcl.j2"
@@ -62,7 +105,7 @@
     data:
       policy: "{{ item.content }}"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ vault_policies_guardian_readers.results }}"
@@ -103,7 +146,7 @@
     data:
       policy: "{{ item.content }}"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ vault_policies_guardian_writers.results }}"
@@ -146,7 +189,7 @@
     data:
       policy: "{{ item.content }}"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ vault_policies_monitor_readers.results }}"
@@ -190,7 +233,7 @@
     data:
       policy: "{{ item.content }}"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ vault_policies_monitor_writers.results }}"
@@ -214,7 +257,7 @@
         cas_required: false
         delete_version_after: '0s'
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ guardian_instances }}"
@@ -238,7 +281,7 @@
         cas_required: false
         delete_version_after: '0s'
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ monitor_instances }}"
@@ -260,7 +303,7 @@
         default_lease_ttl: '0s'
         max_lease_ttl: '0s'
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
   tags:
@@ -278,7 +321,7 @@
       token_policies: "vault.guardian.{{ item.guardian_id }}.reader.policy"
       token_ttl: "{{ guardian_token_ttl }}"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ guardian_instances }}"
@@ -298,7 +341,7 @@
       token_policies: "vault.guardian.{{ item.guardian_id }}.writer.policy"
       token_ttl: "{{ guardian_token_ttl }}"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ guardian_instances }}"
@@ -318,7 +361,7 @@
       token_policies: "vault.monitor.{{ item.guardian_id }}.reader.policy"
       token_ttl: "{{ monitor_token_ttl }}"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ monitor_instances }}"
@@ -339,7 +382,7 @@
       token_policies: "vault.monitor.{{ item.guardian_id }}.writer.policy"
       token_ttl: "{{ monitor_token_ttl }}"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ monitor_instances }}"
@@ -377,7 +420,7 @@
     data:
       value: "{{ monitor_fee_payer_cubenet | string }}"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ monitor_instances }}"
@@ -395,7 +438,7 @@
     data:
       value: '{{ monitor_fee_payer_btc }}'
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ monitor_instances }}"
@@ -413,7 +456,7 @@
     data:
       value: '{{ monitor_fee_payer_eth }}'
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   with_items:
     - "{{ monitor_instances }}"

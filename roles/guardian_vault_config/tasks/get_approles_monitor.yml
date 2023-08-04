@@ -7,7 +7,7 @@
     url: "{{ vault_url }}"
     path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.reader/role-id"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
   register: monitor_reader_role_id
@@ -18,7 +18,7 @@
     url: "{{ vault_url }}"
     path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.reader/secret-id"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
   register: monitor_reader_secret_id
@@ -45,7 +45,7 @@
     url: "{{ vault_url }}"
     path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.writer/role-id"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
   register: monitor_writer_role_id
@@ -56,7 +56,7 @@
     url: "{{ vault_url }}"
     path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.writer/secret-id"
     auth_method: "token"
-    token: "{{ cube_vault_auth_token }}"
+    token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert }}"
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
   register: monitor_writer_secret_id

@@ -7,16 +7,41 @@ vault_policy_generate: true
 # vault_approle_enable: true
 # vault_approle_retrieve: true
 
-cube_vault_configs_dir: /opt/my_cube_vault_configs_dir
-cube_vault_auth_token: "{{ cube_vault_auth_token_vault }}"
-# cube_vault_auth_token_vault: "my_cube_vault_auth_token_vault"
+cube_vault_configs_dir: /opt/cube-vault-configs
 
-vault_ca_cert: "/opt/my_vault_cluster_tls_client_ca.pem"
-vault_url: "https://my_vault_cluster_url.my_internal_fqdn:8200"
+vault_cluster_fqdn: "hashicorp-vault.testing.cube.exchange"
+self_signed_certs_local_dir: "{{ inventory_dir }}/hashicorp-vault-certs"
+self_signed_cert_files:
+  ca_cert: "{{ vault_cluster_fqdn }}.ca.cert.pem"
+vault_ca_cert: "{{ cube_vault_configs_dir }}/{{ self_signed_cert_files.ca_cert }}"
+
+vault_url: "https://example-vault-1.hashicorp-vault.testing.cube.exchange:8200"
+
+### Hashicorp Vault Initialization ###
+hashicorp_vault_init_data_local_dir: "{{ inventory_dir }}/hashicorp-vault-init"
+
+### Option to create /etc/hosts entries ###
+# Option to create /etc/hosts entries for each cluster member
+create_etc_hosts_entries: true
+
+### Required Inventory Variables when creating /etc/hosts entries ###
+# Select an interface to get an IP address from when creating /etc/hosts entries
+#
+## Select the default interface detected by ansible
+# hashicorp_vault_interface_api_interface: "{{ ansible_default_ipv4.interface }}"
+## Or specify an interface name
+hashicorp_vault_interface_api_interface: "bond0"
+# hashicorp_vault_interface_api_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }}"
+###########################################
+
+# Inventory Group Name for your Hashicorp Vault Cluster
+hashicorp_vault_cluster_group_name: "example_hashicorp_vault_cluster"
+# FQDN suffix to use for each host (i.e. example-vault-1.vault.example.com)
+fqdn_suffix: "hashicorp-vault.testing.cube.exchange"
 
 guardian_instances:
-  - guardian_hostname: my_guardian_host
-    guardian_id: 204
+  - guardian_hostname: example-guardian-1
+    guardian_id: 000
 
 guardian_secret_mount_path_prefix: "cube-guardian"
 guardian_token_ttl: "72h"
