@@ -315,6 +315,8 @@ open_iptables_source_network_cluster_port: '127.0.0.0/24'
 
 ```yml
 - name: Deploy Hashicorp Vault Cluster
+  # Update hosts selector with new inventory group name of Vault Cluster Hosts
+  # Ensure group_vars folder matches when changed
   hosts: example_hashicorp_vault_cluster
   gather_facts: false
   become: true
@@ -367,16 +369,21 @@ for f in $(find . -type f -name "*.ansible_vault.yml") ;do echo Encrypting $f ;a
 
 ```ini
 [all]
+example-vault-1  ansible_host=127.0.0.1
+example-vault-2  ansible_host=127.0.0.2
+example-vault-3  ansible_host=127.0.0.3
+
+# Update guardian hostname and IP address
 example-guard-1  ansible_host=127.0.0.11
 
-[example_guardian_group]
-example-guard-1
+[example_hashicorp_vault_cluster]
+example-vault-[1:3]
 ```
 
 ### 6.2. Verify Connectivity to Guardian Node with Ansible
 
 ```bash
-ansible example_guardian_group -i inventory/hosts-example.ini -m ping --one-line
+ansible all -i inventory/hosts-example.ini -m ping --one-line
 ```
 
 ### 6.3. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:
@@ -388,6 +395,8 @@ Unless you are providing your own public SSL certificates, use the recommended c
 > - Certbot's standalone verification process will start a temporary http web server on the guardian to handle the Let's Encrypt challenge process.
 > - In order for the challenge process to work, Let's Encrypt will try to access the FQDN on HTTP port 80.
 > - You will need to ensure DNS has been configured for your Guardian's FQDN, and that firewall rules are opened for HTTP port 80.
+
+> Update the path to use your new guardian hostname
 
 `inventory/host_vars/example-guard-1/geerlingguy_certbot.yml`
 
@@ -412,31 +421,23 @@ certbot_certs:
 
 ### 6.4. Create `host_vars` for your non-sensitive Guardian Vault Configuration
 
+> Update the path to use your new guardian hostname
+
 `inventory/host_vars/example-guard-1/guardian_vault_config.yml`
 
 ```yml
-# The guardian_vault_config role will generate *.hcl config files in the cube_vault_configs_dir
-cube_vault_configs_dir: /opt/example-guard-1-vault-configs
-
-vault_cluster_fqdn: 'hashicorp-vault.testing.cube.exchange'
-self_signed_certs_local_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
-self_signed_cert_files:
-  ca_cert: '{{ vault_cluster_fqdn }}.ca.cert.pem'
-
 # Update the Vault URL to point to your Vault Cluster
-# vault_url: 'https://127.0.0.1:8200'
-vault_url: 'https://example-vault-1.hashicorp-vault.testing.cube.exchange:8200'
+# Should match a vault hostname and your vault_cluster_fqdn
+vault_url: 'https://example-vault-1.example.hashicorp.vault.cluster.com:8200'
+
+# Vault Cluster FQDN used for copying Vault Cluster CA Cert and generating /etc/host entries
+vault_cluster_fqdn: 'example.hashicorp.vault.cluster.com'
 
 # Update the guardian_hostname to match the hostname set in inventory (i.e. inventory_hostname)
 # Update the guardian_id to match the Guardian ID number assigned to you by Cube.Exchange
 guardian_instances:
   - guardian_hostname: example-guard-1
     guardian_id: 000
-
-# It is strongly recommended to limit the CIDR's allowed to use the AppRole and Token created in Vault
-# Update the guardian_secret_id_bound_cidrs and guardian_token_bound_cidrs to correspond with the internal IP used by the Guardian to talk to the Vault cluster
-guardian_secret_id_bound_cidrs: '127.0.0.0/8'
-guardian_token_bound_cidrs: '127.0.0.0/8'
 
 # The guardian_vault_config role is able to handle all the Vault configuration required, but you must explicitly enable the actions below to allow it to connect to your cluster and make changes.
 # Set vault_policy_deploy to false if you prefer to manually deploy the vault configurations
@@ -447,9 +448,39 @@ vault_secrets_engine_deploy: true
 vault_approle_enable: true
 # Set vault_approle_retrieve to false if you prefer to manually configure the AppRole ID and SecretsID
 vault_approle_retrieve: true
+
+# It is strongly recommended to limit the CIDR's allowed to use the AppRole and Token created in Vault
+# Update the guardian_secret_id_bound_cidrs and guardian_token_bound_cidrs to correspond with the internal IP used by the Guardian to talk to the Vault cluster
+# NOTE: Should match open_iptables_source_network_api_port from inventory/group_vars/example-guard-1/cubexch.guardian.hashicorp_vault_cluster.yml
+guardian_secret_id_bound_cidrs: '127.0.0.0/8'
+guardian_token_bound_cidrs: '127.0.0.0/8'
+
+### Option to create /etc/hosts entries ###
+# Option to create /etc/hosts entries for each cluster member
+create_etc_hosts_entries: true
+### Required Inventory Variables when creating /etc/hosts entries ###
+# Select an interface to get an IP address from when creating /etc/hosts entries
+#
+## Select the default interface detected by ansible
+hashicorp_vault_interface_api_interface: '{{ ansible_default_ipv4.interface }}'
+## Or specify an interface name
+# hashicorp_vault_interface_api_interface: "bond0"
+# hashicorp_vault_interface_api_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }}"
+###########################################
+
+# No changes needed unless you are using your owned certificates for vault
+# Local directory where Vault Cluster Certificates are stored
+self_signed_certs_local_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
+# Cert file names to copy to Guardian node
+self_signed_cert_files:
+  ca_cert: '{{ vault_cluster_fqdn }}.ca.cert.pem'
+# Remote path of CA Cert
+vault_ca_cert_path: '{{ cube_vault_configs_dir }}/{{ self_signed_cert_files.ca_cert }}'
 ```
 
 ### 6.5. SENSITIVE: Create `host_vars` for sensitive Guardian Node Configuration
+
+> Update the path to use your new guardian hostname
 
 `inventory/host_vars/example-guard-1/guardian.ansible_vault.yml`
 
@@ -467,26 +498,23 @@ for f in $(find . -type f -name "*.ansible_vault.yml") ;do echo Encrypting $f ;a
 
 ### 6.7. Create `host_vars` for your non-sensitive Guardian Node Configuration
 
+> Update the path to use your new guardian hostname
+
 `inventory/host_vars/example-guard-1/guardian.yml`
 
 ```yml
 # Update the guardian_id to match the Guardian ID number assigned to you by Cube.Exchange
 # Update the public_fqdn to match the publicly available DNS name where your Guardian can be reached.
+# See `public_guardian_list` at [roles/guardian/vars/main.yml](roles/guardian/vars/main.yml)
 guardian_instance:
   guardian_id: 000
   public_fqdn: example-guard-1.testing.cube.exchange
 
-vault_cluster_fqdn: 'hashicorp-vault.testing.cube.exchange'
-self_signed_certs_local_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
-self_signed_cert_files:
-  ca_cert: '{{ vault_cluster_fqdn }}.ca.cert.pem'
-
-# Update the Vault URL and vault_tls_client_ca_* to match your Vault cluster
-# - If the vault_tls_client_ca_filename already exists on the Guardian Node, you can specify vault_tls_client_ca_remote_source_dir and it will be copied to the Guardian Config location
-# - If the vault_tls_client_ca_filename is located on your ansible control machine, you can specify vault_tls_client_ca_local_source_dir and it will be copied to the Guardian Node and saved in the Guardian Config location
+# Update the Vault URL to match your Vault cluster
+# Should match vault_url in inventory/host_vars/example-guard-1/guardian_vault_config.yml
 guardian_key_storage:
   hashicorp_vault:
-    vault_url: 'https://example-vault-1.hashicorp-vault.testing.cube.exchange:8200'
+    vault_url: 'https://example-vault-1.example.hashicorp.vault.cluster.com:8200'
     vault_tls_client_ca_filename: '{{ self_signed_cert_files.ca_cert }}'
     vault_tls_client_ca_local_source_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
     secret_mount_path: 'cube-guardian/guardian-{{ guardian_instance.guardian_id }}'
@@ -496,14 +524,15 @@ guardian_key_storage:
     access_log_filename: 'access.json'
 
 # The Guardian will be configured to listen on the default port of 9420 for node-to-node communication.
-# You can use the settings below to use a different interface if needed:
-guardian_listen_node_port: 20104
+# Ensure the port specified here matches your guardian entry in the `public_guardian_list` at [roles/guardian/vars/main.yml](roles/guardian/vars/main.yml)
+guardian_listen_node_port: 00000
 
 # If you would like Ansible to automatically create an iptables rule to allow the node-to-node traffic, set to guardian_listen_node_port_open_iptables: true
 guardian_listen_node_port_open_iptables: true
 
 # The Guardian will be configured to listen on the default port of 443 for end user web communication (i.e. emergency withdrawals).
 # It is strongly recommended that you do not change the default port of 443 in order to ensure that end users don't have any challenges accessing the Guardian instance if needed.
+# Ensure the port specified here matches your guardian entry in the `public_guardian_list` at [roles/guardian/vars/main.yml](roles/guardian/vars/main.yml)
 guardian_listen_web_port: 443
 
 # If you would like Ansible to automatically create an iptables rule to allow the web traffic, set to guardian_listen_node_port_open_iptables: true
@@ -533,7 +562,9 @@ The list of roles can be adjusted if not all are desired.
 
 ```yml
 - name: Deploy Guardian
-  hosts: example_guardian_group
+  # Update hosts selector with new guardian hostname
+  # Ensure host_vars folder matches when changed
+  hosts: example-guard-1
   gather_facts: false
   become: true
   become_user: root
@@ -577,7 +608,7 @@ openssl s_client -showcerts -connect example-guardian-1.testing.cube.exchange:44
 #  0 s:CN = example-guardian-1.testing.cube.exchange
 ```
 
-- The `CN` of the certificate should match your entry in `public_guardian_list` at [roles/guardian/defaults/main.yml](roles/guardian/defaults/main.yml).
+- The `CN` of the certificate should match your entry in `public_guardian_list` at [roles/guardian/vars/main.yml](roles/guardian/vars/main.yml).
 - The `public_guardian_list` entries correspond to the Guardian configuration toml entries
 
 ```bash

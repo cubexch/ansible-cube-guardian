@@ -106,7 +106,7 @@
       policy: "{{ item.content }}"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ vault_policies_guardian_readers.results }}"
   tags:
@@ -147,7 +147,7 @@
       policy: "{{ item.content }}"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ vault_policies_guardian_writers.results }}"
   tags:
@@ -190,7 +190,7 @@
       policy: "{{ item.content }}"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ vault_policies_monitor_readers.results }}"
   when:
@@ -234,7 +234,7 @@
       policy: "{{ item.content }}"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ vault_policies_monitor_writers.results }}"
   when:
@@ -258,7 +258,7 @@
         delete_version_after: '0s'
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ guardian_instances }}"
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
@@ -282,7 +282,7 @@
         delete_version_after: '0s'
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ monitor_instances }}"
   tags:
@@ -304,7 +304,7 @@
         max_lease_ttl: '0s'
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
   tags:
     - create_approle
@@ -322,7 +322,7 @@
       token_ttl: "{{ guardian_token_ttl }}"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ guardian_instances }}"
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
@@ -342,7 +342,7 @@
       token_ttl: "{{ guardian_token_ttl }}"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ guardian_instances }}"
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
@@ -362,7 +362,7 @@
       token_ttl: "{{ monitor_token_ttl }}"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ monitor_instances }}"
   when:
@@ -383,7 +383,7 @@
       token_ttl: "{{ monitor_token_ttl }}"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ monitor_instances }}"
   when:
@@ -421,7 +421,7 @@
       value: "{{ monitor_fee_payer_cubenet | string }}"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ monitor_instances }}"
   when:
@@ -439,7 +439,7 @@
       value: '{{ monitor_fee_payer_btc }}'
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ monitor_instances }}"
   when:
@@ -457,7 +457,7 @@
       value: '{{ monitor_fee_payer_eth }}'
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ monitor_instances }}"
   when:

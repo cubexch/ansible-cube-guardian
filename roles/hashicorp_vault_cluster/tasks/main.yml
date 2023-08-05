@@ -87,7 +87,7 @@
     chain: INPUT
     protocol: tcp
     destination_port: "{{ hashicorp_vault_cluster_port_api | int }}"
-    source: "{{ hashicorp_vault_cluster_port_api_source_network }}"
+    source: "{{ open_iptables_source_network_api_port }}"
     ctstate: NEW
     jump: ACCEPT
   when: open_iptables | default(false) | bool == true
@@ -101,7 +101,7 @@
     chain: INPUT
     protocol: tcp
     destination_port: "{{ hashicorp_vault_cluster_port_cluster | int }}"
-    source: "{{ hashicorp_vault_cluster_port_cluster_source_network }}"
+    source: "{{ open_iptables_source_network_cluster_port }}"
     ctstate: NEW
     jump: ACCEPT
   when: open_iptables | default(false) | bool == true

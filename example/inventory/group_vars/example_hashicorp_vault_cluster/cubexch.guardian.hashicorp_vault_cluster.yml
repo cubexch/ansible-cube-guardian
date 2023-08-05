@@ -25,8 +25,8 @@ hashicorp_vault_cluster_port_cluster: 8201
 
 # Optional: Open Firewall Rules with iptables
 open_iptables: true
-hashicorp_vault_cluster_port_api_source_network: '127.0.0.0/24'
-hashicorp_vault_cluster_port_cluster_source_network: '127.0.0.0/24'
+open_iptables_source_network_api_port: '127.0.0.0/24'
+open_iptables_source_network_cluster_port: '127.0.0.0/24'
 
 self_signed_certs_generate: true
 self_signed_certs_local_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
