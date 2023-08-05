@@ -325,7 +325,7 @@ hashicorp_vault_interface_api_interface: 'bond0'
 # Inventory Group Name for your Hashicorp Vault Cluster
 hashicorp_vault_cluster_group_name: 'example_hashicorp_vault_cluster'
 # FQDN suffix to use for each host (i.e. example-vault-1.vault.example.com)
-fqdn_suffix: 'hashicorp-vault.testing.cube.exchange'
+vault_cluster_fqdn: 'hashicorp-vault.testing.cube.exchange'
 hashicorp_vault_cluster_name: 'example-guardian-vault'
 
 # Port used for API communications to the cluster
@@ -368,7 +368,7 @@ hashicorp_vault_init_data_local_dir: '{{ inventory_dir }}/hashicorp-vault-init'
     - name: Generate Self Signed Certs
       delegate_to: localhost
       ansible.builtin.command:
-        cmd: '{{ playbook_dir }}/files/generate_self_signed_certs.sh {{ fqdn_suffix }} {{ item }} {{ self_signed_certs_local_dir }}'
+        cmd: '{{ playbook_dir }}/files/generate_self_signed_certs.sh {{ vault_cluster_fqdn }} {{ item }} {{ self_signed_certs_local_dir }}'
         chdir: '{{ self_signed_certs_local_dir }}'
       with_items:
         - '{{ groups[hashicorp_vault_cluster_group_name] }}'

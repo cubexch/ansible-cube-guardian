@@ -36,8 +36,6 @@ hashicorp_vault_interface_api_interface: "bond0"
 
 # Inventory Group Name for your Hashicorp Vault Cluster
 hashicorp_vault_cluster_group_name: "example_hashicorp_vault_cluster"
-# FQDN suffix to use for each host (i.e. example-vault-1.vault.example.com)
-fqdn_suffix: "hashicorp-vault.testing.cube.exchange"
 
 guardian_instances:
   - guardian_hostname: example-guardian-1

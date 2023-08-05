@@ -23,7 +23,7 @@
     path: "/sys/storage/raft/join"
     auth_method: "none"
     data:
-      leader_api_addr: "https://{{ cluster_creator_hostname }}.{{ hostvars[cluster_creator_hostname]['fqdn_suffix'] }}:{{ hashicorp_vault_cluster_port_api | int }}"
+      leader_api_addr: "https://{{ cluster_creator_hostname }}.{{ hostvars[cluster_creator_hostname]['vault_cluster_fqdn'] }}:{{ hashicorp_vault_cluster_port_api | int }}"
       leader_ca_cert: "{{ ca_cert.content | b64decode }}"
       leader_client_cert: "{{ client_cert.content | b64decode }}"
       leader_client_key: "{{ client_key.content | b64decode }}"

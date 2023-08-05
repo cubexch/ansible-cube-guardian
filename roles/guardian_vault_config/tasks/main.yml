@@ -59,8 +59,8 @@
 - name: Add /etc/hosts entries for vault servers
   ansible.builtin.lineinfile:
     path: "/etc/hosts"
-    regexp: "^{{ hostvars[item]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ fqdn_suffix }}$"
-    line: "{{ hostvars[item]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ fqdn_suffix }}"
+    regexp: "^{{ hostvars[item]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ vault_cluster_fqdn }}$"
+    line: "{{ hostvars[item]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ vault_cluster_fqdn }}"
     state: "present"
     owner: "root"
     group: "root"
