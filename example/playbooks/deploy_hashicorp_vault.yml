@@ -1,4 +1,5 @@
 - name: Deploy Hashicorp Vault Cluster
+  # Update hosts selector with new inventory group name of Vault Cluster Hosts
   hosts: example_hashicorp_vault_cluster
   gather_facts: false
   become: true

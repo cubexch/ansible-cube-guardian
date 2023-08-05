@@ -88,10 +88,6 @@ hashicorp_vault_listener_tcp_tls_cert_file: "{{ hashicorp_vault_dir_tls }}/{{ in
 hashicorp_vault_listener_tcp_tls_client_ca_file: "{{ hashicorp_vault_dir_tls }}/{{ vault_cluster_fqdn }}.ca.cert.pem"
 hashicorp_vault_listener_tcp_telemetry_unauthenticated_metrics_access: true
 
-# tls_key_file = "/opt/vault/tls/vault-server-vault-prod.prd-ty11.cube.exchange-{{ inventory_hostname }}-key.pem"
-# tls_cert_file = "/opt/vault/tls/vault-server-vault-prod.prd-ty11.cube.exchange-{{ inventory_hostname }}.pem"
-# tls_client_ca_file = "/opt/vault/tls/vault-prod.prd-ty11.cube.exchange-agent-ca.pem"
-
 # https://developer.hashicorp.com/vault/docs/configuration/storage/raft
 hashicorp_vault_storage_raft_path: "{{ hashicorp_vault_dir_base }}/data"
 hashicorp_vault_storage_raft_node_id: "{{ inventory_hostname }}"

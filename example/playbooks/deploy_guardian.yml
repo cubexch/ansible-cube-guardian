@@ -1,5 +1,6 @@
 - name: Deploy Guardian
-  hosts: example_guardian_group
+  # Update hosts selector with new guardian hostname
+  hosts: example-guard-1
   gather_facts: false
   become: true
   become_user: root
