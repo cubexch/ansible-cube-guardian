@@ -188,6 +188,7 @@
 - name: Load vault_init_data
   delegate_to: "{{ cluster_creator_hostname }}"
   run_once: true
+  no_log: true
   ansible.builtin.include_vars:
     file: "{{ hashicorp_vault_init_data_local_dir }}/hashicorp_vault_init_data.ansible_vault.yml"
     name: "loaded_vault_init_data"
@@ -195,6 +196,7 @@
     - vault_ha_status
 
 - name: Check all_init_status
+  no_log: true
   community.hashi_vault.vault_read:
     url: "{{ hashicorp_vault_cluster_addr_api }}"
     path: "/sys/init"

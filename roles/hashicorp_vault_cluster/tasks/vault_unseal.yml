@@ -1,14 +1,11 @@
 - name: Load vault_init_data for members
+  no_log: true
   ansible.builtin.include_vars:
     file: "{{ hashicorp_vault_init_data_local_dir }}/hashicorp_vault_init_data.ansible_vault.yml"
     name: "loaded_vault_init_data"
 
-- name: Show loaded_vault_init_data for members
-  ansible.builtin.debug:
-    msg: "key is: {{ item }}"
-  loop: "{{ loaded_vault_init_data['keys'] |flatten() }}"
-
 - name: Unseal Vault Member Nodes
+  no_log: true
   community.hashi_vault.vault_write:
     url: "https://{{ hashicorp_vault_listener_tcp_address }}"
     ca_cert: "{{ hashicorp_vault_listener_tcp_tls_client_ca_file }}"
