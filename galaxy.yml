@@ -1,6 +1,6 @@
 namespace: cubexch
 name: guardian
-version: 1.0.3
+version: 1.0.6
 description: Cube Exchange Guardian Collection
 
 repository: https://github.com/cubexch/ansible-cube-guardian
@@ -47,5 +47,10 @@ build_ignore:
 - "**/.ansible-galaxy-collections"
 - "**/.ansible-galaxy-roles"
 - "**/*.key"
-- ".tmp"
 - ".vscode"
+- ".tmp"
+- "**/.tmp"
+- ".venv"
+- "**/.venv"
+- "**/hashicorp-vault-certs"
+- "**/hashicorp-vault-init"
