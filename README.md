@@ -5,54 +5,51 @@
   - [2.1. Guardian Server](#21-guardian-server)
   - [2.2. Hashicorp Vault Cluster](#22-hashicorp-vault-cluster)
   - [2.3. Public Guardian List Approval](#23-public-guardian-list-approval)
-- [3. Hashicorp Vault _**TESTING**_](#3-hashicorp-vault-testing)
-  - [3.1. Install Hashicorp Vault for _**TESTING**_](#31-install-hashicorp-vault-for-testing)
-  - [3.2. Start Hashicorp Vault for _**TESTING**_](#32-start-hashicorp-vault-for-testing)
-- [4. Conventions](#4-conventions)
-- [5. Ansible Configuration](#5-ansible-configuration)
-  - [5.1. Configure your virtual environment.](#51-configure-your-virtual-environment)
-  - [5.2. Create the `.ansible-vault.key` file to contain your Ansible Vault password.](#52-create-the-ansible-vaultkey-file-to-contain-your-ansible-vault-password)
-  - [5.3. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`](#53-create-ansiblecfg-and-set-the-vault_password_file-to-ansible-vaultkey)
-  - [5.4. Install pip \& Ansible Galaxy requirements inside `cube-guardian` virtual environment.](#54-install-pip--ansible-galaxy-requirements-inside-cube-guardian-virtual-environment)
-- [6. Setup Hashicorp Vault Cluster](#6-setup-hashicorp-vault-cluster)
-  - [6.1. Inventory Setup](#61-inventory-setup)
-    - [6.1.1. Create an Ansible inventory for your Hashicorp Vault Cluster](#611-create-an-ansible-inventory-for-your-hashicorp-vault-cluster)
-    - [6.1.2. Optional - Set `ansible_user` and `ansible_ssh_private_key_file` in `group_vars` under the `all` group](#612-optional---set-ansible_user-and-ansible_ssh_private_key_file-in-group_vars-under-the-all-group)
-    - [6.1.3. Verify Connectivity to Vault Cluster Nodes](#613-verify-connectivity-to-vault-cluster-nodes)
-    - [6.1.4. Create `group_vars` for the `geerlingguy.swap` role under the `all` group](#614-create-group_vars-for-the-geerlingguyswap-role-under-the-all-group)
-    - [6.1.5. Create `group_vars` for the `cubexch.guardian.hashicorp_vault_cluster` role under the `example_hashicorp_vault_cluster` group:](#615-create-group_vars-for-the-cubexchguardianhashicorp_vault_cluster-role-under-the-example_hashicorp_vault_cluster-group)
-  - [6.2. Self-Signed Certificates for Vault Cluster Nodes](#62-self-signed-certificates-for-vault-cluster-nodes)
-    - [6.2.1. Create Ansible Playbook to Generate Self-Signed Certificates for Vault Cluster Nodes](#621-create-ansible-playbook-to-generate-self-signed-certificates-for-vault-cluster-nodes)
-    - [6.2.2. SENSITIVE: Generate Self-Signed Certificates](#622-sensitive-generate-self-signed-certificates)
-    - [6.2.3. SENSITIVE: Encrypt Private Keys for Self-Signed Certs](#623-sensitive-encrypt-private-keys-for-self-signed-certs)
-  - [6.3. Deploy Vault Cluster](#63-deploy-vault-cluster)
-    - [6.3.1. Create Ansible Playbook to Deploy Hashicorp Vault Cluster](#631-create-ansible-playbook-to-deploy-hashicorp-vault-cluster)
-    - [6.3.2. Deploy Hashicorp Vault Cluster](#632-deploy-hashicorp-vault-cluster)
-    - [6.3.3. SENSITIVE: Encrypt Vault Init Data](#633-sensitive-encrypt-vault-init-data)
-- [7. Guardian Configuration](#7-guardian-configuration)
-  - [7.1. Create an Ansible inventory for your Guardian node.](#71-create-an-ansible-inventory-for-your-guardian-node)
-  - [7.2. Verify Connectivity to Guardian Node with Ansible](#72-verify-connectivity-to-guardian-node-with-ansible)
-  - [7.3. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:](#73-optional-create-host_vars-for-the-geerlingguycertbot-role)
-  - [7.4. Create `host_vars` for your non-sensitive Guardian Vault Configuration](#74-create-host_vars-for-your-non-sensitive-guardian-vault-configuration)
-  - [7.5. SENSITIVE: Create `host_vars` for sensitive Guardian Node Configuration](#75-sensitive-create-host_vars-for-sensitive-guardian-node-configuration)
-  - [7.6. SENSITIVE: Encrypt `host_vars` for sensitive Guardian Node Configuration with Ansible Vault](#76-sensitive-encrypt-host_vars-for-sensitive-guardian-node-configuration-with-ansible-vault)
-  - [7.7. Create `host_vars` for your non-sensitive Guardian Node Configuration](#77-create-host_vars-for-your-non-sensitive-guardian-node-configuration)
-  - [7.8. Create an Ansible playbook to deploy](#78-create-an-ansible-playbook-to-deploy)
-  - [7.9. Run the playbook to configure the Guardian Node](#79-run-the-playbook-to-configure-the-guardian-node)
-  - [7.10. Verify inbound connectivity to your Guardian Node](#710-verify-inbound-connectivity-to-your-guardian-node)
-  - [7.11. Verify your Guardian Certificate has the expected CN](#711-verify-your-guardian-certificate-has-the-expected-cn)
-- [8. SENSITIVE: Ensure All Sensitive Information Encrypted with Ansible Vault](#8-sensitive-ensure-all-sensitive-information-encrypted-with-ansible-vault)
-- [9. FAQ](#9-faq)
-  - [9.1. How can I check the status of the Guardian service?](#91-how-can-i-check-the-status-of-the-guardian-service)
-  - [9.2. How can I check the deployed configuration?](#92-how-can-i-check-the-deployed-configuration)
-  - [9.3. How can I view the Guardian logs?](#93-how-can-i-view-the-guardian-logs)
-  - [9.4. Example Log Messages](#94-example-log-messages)
-    - [9.4.1. Successful Guardian Connection to Hashicorp Vault](#941-successful-guardian-connection-to-hashicorp-vault)
-    - [9.4.2. Successful Guardian Key Initialization](#942-successful-guardian-key-initialization)
-    - [9.4.3. Successful Guardian Peer Connection](#943-successful-guardian-peer-connection)
-    - [9.4.4. Successful User Key Generation](#944-successful-user-key-generation)
-    - [9.4.5. Failed Peer Connection - Received Invalid TLS Certificate Name](#945-failed-peer-connection---received-invalid-tls-certificate-name)
-    - [9.4.6. Other Errors](#946-other-errors)
+- [3. Conventions](#3-conventions)
+- [4. Ansible Configuration](#4-ansible-configuration)
+  - [4.1. Configure your virtual environment.](#41-configure-your-virtual-environment)
+  - [4.2. Create the `.ansible-vault.key` file to contain your Ansible Vault password.](#42-create-the-ansible-vaultkey-file-to-contain-your-ansible-vault-password)
+  - [4.3. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`](#43-create-ansiblecfg-and-set-the-vault_password_file-to-ansible-vaultkey)
+  - [4.4. Install pip \& Ansible Galaxy requirements inside `cube-guardian` virtual environment.](#44-install-pip--ansible-galaxy-requirements-inside-cube-guardian-virtual-environment)
+- [5. Setup Hashicorp Vault Cluster](#5-setup-hashicorp-vault-cluster)
+  - [5.1. Inventory Setup](#51-inventory-setup)
+    - [5.1.1. Create an Ansible inventory for your Hashicorp Vault Cluster](#511-create-an-ansible-inventory-for-your-hashicorp-vault-cluster)
+    - [5.1.2. Optional - Set `ansible_user` and `ansible_ssh_private_key_file` in `group_vars` under the `all` group](#512-optional---set-ansible_user-and-ansible_ssh_private_key_file-in-group_vars-under-the-all-group)
+    - [5.1.3. Verify Connectivity to Vault Cluster Nodes](#513-verify-connectivity-to-vault-cluster-nodes)
+    - [5.1.4. Create `group_vars` for the `geerlingguy.swap` role under the `all` group](#514-create-group_vars-for-the-geerlingguyswap-role-under-the-all-group)
+    - [5.1.5. Create `group_vars` for the `cubexch.guardian.hashicorp_vault_cluster` role under the `example_hashicorp_vault_cluster` group:](#515-create-group_vars-for-the-cubexchguardianhashicorp_vault_cluster-role-under-the-example_hashicorp_vault_cluster-group)
+  - [5.2. Self-Signed Certificates for Vault Cluster Nodes](#52-self-signed-certificates-for-vault-cluster-nodes)
+    - [5.2.1. Create Ansible Playbook to Generate Self-Signed Certificates for Vault Cluster Nodes](#521-create-ansible-playbook-to-generate-self-signed-certificates-for-vault-cluster-nodes)
+    - [5.2.2. SENSITIVE: Generate Self-Signed Certificates](#522-sensitive-generate-self-signed-certificates)
+    - [5.2.3. SENSITIVE: Encrypt Private Keys for Self-Signed Certs](#523-sensitive-encrypt-private-keys-for-self-signed-certs)
+  - [5.3. Deploy Vault Cluster](#53-deploy-vault-cluster)
+    - [5.3.1. Create Ansible Playbook to Deploy Hashicorp Vault Cluster](#531-create-ansible-playbook-to-deploy-hashicorp-vault-cluster)
+    - [5.3.2. Deploy Hashicorp Vault Cluster](#532-deploy-hashicorp-vault-cluster)
+    - [5.3.3. SENSITIVE: Encrypt Vault Init Data](#533-sensitive-encrypt-vault-init-data)
+- [6. Guardian Configuration](#6-guardian-configuration)
+  - [6.1. Create an Ansible inventory for your Guardian node.](#61-create-an-ansible-inventory-for-your-guardian-node)
+  - [6.2. Verify Connectivity to Guardian Node with Ansible](#62-verify-connectivity-to-guardian-node-with-ansible)
+  - [6.3. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:](#63-optional-create-host_vars-for-the-geerlingguycertbot-role)
+  - [6.4. Create `host_vars` for your non-sensitive Guardian Vault Configuration](#64-create-host_vars-for-your-non-sensitive-guardian-vault-configuration)
+  - [6.5. SENSITIVE: Create `host_vars` for sensitive Guardian Node Configuration](#65-sensitive-create-host_vars-for-sensitive-guardian-node-configuration)
+  - [6.6. SENSITIVE: Encrypt `host_vars` for sensitive Guardian Node Configuration with Ansible Vault](#66-sensitive-encrypt-host_vars-for-sensitive-guardian-node-configuration-with-ansible-vault)
+  - [6.7. Create `host_vars` for your non-sensitive Guardian Node Configuration](#67-create-host_vars-for-your-non-sensitive-guardian-node-configuration)
+  - [6.8. Create an Ansible playbook to deploy](#68-create-an-ansible-playbook-to-deploy)
+  - [6.9. Run the playbook to configure the Guardian Node](#69-run-the-playbook-to-configure-the-guardian-node)
+  - [6.10. Verify inbound connectivity to your Guardian Node](#610-verify-inbound-connectivity-to-your-guardian-node)
+  - [6.11. Verify your Guardian Certificate has the expected CN](#611-verify-your-guardian-certificate-has-the-expected-cn)
+- [7. SENSITIVE: Ensure All Sensitive Information Encrypted with Ansible Vault](#7-sensitive-ensure-all-sensitive-information-encrypted-with-ansible-vault)
+- [8. FAQ](#8-faq)
+  - [8.1. How can I check the status of the Guardian service?](#81-how-can-i-check-the-status-of-the-guardian-service)
+  - [8.2. How can I check the deployed configuration?](#82-how-can-i-check-the-deployed-configuration)
+  - [8.3. How can I view the Guardian logs?](#83-how-can-i-view-the-guardian-logs)
+  - [8.4. Example Log Messages](#84-example-log-messages)
+    - [8.4.1. Successful Guardian Connection to Hashicorp Vault](#841-successful-guardian-connection-to-hashicorp-vault)
+    - [8.4.2. Successful Guardian Key Initialization](#842-successful-guardian-key-initialization)
+    - [8.4.3. Successful Guardian Peer Connection](#843-successful-guardian-peer-connection)
+    - [8.4.4. Successful User Key Generation](#844-successful-user-key-generation)
+    - [8.4.5. Failed Peer Connection - Received Invalid TLS Certificate Name](#845-failed-peer-connection---received-invalid-tls-certificate-name)
+    - [8.4.6. Other Errors](#846-other-errors)
 
 ## 2. Requirements
 
@@ -86,80 +83,7 @@ Guardian software will only communicate with instances that have been added to t
 
 View the public list of Guardians at `public_guardian_list` in [roles/guardian/defaults/main.yml](roles/guardian/defaults/main.yml)
 
-## 3. Hashicorp Vault _**TESTING**_
-
-If you would like to setup a _**DEV**_ instance of Hashicorp Vault to test the Guardian deployment process, you can install Hashicorp Vault and run it with the `-dev-tls` option to create an in-memory instance.
-
-### 3.1. Install Hashicorp Vault for _**TESTING**_
-
-```bash
-# ssh to your Guardian Server
-
-# Add Hashicorp Vault apt repo
-# REF: https://www.hashicorp.com/official-packaging-guide
-sudo apt update && sudo apt install gpg
-wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-
-# Install Vault
-sudo apt update && sudo apt install vault
-```
-
-### 3.2. Start Hashicorp Vault for _**TESTING**_
-
-```bash
-# Start vault in DEV-TLS mode
-vault server -dev-tls
-
-### Example Output
-==> Vault server configuration:
-
-Administrative Namespace:
-             Api Address: https://127.0.0.1:8200
-                     Cgo: disabled
-         Cluster Address: https://127.0.0.1:8201
-   Environment Variables: DBUS_SESSION_BUS_ADDRESS, GODEBUG, GOTRACEBACK, HOME, LANG, LESSCLOSE, LESSOPEN, LOGNAME, LS_COLORS, MOTD_SHOWN, PATH, PWD, SHELL, SHLVL, SSH_CLIENT, SSH_CONNECTION, SSH_TTY, TERM, USER, XDG_DATA_DIRS, XDG_RUNTIME_DIR, XDG_SESSION_CLASS, XDG_SESSION_ID, XDG_SESSION_TYPE, _
-              Go Version: go1.20.5
-              Listener 1: tcp (addr: "127.0.0.1:8200", cluster address: "127.0.0.1:8201", max_request_duration: "1m30s", max_request_size: "33554432", tls: "enabled")
-               Log Level:
-                   Mlock: supported: true, enabled: false
-           Recovery Mode: false
-                 Storage: inmem
-                 Version: Vault v1.14.1, built 2023-07-21T10:15:14Z
-             Version Sha: bf23fe8636b04d554c0fa35a756c75c2f59026c0
-
-==> Vault server started! Log data will stream in below:
-
-...
-...
-...
-
-WARNING! dev mode is enabled! In this mode, Vault runs entirely in-memory
-and starts unsealed with a single unseal key. The root token is already
-authenticated to the CLI, so you can immediately begin using Vault.
-
-You may need to set the following environment variables:
-
-    $ export VAULT_ADDR='https://127.0.0.1:8200'
-    $ export VAULT_CACERT='/tmp/vault-tls4054009470/vault-ca.pem'
-
-
-The unseal key and root token are displayed below in case you want to
-seal/unseal the Vault or re-authenticate.
-
-Unseal Key: MY_UNSEAL_KEY
-Root Token: hvs.MY_ROOT_TOKEN_VALUE
-
-Development mode should NOT be used in production installations!
-```
-
-The key pieces of information from the output are the `VAULT_ADDR`, `VAULT_CACERT`, and `Root Token`. You can use these values to update their corresponding ansible inventory variables in the following steps.
-
-- `VAULT_ADDR='https://127.0.0.1:8200'` ->
-- `VAULT_CACERT='/tmp/vault-tls4054009470/vault-ca.pem'` ->
-- `Root Token: hvs.MY_ROOT_TOKEN_VALUE` ->
-
-## 4. Conventions
+## 3. Conventions
 
 - Files containing sensitive variables have a `.ansible_vault.yml` suffix to indicate they contain sensitive variable definitions and should be encrypted with Ansible Vault.
 
@@ -191,13 +115,13 @@ The key pieces of information from the output are the `VAULT_ADDR`, `VAULT_CACER
     ./inventory/host_vars/example-guard-1/guardian.yml:guardian_access_token: "{{ guardian_access_token_vault }}"
     ```
 
-## 5. Ansible Configuration
+## 4. Ansible Configuration
 
 > While any Python 3.8+ version should be sufficient for running this collection with Ansible, only Python 3.8.10 has been verified.
 >
 > As an option, you can use Python 3.8.10 within a `pyenv` virtual environment. Please refer to the [PyEnv Installation Guide](https://github.com/pyenv/pyenv#installation) for detailed instructions.
 
-### 5.1. Configure your virtual environment.
+### 4.1. Configure your virtual environment.
 
 1.  If you'd like to use `pyenv`
 
@@ -229,7 +153,7 @@ The key pieces of information from the output are the `VAULT_ADDR`, `VAULT_CACER
     cd example
     ```
 
-### 5.2. Create the `.ansible-vault.key` file to contain your Ansible Vault password.
+### 4.2. Create the `.ansible-vault.key` file to contain your Ansible Vault password.
 
 `.ansible-vault.key`
 
@@ -237,7 +161,7 @@ The key pieces of information from the output are the `VAULT_ADDR`, `VAULT_CACER
 my_secret_ansible_vault_password
 ```
 
-### 5.3. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`
+### 4.3. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`
 
 `ansible.cfg`
 
@@ -253,18 +177,18 @@ retries = 3
 pipelining = true
 ```
 
-### 5.4. Install pip & Ansible Galaxy requirements inside `cube-guardian` virtual environment.
+### 4.4. Install pip & Ansible Galaxy requirements inside `cube-guardian` virtual environment.
 
 ```bash
 pip install -r requirements.txt
 ansible-galaxy install -r requirements.yml --force
 ```
 
-## 6. Setup Hashicorp Vault Cluster
+## 5. Setup Hashicorp Vault Cluster
 
-### 6.1. Inventory Setup
+### 5.1. Inventory Setup
 
-#### 6.1.1. Create an Ansible inventory for your Hashicorp Vault Cluster
+#### 5.1.1. Create an Ansible inventory for your Hashicorp Vault Cluster
 
 `inventory/hosts-example.ini`
 
@@ -278,7 +202,7 @@ example-vault-3  ansible_host=127.0.0.3
 example-vault-[1:3]
 ```
 
-#### 6.1.2. Optional - Set `ansible_user` and `ansible_ssh_private_key_file` in `group_vars` under the `all` group
+#### 5.1.2. Optional - Set `ansible_user` and `ansible_ssh_private_key_file` in `group_vars` under the `all` group
 
 `inventory/group_vars/all/all.yml`
 
@@ -287,13 +211,13 @@ ansible_user: ansible
 ansible_ssh_private_key_file: ~/.ssh/id_ed25519
 ```
 
-#### 6.1.3. Verify Connectivity to Vault Cluster Nodes
+#### 5.1.3. Verify Connectivity to Vault Cluster Nodes
 
 ```bash
 ansible example_hashicorp_vault_cluster -i inventory/hosts-example.ini -m ping --one-line
 ```
 
-#### 6.1.4. Create `group_vars` for the `geerlingguy.swap` role under the `all` group
+#### 5.1.4. Create `group_vars` for the `geerlingguy.swap` role under the `all` group
 
 > It is strongly recommended to disable swap on both the Guardian _**and**_ all of your Vault Cluster Nodes
 
@@ -303,7 +227,7 @@ ansible example_hashicorp_vault_cluster -i inventory/hosts-example.ini -m ping -
 swap_file_state: absent
 ```
 
-#### 6.1.5. Create `group_vars` for the `cubexch.guardian.hashicorp_vault_cluster` role under the `example_hashicorp_vault_cluster` group:
+#### 5.1.5. Create `group_vars` for the `cubexch.guardian.hashicorp_vault_cluster` role under the `example_hashicorp_vault_cluster` group:
 
 `inventory/group_vars/example_hashicorp_vault_cluster/cubexch.guardian.hashicorp_vault_cluster.yml`
 
@@ -344,9 +268,9 @@ self_signed_certs_local_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
 hashicorp_vault_init_data_local_dir: '{{ inventory_dir }}/hashicorp-vault-init'
 ```
 
-### 6.2. Self-Signed Certificates for Vault Cluster Nodes
+### 5.2. Self-Signed Certificates for Vault Cluster Nodes
 
-#### 6.2.1. Create Ansible Playbook to Generate Self-Signed Certificates for Vault Cluster Nodes
+#### 5.2.1. Create Ansible Playbook to Generate Self-Signed Certificates for Vault Cluster Nodes
 
 `playbooks/generate_self_signed_certs.yml`
 
@@ -376,21 +300,21 @@ hashicorp_vault_init_data_local_dir: '{{ inventory_dir }}/hashicorp-vault-init'
         - generate_self_signed_certs
 ```
 
-#### 6.2.2. SENSITIVE: Generate Self-Signed Certificates
+#### 5.2.2. SENSITIVE: Generate Self-Signed Certificates
 
 ```bash
 ansible-playbook -i ./inventory/hosts-example.ini playbooks/generate_self_signed_certs.yml --diff -v
 ```
 
-#### 6.2.3. SENSITIVE: Encrypt Private Keys for Self-Signed Certs
+#### 5.2.3. SENSITIVE: Encrypt Private Keys for Self-Signed Certs
 
 ```bash
 for f in $(find . -type f -name "*.private.key") ;do echo Encrypting $f ;ansible-vault encrypt $f ;done
 ```
 
-### 6.3. Deploy Vault Cluster
+### 5.3. Deploy Vault Cluster
 
-#### 6.3.1. Create Ansible Playbook to Deploy Hashicorp Vault Cluster
+#### 5.3.1. Create Ansible Playbook to Deploy Hashicorp Vault Cluster
 
 `playbooks/deploy_hashicorp_vault.yml`
 
@@ -405,13 +329,13 @@ for f in $(find . -type f -name "*.private.key") ;do echo Encrypting $f ;ansible
     - cubexch.guardian.hashicorp_vault_cluster
 ```
 
-#### 6.3.2. Deploy Hashicorp Vault Cluster
+#### 5.3.2. Deploy Hashicorp Vault Cluster
 
 ```bash
 ansible-playbook -i ./inventory/hosts-example.ini playbooks/deploy_hashicorp_vault.yml --diff -v
 ```
 
-#### 6.3.3. SENSITIVE: Encrypt Vault Init Data
+#### 5.3.3. SENSITIVE: Encrypt Vault Init Data
 
 The `hashicorp_vault_cluster` role initializes the Vault Cluster and saves the secret keys and root token to the default location of `{{ inventory_dir }}/hashicorp-vault-init`.
 
@@ -424,9 +348,9 @@ for f in $(find . -type f -name "*.private.key") ;do echo Encrypting $f ;ansible
 for f in $(find . -type f -name "*.ansible_vault.yml") ;do echo Encrypting $f ;ansible-vault encrypt $f ;done
 ```
 
-## 7. Guardian Configuration
+## 6. Guardian Configuration
 
-### 7.1. Create an Ansible inventory for your Guardian node.
+### 6.1. Create an Ansible inventory for your Guardian node.
 
 `inventory/hosts-example.ini`
 
@@ -438,13 +362,13 @@ example-guard-1  ansible_host=127.0.0.11
 example-guard-1
 ```
 
-### 7.2. Verify Connectivity to Guardian Node with Ansible
+### 6.2. Verify Connectivity to Guardian Node with Ansible
 
 ```bash
 ansible example_guardian_group -i inventory/hosts-example.ini -m ping --one-line
 ```
 
-### 7.3. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:
+### 6.3. OPTIONAL: Create `host_vars` for the `geerlingguy.certbot` role:
 
 Unless you are providing your own public SSL certificates, use the recommended configurations below:
 
@@ -475,7 +399,7 @@ certbot_certs:
       - '{{ guardian_instance.public_fqdn }}'
 ```
 
-### 7.4. Create `host_vars` for your non-sensitive Guardian Vault Configuration
+### 6.4. Create `host_vars` for your non-sensitive Guardian Vault Configuration
 
 `inventory/host_vars/example-guard-1/guardian_vault_config.yml`
 
@@ -514,7 +438,7 @@ vault_approle_enable: true
 vault_approle_retrieve: true
 ```
 
-### 7.5. SENSITIVE: Create `host_vars` for sensitive Guardian Node Configuration
+### 6.5. SENSITIVE: Create `host_vars` for sensitive Guardian Node Configuration
 
 `inventory/host_vars/example-guard-1/guardian.ansible_vault.yml`
 
@@ -524,13 +448,13 @@ vault_approle_retrieve: true
 guardian_access_token_vault: 'my_guardian_access_token'
 ```
 
-### 7.6. SENSITIVE: Encrypt `host_vars` for sensitive Guardian Node Configuration with Ansible Vault
+### 6.6. SENSITIVE: Encrypt `host_vars` for sensitive Guardian Node Configuration with Ansible Vault
 
 ```bash
 for f in $(find . -type f -name "*.ansible_vault.yml") ;do echo Encrypting $f ;ansible-vault encrypt $f ;done
 ```
 
-### 7.7. Create `host_vars` for your non-sensitive Guardian Node Configuration
+### 6.7. Create `host_vars` for your non-sensitive Guardian Node Configuration
 
 `inventory/host_vars/example-guard-1/guardian.yml`
 
@@ -586,7 +510,7 @@ guardian_listen_web_port_open_iptables: true
 guardian_access_token: '{{ guardian_access_token_vault }}' # References value defined in guardian.ansible_vault.yml for clarity
 ```
 
-### 7.8. Create an Ansible playbook to deploy
+### 6.8. Create an Ansible playbook to deploy
 
 The list of roles can be adjusted if not all are desired.
 
@@ -614,7 +538,7 @@ The list of roles can be adjusted if not all are desired.
     - cubexch.guardian.guardian
 ```
 
-### 7.9. Run the playbook to configure the Guardian Node
+### 6.9. Run the playbook to configure the Guardian Node
 
 ```bash
 ansible-playbook -i ./inventory/hosts-example.ini playbooks/deploy_guardian.yml --diff -v
@@ -622,7 +546,7 @@ ansible-playbook -i ./inventory/hosts-example.ini playbooks/deploy_guardian.yml 
 
 If the Guardian service fails to start, please refer to [9. FAQ](#9-faq)
 
-### 7.10. Verify inbound connectivity to your Guardian Node
+### 6.10. Verify inbound connectivity to your Guardian Node
 
 ```bash
 nc -vz -w 10 example-guardian-1.testing.cube.exchange 20104
@@ -634,7 +558,7 @@ nc -vz -w 10 example-guardian-1.testing.cube.exchange 443
 # Connection to example-guardian-1.testing.cube.exchange port 443 [tcp/https] succeeded!
 ```
 
-### 7.11. Verify your Guardian Certificate has the expected CN
+### 6.11. Verify your Guardian Certificate has the expected CN
 
 ```bash
 openssl s_client -showcerts -connect example-guardian-1.testing.cube.exchange:443 </dev/null 2>/dev/null | grep s:CN
@@ -674,16 +598,16 @@ addr = "example-guardian-2.testing.cube.exchange:20105"
 tls_name = "example-guardian-2.testing.cube.exchange"
 ```
 
-## 8. SENSITIVE: Ensure All Sensitive Information Encrypted with Ansible Vault
+## 7. SENSITIVE: Ensure All Sensitive Information Encrypted with Ansible Vault
 
 ```bash
 for f in $(find . -type f -name "*.ansible_vault.yml") ;do echo Encrypting $f ;ansible-vault encrypt $f ;done
 for f in $(find . -type f -name "*.private.key") ;do echo Encrypting $f ;ansible-vault encrypt $f ;done
 ```
 
-## 9. FAQ
+## 8. FAQ
 
-### 9.1. How can I check the status of the Guardian service?
+### 8.1. How can I check the status of the Guardian service?
 
 The Ansible role deploys the Guardian service as a systemd service named `guardian-{{ your_guardian_id }}`.
 
@@ -710,7 +634,7 @@ Aug 01 14:46:06 example-guardian-1 systemd[1]: Starting "Cube Guardian - 204"...
 Aug 01 14:46:19 example-guardian-1 systemd[1]: Started "Cube Guardian - 204".
 ```
 
-### 9.2. How can I check the deployed configuration?
+### 8.2. How can I check the deployed configuration?
 
 - Guardian configuration files are stored in `/opt/cube-guardian-{{ your_guardian_id }}/config` by default
 - Environment variables required by the Guardian service are in `guardian-{{ your_guardian_id }}.service.env`
@@ -732,7 +656,7 @@ drwxr-x--- 4 cube-guardian-204 cube-guardian-204 4096 Aug  1 14:45 ../
 -rw------- 1 cube-guardian-204 cube-guardian-204  114 Aug  1 14:45 vault.guardian.example-guardian-1.writer.json
 ```
 
-### 9.3. How can I view the Guardian logs?
+### 8.3. How can I view the Guardian logs?
 
 - Logs are written to `/var/log/cube-guardian-{{ your_guardian_id }}` by default.
 - The `aurum.log.*` file is the primary application log.
@@ -756,16 +680,16 @@ drwxrwxr-x 10 root              syslog             4096 Aug  1 14:45 ../
 tail -f /var/log/cube-guardian-204/aurum.log.$(date +'%F')
 ```
 
-### 9.4. Example Log Messages
+### 8.4. Example Log Messages
 
-#### 9.4.1. Successful Guardian Connection to Hashicorp Vault
+#### 8.4.1. Successful Guardian Connection to Hashicorp Vault
 
 ```bash
 2023-08-01T14:46:07.023501Z  INFO cube_key_store::hashicorp_vault: login auth {"request_id":"20cd2583-7b8c-2ba2-53ef-1c12b6597344","auth":{"policies":["default","vault.guardian.204.writer.policy"],"token_policies":["default","vault.guardian.204.writer.policy"],"metadata":{"role_name":"cube-guardian-204.writer"}}}
 2023-08-01T14:46:07.023757Z  INFO cube_key_store::hashicorp_vault: login auth {"request_id":"c758de74-d71d-05e0-1d87-20a67931711b","auth":{"policies":["default","vault.guardian.204.reader.policy"],"token_policies":["default","vault.guardian.204.reader.policy"],"metadata":{"role_name":"cube-guardian-204.reader"}}}
 ```
 
-#### 9.4.2. Successful Guardian Key Initialization
+#### 8.4.2. Successful Guardian Key Initialization
 
 > The initial key generation process could take some time to complete.
 
@@ -774,7 +698,7 @@ tail -f /var/log/cube-guardian-204/aurum.log.$(date +'%F')
 2023-08-01T14:42:18.109109Z  INFO cube_aurum::modules::manager: precomputing local key tables...
 ```
 
-#### 9.4.3. Successful Guardian Peer Connection
+#### 8.4.3. Successful Guardian Peer Connection
 
 ```bash
 2023-08-01T14:46:20.511870Z  INFO cube_aurum::modules::guardian_nodes: accepting connection from (token:5 id:203 address:guardian-203.testing.cube.exchange:20103)
@@ -784,7 +708,7 @@ tail -f /var/log/cube-guardian-204/aurum.log.$(date +'%F')
 2023-08-01T15:52:38.255799Z  INFO cube_aurum::modules::manager: guardian=201: initialized keys
 ```
 
-#### 9.4.4. Successful User Key Generation
+#### 8.4.4. Successful User Key Generation
 
 ```bash
 2023-08-01T15:52:50.079367Z  INFO cube_aurum::modules::manager: job_id=56576470318841861 user_id=e480b799-0613-4fae-9ae1-3a49902d7d0e starting keygen
@@ -793,13 +717,13 @@ tail -f /var/log/cube-guardian-204/aurum.log.$(date +'%F')
 2023-08-01T15:52:51.822734Z  INFO cube_aurum::modules::manager: generated user_id=e480b799-0613-4fae-9ae1-3a49902d7d0e subaccount_id=1 key_id=1690905169961379000 public_key=028c8b2bb57aadf893dc3f5e96e3fbd40e7f42572762bc720408c8f1a3813c7ddc
 ```
 
-#### 9.4.5. Failed Peer Connection - Received Invalid TLS Certificate Name
+#### 8.4.5. Failed Peer Connection - Received Invalid TLS Certificate Name
 
 ```bash
 2023-08-01T17:42:08.668311Z  WARN rustls::msgs::handshake: Illegal SNI hostname received "147.75.84.211"
 ```
 
-#### 9.4.6. Other Errors
+#### 8.4.6. Other Errors
 
 - Generally logs tagged as `ERROR` represent a failure that should be investigated.
 - Log messages for errors will typically include a descriptive message (and parameters if applicable) to indicate the source of the issue.
