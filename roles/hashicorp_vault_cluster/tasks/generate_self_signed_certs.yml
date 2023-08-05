@@ -1,0 +1,28 @@
+- name: Create self_signed_certs_local_dir
+  delegate_to: localhost
+  run_once: true
+  become: false
+  ansible.builtin.file:
+    dest: '{{ self_signed_certs_local_dir }}'
+    state: directory
+    mode: 'u+rw,go=-'
+    # mode: 'u+rw,g+r,o=-'
+
+- name: Copy generate_self_signed_certs.sh script to self_signed_certs_local_dir
+  become: false
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.copy:
+    src: "generate_self_signed_certs.sh"
+    dest: "{{ self_signed_certs_local_dir }}/generate_self_signed_certs.sh"
+    mode: u=rwx,go=-
+
+- name: Generate Self Signed Certs
+  become: false
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.command:
+    cmd: '{{ self_signed_certs_local_dir }}/generate_self_signed_certs.sh {{ vault_cluster_fqdn }} {{ item }} {{ self_signed_certs_local_dir }}'
+    chdir: '{{ self_signed_certs_local_dir }}'
+  with_items:
+    - '{{ groups[hashicorp_vault_cluster_group_name] }}'

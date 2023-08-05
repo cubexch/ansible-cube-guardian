@@ -17,15 +17,13 @@
     - [5.1.2. Optional - Set `ansible_user` and `ansible_ssh_private_key_file` in `group_vars` under the `all` group](#512-optional---set-ansible_user-and-ansible_ssh_private_key_file-in-group_vars-under-the-all-group)
     - [5.1.3. Verify Connectivity to Vault Cluster Nodes](#513-verify-connectivity-to-vault-cluster-nodes)
     - [5.1.4. Create `group_vars` for the `geerlingguy.swap` role under the `all` group](#514-create-group_vars-for-the-geerlingguyswap-role-under-the-all-group)
-    - [5.1.5. Create `group_vars` for the `cubexch.guardian.hashicorp_vault_cluster` role under the `example_hashicorp_vault_cluster` group:](#515-create-group_vars-for-the-cubexchguardianhashicorp_vault_cluster-role-under-the-example_hashicorp_vault_cluster-group)
-  - [5.2. Self-Signed Certificates for Vault Cluster Nodes](#52-self-signed-certificates-for-vault-cluster-nodes)
-    - [5.2.1. Create Ansible Playbook to Generate Self-Signed Certificates for Vault Cluster Nodes](#521-create-ansible-playbook-to-generate-self-signed-certificates-for-vault-cluster-nodes)
-    - [5.2.2. SENSITIVE: Generate Self-Signed Certificates](#522-sensitive-generate-self-signed-certificates)
+    - [5.1.5. Create `group_vars` for the `cubexch.guardian.hashicorp_vault_cluster` role under your Vault Cluster group:](#515-create-group_vars-for-the-cubexchguardianhashicorp_vault_cluster-role-under-your-vault-cluster-group)
+  - [5.2. Deploy Vault Cluster](#52-deploy-vault-cluster)
+    - [5.2.1. Create Ansible Playbook to Deploy Hashicorp Vault Cluster](#521-create-ansible-playbook-to-deploy-hashicorp-vault-cluster)
+    - [5.2.2. SENSITIVE: Generate Self-Signed Certs Locally](#522-sensitive-generate-self-signed-certs-locally)
     - [5.2.3. SENSITIVE: Encrypt Private Keys for Self-Signed Certs](#523-sensitive-encrypt-private-keys-for-self-signed-certs)
-  - [5.3. Deploy Vault Cluster](#53-deploy-vault-cluster)
-    - [5.3.1. Create Ansible Playbook to Deploy Hashicorp Vault Cluster](#531-create-ansible-playbook-to-deploy-hashicorp-vault-cluster)
-    - [5.3.2. Deploy Hashicorp Vault Cluster](#532-deploy-hashicorp-vault-cluster)
-    - [5.3.3. SENSITIVE: Encrypt Vault Init Data](#533-sensitive-encrypt-vault-init-data)
+    - [5.2.4. SENSITIVE: Deploy Hashicorp Vault Cluster](#524-sensitive-deploy-hashicorp-vault-cluster)
+    - [5.2.5. SENSITIVE: Encrypt Vault Init Data](#525-sensitive-encrypt-vault-init-data)
 - [6. Guardian Configuration](#6-guardian-configuration)
   - [6.1. Create an Ansible inventory for your Guardian node.](#61-create-an-ansible-inventory-for-your-guardian-node)
   - [6.2. Verify Connectivity to Guardian Node with Ansible](#62-verify-connectivity-to-guardian-node-with-ansible)
@@ -172,6 +170,9 @@ collections_paths = .ansible-galaxy-collections
 vault_password_file = .ansible-vault.key
 inventory = ./inventory/hosts-example.ini
 
+# host_key_checking = False
+# host_key_auto_add = False
+
 [ssh_connection]
 retries = 3
 pipelining = true
@@ -194,10 +195,13 @@ ansible-galaxy install -r requirements.yml --force
 
 ```ini
 [all]
+
+# Update hostnames and IP addresses
 example-vault-1  ansible_host=127.0.0.1
 example-vault-2  ansible_host=127.0.0.2
 example-vault-3  ansible_host=127.0.0.3
 
+# Update group name
 [example_hashicorp_vault_cluster]
 example-vault-[1:3]
 ```
@@ -213,6 +217,8 @@ ansible_ssh_private_key_file: ~/.ssh/id_ed25519
 
 #### 5.1.3. Verify Connectivity to Vault Cluster Nodes
 
+> Update the group name `example_hashicorp_vault_cluster` to your new group name
+
 ```bash
 ansible example_hashicorp_vault_cluster -i inventory/hosts-example.ini -m ping --one-line
 ```
@@ -227,12 +233,45 @@ ansible example_hashicorp_vault_cluster -i inventory/hosts-example.ini -m ping -
 swap_file_state: absent
 ```
 
-#### 5.1.5. Create `group_vars` for the `cubexch.guardian.hashicorp_vault_cluster` role under the `example_hashicorp_vault_cluster` group:
+#### 5.1.5. Create `group_vars` for the `cubexch.guardian.hashicorp_vault_cluster` role under your Vault Cluster group:
+
+> Update the path to use your new group name
 
 `inventory/group_vars/example_hashicorp_vault_cluster/cubexch.guardian.hashicorp_vault_cluster.yml`
 
 ```yml
+### Hashicorp Vault Initialization ###
+
+# Local directory where SENSITIVE vault initialization data will be stored (root token and unseal keys)
+hashicorp_vault_init_data_local_dir: '{{ inventory_dir }}/hashicorp-vault-init'
+
+# Option to generate self-signed TLS CA & certificates for Vault Cluster Members
+self_signed_certs_generate: true
+
+# Required: Local directory where TLS CA & certificates are stored. Used to copy the certificates to the Vault cluster nodes
+self_signed_certs_local_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
+
+# Number of shamir secret shares to create (unseal keys)
+vault_init_secret_shares: 5
+
+# Threshold of how many shamir secret shares needed to unseal the vault
+vault_init_secret_threshold: 3
+
+######################################
+
+### Hashicorp Vault Cluster Config ###
+
+# Inventory Group Name for your Hashicorp Vault Cluster
+hashicorp_vault_cluster_group_name: 'example_hashicorp_vault_cluster'
+
+# Vault Cluster FQDN Suffix - Used to copy certificates and create /etc/hosts entries
+vault_cluster_fqdn: 'example.hashicorp.vault.cluster.com'
+
+# Optional: Name of your HA Cluster within Hashicorp Vault. Vault will auto-generate a cluster name if not specified.
+hashicorp_vault_cluster_name: 'example-guardian-vault-ha-cluster'
+
 ### Option to create /etc/hosts entries ###
+
 # Option to create /etc/hosts entries for each cluster member
 create_etc_hosts_entries: true
 
@@ -242,79 +281,35 @@ create_etc_hosts_entries: true
 ## Select the default interface detected by ansible
 # hashicorp_vault_interface_api_interface: "{{ ansible_default_ipv4.interface }}"
 ## Or specify an interface name
-hashicorp_vault_interface_api_interface: 'bond0'
+# hashicorp_vault_interface_api_interface: 'bond0'
 # hashicorp_vault_interface_api_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }}"
-###########################################
 
-# Inventory Group Name for your Hashicorp Vault Cluster
-hashicorp_vault_cluster_group_name: 'example_hashicorp_vault_cluster'
-# FQDN suffix to use for each host (i.e. example-vault-1.vault.example.com)
-vault_cluster_fqdn: 'hashicorp-vault.testing.cube.exchange'
-hashicorp_vault_cluster_name: 'example-guardian-vault'
+###########################################
 
 # Port used for API communications to the cluster
 hashicorp_vault_cluster_port_api: 8200
 # Port used for internal cluster node-to-node communication
 hashicorp_vault_cluster_port_cluster: 8201
 
+### Optional Firewall Configuration ###
+
 # Optional: Open Firewall Rules with iptables
 open_iptables: true
-hashicorp_vault_cluster_port_api_source_network: '127.0.0.0/24'
-hashicorp_vault_cluster_port_cluster_source_network: '127.0.0.0/24'
 
-self_signed_certs_generate: true
-self_signed_certs_local_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
+### Required when open_iptables=true
+# Vault client-facing network for Vault API communications
+# Update with the source network your Guardian node will use to connect to the Vault Cluster
+open_iptables_source_network_api_port: '127.0.0.0/24'
 
-hashicorp_vault_init_data_local_dir: '{{ inventory_dir }}/hashicorp-vault-init'
+# Internal Vault-to-Vault cluster communications
+# Update with the Vault cluster's internal network for vault-to-vault communications
+open_iptables_source_network_cluster_port: '127.0.0.0/24'
+#######################################
 ```
 
-### 5.2. Self-Signed Certificates for Vault Cluster Nodes
+### 5.2. Deploy Vault Cluster
 
-#### 5.2.1. Create Ansible Playbook to Generate Self-Signed Certificates for Vault Cluster Nodes
-
-`playbooks/generate_self_signed_certs.yml`
-
-```yml
-- name: Generate Self-Signed Certificates Locally
-  hosts: example_hashicorp_vault_cluster
-  gather_facts: false
-  become: false
-  tasks:
-    - name: Create self_signed_certs_local_dir
-      delegate_to: localhost
-      ansible.builtin.file:
-        dest: '{{ self_signed_certs_local_dir }}'
-        state: directory
-        mode: 'u+rw,g+r,o=-'
-      tags:
-        - generate_self_signed_certs
-
-    - name: Generate Self Signed Certs
-      delegate_to: localhost
-      ansible.builtin.command:
-        cmd: '{{ playbook_dir }}/files/generate_self_signed_certs.sh {{ vault_cluster_fqdn }} {{ item }} {{ self_signed_certs_local_dir }}'
-        chdir: '{{ self_signed_certs_local_dir }}'
-      with_items:
-        - '{{ groups[hashicorp_vault_cluster_group_name] }}'
-      tags:
-        - generate_self_signed_certs
-```
-
-#### 5.2.2. SENSITIVE: Generate Self-Signed Certificates
-
-```bash
-ansible-playbook -i ./inventory/hosts-example.ini playbooks/generate_self_signed_certs.yml --diff -v
-```
-
-#### 5.2.3. SENSITIVE: Encrypt Private Keys for Self-Signed Certs
-
-```bash
-for f in $(find . -type f -name "*.private.key") ;do echo Encrypting $f ;ansible-vault encrypt $f ;done
-```
-
-### 5.3. Deploy Vault Cluster
-
-#### 5.3.1. Create Ansible Playbook to Deploy Hashicorp Vault Cluster
+#### 5.2.1. Create Ansible Playbook to Deploy Hashicorp Vault Cluster
 
 `playbooks/deploy_hashicorp_vault.yml`
 
@@ -329,13 +324,29 @@ for f in $(find . -type f -name "*.private.key") ;do echo Encrypting $f ;ansible
     - cubexch.guardian.hashicorp_vault_cluster
 ```
 
-#### 5.3.2. Deploy Hashicorp Vault Cluster
+#### 5.2.2. SENSITIVE: Generate Self-Signed Certs Locally
+
+The `self_signed_certs_generate` setting in `inventory/group_vars/example_hashicorp_vault_cluster/cubexch.guardian.hashicorp_vault_cluster.yml` controls whether the `hashicorp_vault_cluster` will automatically generate self-signed certificates for the Vault Cluster nodes.
+
+You can optionally use the tag `generate_self_signed_certs` to only run the tasks to create the self-signed certificates, but the `hashicorp_vault_cluster` role will always check for and create the self-signed certificates if the variable `self_signed_certs_generate` is set to `true`.
+
+```bash
+ansible-playbook -i ./inventory/hosts-example.ini playbooks/deploy_hashicorp_vault.yml --diff -v --tags generate_self_signed_certs
+```
+
+#### 5.2.3. SENSITIVE: Encrypt Private Keys for Self-Signed Certs
+
+```bash
+for f in $(find . -type f -name "*.private.key") ;do echo Encrypting $f ;ansible-vault encrypt $f ;done
+```
+
+#### 5.2.4. SENSITIVE: Deploy Hashicorp Vault Cluster
 
 ```bash
 ansible-playbook -i ./inventory/hosts-example.ini playbooks/deploy_hashicorp_vault.yml --diff -v
 ```
 
-#### 5.3.3. SENSITIVE: Encrypt Vault Init Data
+#### 5.2.5. SENSITIVE: Encrypt Vault Init Data
 
 The `hashicorp_vault_cluster` role initializes the Vault Cluster and saves the secret keys and root token to the default location of `{{ inventory_dir }}/hashicorp-vault-init`.
 

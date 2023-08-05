@@ -2,19 +2,46 @@
 # defaults file for hashicorp_vault_cluster
 
 ### Hashicorp Vault Initialization ###
+
+# Local directory where vault initialization data will be stored (root token and unseal keys)
 hashicorp_vault_init_data_local_dir: "{{ inventory_dir }}/hashicorp-vault-init"
 
-# Number of shamir secret shares to create
+# Option to generate self-signed TLS CA & certificates for Vault Cluster Members
+self_signed_certs_generate: true
+
+# Required: Local directory where TLS CA & certificates are stored. Used to copy the certificates to the Vault cluster nodes
+self_signed_certs_local_dir: "{{ inventory_dir }}/hashicorp-vault-certs"
+
+# Number of shamir secret shares to create (unseal keys)
 vault_init_secret_shares: 5
 
 # Threshold of how many shamir secret shares needed to unseal the vault
 vault_init_secret_threshold: 3
 
+# Hostname of the node to use for creating/initializing the Vault Cluster
 cluster_creator_hostname: "{{ groups[hashicorp_vault_cluster_group_name][0] }}"
+
+# Required: List of certificate file names to copy to each Vault Cluster member
+self_signed_cert_files:
+  ca_cert: "{{ vault_cluster_fqdn }}.ca.cert.pem"
+  client_cert: "{{ inventory_hostname }}.{{ vault_cluster_fqdn }}.cert.pem"
+  client_key: "{{ inventory_hostname }}.{{ vault_cluster_fqdn }}.private.key"
+
+######################################
 
 ### Hashicorp Vault Cluster Config ###
 
+# Inventory Group Name for your Hashicorp Vault Cluster
+hashicorp_vault_cluster_group_name: "example_hashicorp_vault_cluster"
+
+# Vault Cluster FQDN Suffix - Used to copy certificates and create /etc/hosts entries
+vault_cluster_fqdn: "example.hashicorp.vault.cluster.com"
+
+# Optional: Name of your HA Cluster within Hashicorp Vault. Vault will auto-generate a cluster name if not specified.
+# hashicorp_vault_cluster_name: 'example-guardian-vault-ha-cluster'
+
 ### Option to create /etc/hosts entries ###
+
 # Option to create /etc/hosts entries for each cluster member
 create_etc_hosts_entries: false
 
@@ -26,16 +53,8 @@ create_etc_hosts_entries: false
 ## Or specify an interface name
 # hashicorp_vault_interface_api_interface: "bond0"
 # hashicorp_vault_interface_api_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }}"
+
 ###########################################
-
-# Inventory Group Name for your Hashicorp Vault Cluster
-hashicorp_vault_cluster_group_name: "example_hashicorp_vault_cluster"
-
-# Vault Cluster FQDN Suffix - Used to copy certificates and create /etc/hosts entries
-vault_cluster_fqdn: "example.hashicorp.vault.cluster.com"
-
-# Optional: Name of your HA Cluster within Hashicorp Vault. Vault will auto-generate a cluster name if not specified.
-# hashicorp_vault_cluster_name: 'example-guardian-vault-ha-cluster'
 
 # Port used for API communications to the cluster
 hashicorp_vault_cluster_port_api: 8200
@@ -48,7 +67,7 @@ hashicorp_vault_cluster_addr_api: "https://{{ inventory_hostname }}.{{ vault_clu
 # Vault Cluster Cluster Communication Address
 hashicorp_vault_cluster_addr_cluster: "https://{{ inventory_hostname }}.{{ vault_cluster_fqdn }}:{{ hashicorp_vault_cluster_port_cluster | int }}"
 
-
+### Optional Firewall Configuration ###
 # Optional: Open Firewall Rules with iptables
 open_iptables: false
 
@@ -59,17 +78,7 @@ open_iptables_source_network_api_port: "127.0.0.0/24"
 # Internal Vault-to-Vault cluster communications
 open_iptables_source_network_cluster_port: "127.0.0.0/24"
 
-# Option to generate self-signed TLS CA & certificates for Vault Cluster Members
-self_signed_certs_generate: true
-
-# Required: Local directory where TLS CA & certificates are stored. Used to copy the certificates to the Vault cluster nodes
-self_signed_certs_local_dir: "{{ inventory_dir }}/hashicorp-vault-certs"
-
-# Required: List of certificate file names to copy to each Vault Cluster member
-self_signed_cert_files:
-  ca_cert: "{{ vault_cluster_fqdn }}.ca.cert.pem"
-  client_cert: "{{ inventory_hostname }}.{{ vault_cluster_fqdn }}.cert.pem"
-  client_key: "{{ inventory_hostname }}.{{ vault_cluster_fqdn }}.private.key"
+#######################################
 
 # Base directory for vault data
 hashicorp_vault_dir_base: "/opt/vault"

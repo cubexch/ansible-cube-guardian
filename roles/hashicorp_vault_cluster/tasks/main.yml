@@ -1,6 +1,16 @@
 ---
 # tasks file for hashicorp_vault_cluster
 
+- name: Include generate_self_signed_certs tasks
+  ansible.builtin.include_tasks:
+    file: generate_self_signed_certs.yml
+    apply:
+      tags:
+        - generate_self_signed_certs
+  when: self_signed_certs_generate | bool
+  tags:
+    - generate_self_signed_certs
+
 - name: Add Hashicorp signing key
   ansible.builtin.get_url:
     url: https://apt.releases.hashicorp.com/gpg
