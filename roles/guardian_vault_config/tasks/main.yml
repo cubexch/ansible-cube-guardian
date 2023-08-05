@@ -69,6 +69,7 @@
   when: create_etc_hosts_entries | default(false) | bool == true
 
 - name: Load vault_init_data
+  no_log: true
   ansible.builtin.include_vars:
     file: "{{ hashicorp_vault_init_data_local_dir }}/hashicorp_vault_init_data.ansible_vault.yml"
     name: "loaded_vault_init_data"
@@ -99,6 +100,7 @@
     - vault_policy_deploy | default('false') | bool == true
 
 - name: Write Policies to Vault - Guardian Readers
+  no_log: true
   community.hashi_vault.vault_write:
     url: "{{ vault_url }}"
     path: "sys/policies/acl/vault.guardian.{{ item.item.guardian_id }}.reader.policy"
@@ -140,6 +142,7 @@
     - vault_policy_deploy | default('false') | bool == true
 
 - name: Write Policies to Vault - Guardian Writers
+  no_log: true
   community.hashi_vault.vault_write:
     url: "{{ vault_url }}"
     path: "sys/policies/acl/vault.guardian.{{ item.item.guardian_id }}.writer.policy"
@@ -183,6 +186,7 @@
     - monitor_readers
 
 - name: Write Policies to Vault - Monitor Readers
+  no_log: true
   community.hashi_vault.vault_write:
     url: "{{ vault_url }}"
     path: "sys/policies/acl/vault.monitor.{{ item.item.guardian_id }}.reader.policy"
@@ -227,6 +231,7 @@
     - monitor_writers
 
 - name: Write Policies to Vault - Monitor Writers
+  no_log: true
   community.hashi_vault.vault_write:
     url: "{{ vault_url }}"
     path: "sys/policies/acl/vault.monitor.{{ item.item.guardian_id }}.writer.policy"
@@ -244,6 +249,7 @@
     - monitor_writers
 
 - name: Enable Secrets Engine - Guardian
+  no_log: true
   community.hashi_vault.vault_write:
     url: "{{ vault_url }}"
     path: "sys/mounts/{{ guardian_secret_mount_path_prefix }}/guardian-{{ item.guardian_id }}"
@@ -268,6 +274,7 @@
     - vault_secrets_engine_deploy | default('false') | bool == true
 
 - name: Enable Secrets Engine - Monitor
+  no_log: true
   community.hashi_vault.vault_write:
     url: "{{ vault_url }}"
     path: "sys/mounts/{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
@@ -293,6 +300,7 @@
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
 
 - name: Enable AppRole Authentication
+  no_log: true
   community.hashi_vault.vault_write:
     url: "{{ vault_url }}"
     path: "sys/auth/approle"
@@ -312,6 +320,7 @@
     - vault_approle_enable | default('false') | bool == true
 
 - name: Create AppRole Role - Guardian Reader
+  no_log: true
   community.hashi_vault.vault_write:
     url: "{{ vault_url }}"
     path: "auth/approle/role/cube-guardian-{{ item.guardian_id }}.reader"
@@ -332,6 +341,7 @@
     - vault_approle_enable | default('false') | bool == true
 
 - name: Create AppRole Role - Guardian Writer
+  no_log: true
   community.hashi_vault.vault_write:
     url: "{{ vault_url }}"
     path: "auth/approle/role/cube-guardian-{{ item.guardian_id }}.writer"
@@ -352,6 +362,7 @@
     - vault_approle_enable | default('false') | bool == true
 
 - name: Create AppRole Role - Monitor Reader
+  no_log: true
   community.hashi_vault.vault_write:
     url: "{{ vault_url }}"
     path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.reader"
@@ -373,6 +384,7 @@
     - create_approle
 
 - name: Create AppRole Role - Monitor Writer
+  no_log: true
   community.hashi_vault.vault_write:
     url: "{{ vault_url }}"
     path: "auth/approle/role/cube-monitor-{{ item.guardian_id }}.writer"
@@ -394,6 +406,7 @@
     - create_approle
 
 - name: Get AppRole Credentials - Guardian
+  no_log: true
   ansible.builtin.include_tasks: get_approles_guardian.yml
   with_items:
     - "{{ guardian_instances }}"
@@ -403,6 +416,7 @@
     - vault_approle_retrieve | default('false') | bool == true
 
 - name: Get AppRole Credentials - Monitor
+  no_log: true
   ansible.builtin.include_tasks: get_approles_monitor.yml
   with_items:
     - "{{ monitor_instances }}"
@@ -413,6 +427,7 @@
     - retrieve_approle
 
 - name: Write Fee Payer - Cubenet
+  no_log: true
   community.hashi_vault.vault_kv2_write:
     url: "{{ vault_url }}"
     engine_mount_point: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
@@ -431,6 +446,7 @@
     - write_fee_payers
 
 - name: Write Fee Payer - BTC
+  no_log: true
   community.hashi_vault.vault_kv2_write:
     url: "{{ vault_url }}"
     engine_mount_point: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
@@ -449,6 +465,7 @@
     - write_fee_payers
 
 - name: Write Fee Payer - ETH
+  no_log: true
   community.hashi_vault.vault_kv2_write:
     url: "{{ vault_url }}"
     engine_mount_point: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
