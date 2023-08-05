@@ -17,26 +17,6 @@ public_guardian_list:
     public_fqdn: guardian-203.testing.cube.exchange
     public_port_node: 20103
     public_port_web: 20443
-  - name: Cube Exchange Temp Guardian 204
-    guardian_id: 204
-    public_fqdn: example-guardian-1.testing.cube.exchange
-    public_port_node: 20104
-    public_port_web: 443
-  - name: Cube Exchange Temp Guardian 205
-    guardian_id: 205
-    public_fqdn: example-guardian-2.testing.cube.exchange
-    public_port_node: 20105
-    public_port_web: 443
-  - name: Cube Exchange Temp Guardian 206
-    guardian_id: 206
-    public_fqdn: example-guard-1.testing.cube.exchange
-    public_port_node: 20106
-    public_port_web: 443
-  - name: Cube Exchange Temp Guardian 207
-    guardian_id: 207
-    public_fqdn: larry-guard-1.testing.cube.exchange
-    public_port_node: 20107
-    public_port_web: 443
   - name: Cube Exchange Temp Guardian 208
     guardian_id: 208
     public_fqdn: rick.guardian-test.cube.exchange

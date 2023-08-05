@@ -144,6 +144,8 @@
     group: "{{ guardian_user.group }}"
     mode: u=rw,g=r,o=-
     backup: true
+  tags:
+    - guardian_config
   notify:
     - Restart guardian service
 
