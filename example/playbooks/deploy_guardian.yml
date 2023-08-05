@@ -1,5 +1,6 @@
 - name: Deploy Guardian
   # Update hosts selector with new guardian hostname
+  # Ensure host_vars folder matches when changed
   hosts: example-guard-1
   gather_facts: false
   become: true

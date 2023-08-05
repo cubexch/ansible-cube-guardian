@@ -1,5 +1,6 @@
 - name: Deploy Hashicorp Vault Cluster
   # Update hosts selector with new inventory group name of Vault Cluster Hosts
+  # Ensure group_vars folder matches when changed
   hosts: example_hashicorp_vault_cluster
   gather_facts: false
   become: true
