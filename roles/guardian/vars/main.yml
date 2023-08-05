@@ -1,2 +1,49 @@
 ---
 # vars file for guardian
+
+public_guardian_list:
+  - name: Cube Exchange Temp Guardian 201
+    guardian_id: 201
+    public_fqdn: guardian-201.testing.cube.exchange
+    public_port_node: 20101
+    public_port_web: 20441
+  - name: Cube Exchange Temp Guardian 202
+    guardian_id: 202
+    public_fqdn: guardian-202.testing.cube.exchange
+    public_port_node: 20102
+    public_port_web: 20442
+  - name: Cube Exchange Temp Guardian 203
+    guardian_id: 203
+    public_fqdn: guardian-203.testing.cube.exchange
+    public_port_node: 20103
+    public_port_web: 20443
+  - name: Cube Exchange Temp Guardian 204
+    guardian_id: 204
+    public_fqdn: example-guardian-1.testing.cube.exchange
+    public_port_node: 20104
+    public_port_web: 443
+  - name: Cube Exchange Temp Guardian 205
+    guardian_id: 205
+    public_fqdn: example-guardian-2.testing.cube.exchange
+    public_port_node: 20105
+    public_port_web: 443
+  - name: Cube Exchange Temp Guardian 206
+    guardian_id: 206
+    public_fqdn: example-guard-1.testing.cube.exchange
+    public_port_node: 20106
+    public_port_web: 443
+  - name: Cube Exchange Temp Guardian 207
+    guardian_id: 207
+    public_fqdn: larry-guard-1.testing.cube.exchange
+    public_port_node: 20107
+    public_port_web: 443
+  - name: Cube Exchange Temp Guardian 208
+    guardian_id: 208
+    public_fqdn: rick-guard-1.testing.cube.exchange
+    public_port_node: 20108
+    public_port_web: 443
+  - name: Cube Exchange Temp Guardian 209
+    guardian_id: 209
+    public_fqdn: xi-guard-1.testing.cube.exchange
+    public_port_node: 20109
+    public_port_web: 443
