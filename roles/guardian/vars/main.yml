@@ -39,11 +39,11 @@ public_guardian_list:
     public_port_web: 443
   - name: Cube Exchange Temp Guardian 208
     guardian_id: 208
-    public_fqdn: rick-guard-1.testing.cube.exchange
+    public_fqdn: rick.guardian-test.cube.exchange
     public_port_node: 20108
     public_port_web: 443
   - name: Cube Exchange Temp Guardian 209
     guardian_id: 209
-    public_fqdn: xi-guard-1.testing.cube.exchange
+    public_fqdn: xi.guardian-testing.cube.exchange
     public_port_node: 20109
     public_port_web: 443
