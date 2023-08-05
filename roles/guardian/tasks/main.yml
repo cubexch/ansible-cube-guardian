@@ -95,6 +95,7 @@
     - molecule-notest
 
 - name: Copy Remote Guardian Certificates to Config Dir
+  no_log: true
   ansible.builtin.copy:
     src: "{{ guardian_certificates.remote_path }}/{{ item }}"
     remote_src: true
@@ -150,6 +151,7 @@
     - Restart guardian service
 
 - name: Deploy Guardian Monitor KYT Token
+  no_log: true
   ansible.builtin.copy:
     content: "{{ guardian_monitor.kyt_token_file_content }}"
     dest: "{{ guardian_monitor.kyt_token_file }}"
@@ -162,6 +164,7 @@
     - Restart guardian service
 
 - name: Deploy Guardian Monitor BTC RPC Auth
+  no_log: true
   ansible.builtin.copy:
     content: "{{ guardian_monitor.btc.rpc_cookie_file_content }}"
     dest: "{{ guardian_monitor.btc.rpc_cookie_file }}"
@@ -174,6 +177,7 @@
     - Restart guardian service
 
 - name: Deploy Service Environment Variables
+  no_log: true
   ansible.builtin.template:
     src: "guardian-instance.service.env.j2"
     dest: "{{ guardian_dirs.config }}/guardian-{{ guardian_instance.guardian_id }}.service.env"
