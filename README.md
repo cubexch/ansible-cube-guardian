@@ -496,7 +496,7 @@ vault_ca_cert_path: '{{ cube_vault_configs_dir }}/{{ self_signed_cert_files.ca_c
 ```yml
 # Use a secure password to control access to the Guardian Admin Interface
 # i.e. openssl rand -hex 32
-guardian_access_token_vault: 'my_guardian_access_token'
+guardian_access_token_vault: 'create_a_super_secret_password_to_access_the_guardian_admin_interface'
 ```
 
 ### 6.6. SENSITIVE: Encrypt `host_vars` for sensitive Guardian Node Configuration with Ansible Vault
@@ -595,21 +595,47 @@ The list of roles can be adjusted if not all are desired.
 ansible-playbook -i ./inventory/hosts-example.ini playbooks/deploy_guardian.yml --diff -v
 ```
 
-> The last step of starting the service should succeed, however, you will see messages similar to this if your Guardian has not been added to the public list of approved Guardians. You will also see similar errors if other Guardians have not updated their configuration with the latest list approved Guardians.
+> The last step of starting the service should succeed, but let's check the logs to make sure...
 
 ```bash
 # SSH to your Guardian instance
 # Tail the aurum log for your Guardian instance
+# Be sure to update the tail command with your Guardian ID
 sudo tail -n 500 -f /var/log/cube-guardian-000/aurum.log.$(date +'%F')
 
 ...
 
+# Once your Guardian instance successfully connects with the Cube Guardian Monitor instance, you should see a message like this
+2023-08-06T02:29:41.945601Z  INFO cube_aurum: notified systemd ready
+2023-08-06T02:29:41.945690Z  INFO cube_aurum::modules::guardian_nodes: attempting connection to (id:201 address:guardian-201.testing.cube.exchange:20101)...
+2023-08-06T02:29:41.949406Z  INFO cube_aurum::modules::guardian_nodes: attempting connection to (id:202 address:guardian-202.testing.cube.exchange:20102)...
+2023-08-06T02:29:41.952423Z  INFO cube_aurum::modules::guardian_nodes: attempting connection to (id:203 address:guardian-203.testing.cube.exchange:20103)...
+2023-08-06T02:29:41.955700Z  INFO cube_aurum::modules::guardian_nodes: initiated connection to (token:1 id:201 address:guardian-201.testing.cube.exchange:20101)
+2023-08-06T02:29:41.955712Z  INFO cube_aurum::modules::guardian_nodes: connected to (token:1 id:201 address:guardian-201.testing.cube.exchange:20101)
+2023-08-06T02:29:41.955794Z  INFO cube_aurum::modules::guardian_nodes: initiated connection to (token:2 id:202 address:guardian-202.testing.cube.exchange:20102)
+2023-08-06T02:29:41.955803Z  INFO cube_aurum::modules::guardian_nodes: connected to (token:2 id:202 address:guardian-202.testing.cube.exchange:20102)
+2023-08-06T02:29:41.955840Z  INFO cube_aurum::modules::guardian_nodes: initiated connection to (token:3 id:203 address:guardian-203.testing.cube.exchange:20103)
+2023-08-06T02:29:41.955847Z  INFO cube_aurum::modules::guardian_nodes: connected to (token:3 id:203 address:guardian-203.testing.cube.exchange:20103)
+2023-08-06T02:29:41.955897Z  INFO cube_aurum::modules::manager: guardian=201: connected
+2023-08-06T02:29:41.955943Z  INFO cube_aurum::modules::manager: guardian=202: connected
+2023-08-06T02:29:41.955977Z  INFO cube_aurum::modules::manager: guardian=203: connected
+2023-08-06T02:29:42.152124Z  INFO cube_aurum::modules::manager: guardian=201: initialized keys
+2023-08-06T02:29:42.154779Z  INFO cube_aurum::modules::manager: guardian=203: initialized keys
+2023-08-06T02:29:42.182138Z  INFO cube_aurum::modules::manager: guardian=202: initialized keys
+
+...
+
 # You may see messages like this if your Guardian instance has not been added to the public_guardian_list
-2023-08-05T22:06:01.509715Z  INFO cube_aurum::modules::guardian_nodes: attempting connection to (id:201 address:guardian-201.testing.cube.exchange:20101)...
-2023-08-05T22:06:01.520091Z  INFO cube_aurum::modules::guardian_nodes: initiated connection to (token:641 id:201 address:guardian-201.testing.cube.exchange:20101)
-2023-08-05T22:06:01.520097Z  INFO cube_aurum::modules::guardian_nodes: connected to (token:641 id:201 address:guardian-201.testing.cube.exchange:20101)
-2023-08-05T22:06:01.520129Z  WARN cube_aurum::modules::guardian_nodes: connection closed on handshake for (token:641 id:201 address:guardian-201.testing.cube.exchange:20101)
-2023-08-05T22:06:01.520152Z  WARN cube_aurum::modules::guardian_nodes: received event for unknown source Token(641)
+2023-08-06T02:13:09.970222Z  INFO cube_aurum: notified systemd ready
+2023-08-06T02:13:09.970355Z  INFO cube_aurum::modules::guardian_nodes: attempting connection to (id:201 address:guardian-201.testing.cube.exchange:20101)...
+2023-08-06T02:13:10.085963Z  INFO cube_aurum::modules::guardian_nodes: attempting connection to (id:202 address:guardian-202.testing.cube.exchange:20102)...
+2023-08-06T02:13:10.204131Z  INFO cube_aurum::modules::guardian_nodes: attempting connection to (id:203 address:guardian-203.testing.cube.exchange:20103)...
+2023-08-06T02:13:10.213550Z  INFO cube_aurum::modules::guardian_nodes: initiated connection to (token:1 id:201 address:guardian-201.testing.cube.exchange:20101)
+2023-08-06T02:13:10.213559Z  INFO cube_aurum::modules::guardian_nodes: connected to (token:1 id:201 address:guardian-201.testing.cube.exchange:20101)
+2023-08-06T02:13:10.213582Z  WARN cube_aurum::modules::guardian_nodes: connection closed on handshake for (token:1 id:201 address:guardian-201.testing.cube.exchange:20101)
+2023-08-06T02:13:10.213609Z  WARN cube_aurum::modules::guardian_nodes: received event for unknown source Token(1)
+
+...
 
 # You may see messages like this if your Guardian SSL Certificate CN does not match the public_fqdn in the public_guardian_list
 2023-08-05T22:11:01.509719Z  INFO cube_aurum::modules::guardian_nodes: attempting connection to (id:201 address:guardian-201.testing.cube.exchange:20101)...
@@ -620,6 +646,7 @@ sudo tail -n 500 -f /var/log/cube-guardian-000/aurum.log.$(date +'%F')
 
 Caused by:
     Connection reset by peer (os error 104)
+
 ...
 
 # You may see messages like this if other Guardians have not updated with the latest list of approved Guardians
@@ -628,11 +655,10 @@ Caused by:
 2023-08-05T22:21:11.512000Z  WARN cube_aurum::modules::guardian_nodes: connection closed on handshake for (token:883 id:202 address:guardian-202.testing.cube.exchange:20102)
 2023-08-05T22:21:11.512011Z  WARN cube_aurum::modules::guardian_nodes: received event for unknown source Token(883)
 
+...
+
 # You may see messages like this if the DNS resolution for other Guardian instances fails
 2023-08-05T21:43:21.526200Z  INFO cube_aurum::modules::guardian_nodes: could not resolve some-other-guardian.example.com:20101000: failed ToSocketAddrs: failed to lookup address information: Name or service not known
-
-# Once your Guardian instance successfully connects with the Cube Guardian Monitor instance, you should see a message like this
-2023-08-05T22:11:32.633661Z  INFO cube_aurum::modules::manager: guardian=201: initialized keys
 ```
 
 If the Guardian service fails to start, please refer to [9. FAQ](#9-faq)
