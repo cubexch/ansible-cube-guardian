@@ -226,7 +226,7 @@
     syn: match
     jump: ACCEPT
   when:
-    - guardian_listen_node_port_open_iptables | default(false) | bool == true
+    - guardian_listen_web_port_open_iptables | default(false) | bool == true
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers

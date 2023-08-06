@@ -439,6 +439,9 @@ vault_url: 'https://example-vault-1.example.hashicorp.vault.cluster.com:8200'
 # Vault Cluster FQDN used for copying Vault Cluster CA Cert and generating /etc/host entries
 vault_cluster_fqdn: 'example.hashicorp.vault.cluster.com'
 
+# Local directory where SENSITIVE vault initialization data will be stored (root token and unseal keys)
+hashicorp_vault_init_data_local_dir: '{{ inventory_dir }}/hashicorp-vault-init'
+
 # Ansible Inventory Group Name for your Hashicorp Vault Cluster
 hashicorp_vault_cluster_group_name: 'example_hashicorp_vault_cluster'
 
@@ -508,6 +511,8 @@ for f in $(find . -type f -name "*.ansible_vault.yml") ;do echo Encrypting $f ;a
 ### 6.7. Create `host_vars` for your non-sensitive Guardian Node Configuration
 
 > Update the path to use your new guardian hostname
+>
+> It is strongly recommended to set the `guardian_listen_webadmin_interface` to an internal interface so that it is not exposed publicly. This Ansible role will not open firewall rules for this interface/port.
 
 `inventory/host_vars/example-guard-1/guardian.yml`
 
@@ -547,14 +552,25 @@ guardian_listen_web_port: 443
 # If you would like Ansible to automatically create an iptables rule to allow the web traffic, set to guardian_listen_node_port_open_iptables: true
 guardian_listen_web_port_open_iptables: true
 
+# The Guardian will be configured to listen on the default port of 10443 for internal admin interface access.
+guardian_listen_webadmin_port: 10443
+
 # The Guardian will be configured to listen on the default interface detected by ansible as the default listening IP.
-# You can use the settings below to use a different interface for node-to-node or web communication if needed:
+# You can use the settings below to use a different interface for node-to-node, admin, and web communication if needed:
+#
 # # guardian_listen_node_interface: "{{ ansible_default_ipv4.interface }}"
 # guardian_listen_node_interface: enp1s0
 # guardian_listen_node_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_node_interface]['ipv4']['address'] }}"
+#
 # # guardian_listen_web_interface: "{{ ansible_default_ipv4.interface }}"
-# guardian_listen_web_interface: enp1s0
+# guardian_listen_web_interface: enp2s0
 # guardian_listen_web_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_web_interface]['ipv4']['address'] }}"
+#
+# It is strongly recommended to set the `guardian_listen_webadmin_interface` to an internal interface so that it is not exposed publicly. This Ansible role will not open firewall rules for this interface/port.
+#
+# # guardian_listen_webadmin_interface: "{{ ansible_default_ipv4.interface }}"
+# guardian_listen_webadmin_interface: enp3s0
+# guardian_listen_webadmin_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_webadmin_interface]['ipv4']['address'] }}"
 
 guardian_access_token: '{{ guardian_access_token_vault }}' # References value defined in guardian.ansible_vault.yml for clarity
 ```

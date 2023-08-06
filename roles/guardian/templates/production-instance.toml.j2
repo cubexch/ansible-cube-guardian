@@ -24,7 +24,8 @@ tls_name = "{{ guardian.public_fqdn }}"
 
 [web]
 btc_network = "{{ guardian_web_btc_network }}"
-listen_address = "{{ guardian_listen_web_ip }}:{{ guardian_listen_web_port }}"
+public_listen_address = "{{ guardian_listen_web_ip }}:{{ guardian_listen_web_port }}"
+admin_listen_address = "{{ guardian_listen_webadmin_ip }}:{{ guardian_listen_webadmin_port }}"
 
 {% if guardian_monitor is defined %}
 iridium_url = "{{ guardian_monitor.guardian_iridium_url }}"

@@ -1,7 +1,7 @@
 ---
 # defaults file for guardian
 
-guardian_version: 0557de7e
+guardian_version: 28fc6703
 guardian_archive_name: aurum-{{ guardian_version }}.tar.gz
 guardian_bin_name: cube-aurum
 guardian_app_environment: production
@@ -31,6 +31,11 @@ guardian_listen_web_interface: "{{ ansible_default_ipv4.interface }}"
 guardian_listen_web_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_web_interface]['ipv4']['address'] }}"
 guardian_listen_web_port: 443
 # guardian_listen_web_port_open_iptables: true
+
+guardian_listen_webadmin_interface: "{{ ansible_default_ipv4.interface }}"
+# guardian_listen_webadmin_interface: enp2s0
+guardian_listen_webadmin_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_webadmin_interface]['ipv4']['address'] }}"
+guardian_listen_webadmin_port: 10443
 
 guardian_dirs:
   install: "/opt/cube-guardian-{{ guardian_instance.guardian_id }}/bin"
