@@ -1,6 +1,13 @@
 ---
 # vars file for guardian
 
+# public_guardian_list:
+#   - name: Cube Exchange Guardian Monitor
+#     guardian_id: 100
+#     public_fqdn: guardian-monitor.cube.exchange
+#     public_port_node: 9420
+#     public_port_web: 443
+
 public_guardian_list:
   - name: Cube Exchange Temp Guardian 201
     guardian_id: 201
@@ -17,13 +24,8 @@ public_guardian_list:
     public_fqdn: guardian-203.testing.cube.exchange
     public_port_node: 20103
     public_port_web: 20443
-  - name: Cube Exchange Temp Guardian 208
-    guardian_id: 208
-    public_fqdn: rick.guardian-test.cube.exchange
-    public_port_node: 20108
-    public_port_web: 443
-  - name: Cube Exchange Temp Guardian 209
-    guardian_id: 209
-    public_fqdn: xi.guardian-testing.cube.exchange
-    public_port_node: 20109
-    public_port_web: 443
+  - name: Cube Exchange Temp Guardian 204
+    guardian_id: 204
+    public_fqdn: guardian-204.testing.cube.exchange
+    public_port_node: 20104
+    public_port_web: 20444
