@@ -1,7 +1,7 @@
 ---
 # defaults file for guardian
 
-guardian_version: 28fc6703
+guardian_version: 8280529d
 guardian_archive_name: aurum-{{ guardian_version }}.tar.gz
 guardian_bin_name: cube-aurum
 guardian_app_environment: production
