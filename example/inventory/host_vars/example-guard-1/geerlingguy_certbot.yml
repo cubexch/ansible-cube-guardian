@@ -1,5 +1,5 @@
 # Update the admin email address used to create the ACME certificate account for certbot
-certbot_admin_email: rdavis@cube.xyz
+certbot_admin_email: example-email-address@example.com
 
 # Recommended settings listed below, please consult the geerlingguy.certbot role documentation before changing
 # REF: https://github.com/geerlingguy/ansible-role-certbot
