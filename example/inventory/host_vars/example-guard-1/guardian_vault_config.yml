@@ -1,3 +1,20 @@
+# Ansible Inventory Group Name for your Hashicorp Vault Cluster
+hashicorp_vault_cluster_group_name: 'example_hashicorp_vault_cluster'
+
+### Option to create /etc/hosts entries ###
+# Option to create /etc/hosts entries for each cluster member
+create_etc_hosts_entries: true
+
+### Required Inventory Variables when creating /etc/hosts entries ###
+# Select an interface to get an IP address from when creating /etc/hosts entries
+#
+## Select the default interface detected by ansible
+hashicorp_vault_interface_api_interface: "{{ ansible_default_ipv4.interface }}"
+## Or specify an interface name
+# hashicorp_vault_interface_api_interface: "bond0"
+# hashicorp_vault_interface_api_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }}"
+###########################################
+
 # The guardian_vault_config role will generate *.hcl config files in the cube_vault_configs_dir
 cube_vault_configs_dir: /opt/example-guard-1-vault-configs
 
