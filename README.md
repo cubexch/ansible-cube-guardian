@@ -121,7 +121,7 @@ View the public list of Guardians at `public_guardian_list` in [roles/guardian/d
 
 ### 4.1. Configure your virtual environment.
 
-1.  If you'd like to use `pyenv`
+1.  If you'd like to install `pyenv` on a Ubuntu host
 
     ```bash
     # Ubuntu pyenv pre-reqs
@@ -135,7 +135,11 @@ View the public list of Guardians at `public_guardian_list` in [roles/guardian/d
     export PYENV_ROOT="$HOME/.pyenv"
     command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init -)"
+    ```
 
+    Once you have `pyenv` installed and activated, install Python 3.8.10 and create a virtualenv with it
+
+    ```bash
     # Setup pyenv and pyenv virtual environment
     pyenv install 3.8.10
     pyenv virtualenv 3.8.10 cube-guardian
@@ -152,6 +156,8 @@ View the public list of Guardians at `public_guardian_list` in [roles/guardian/d
     ```
 
 ### 4.2. Create the `.ansible-vault.key` file to contain your Ansible Vault password.
+
+> Ensure you are in the example folder
 
 `.ansible-vault.key`
 
