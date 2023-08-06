@@ -162,7 +162,7 @@ View the public list of Guardians at `public_guardian_list` in [roles/guardian/d
 `.ansible-vault.key`
 
 ```text
-my_secret_ansible_vault_password
+create_a_super_secret_password_to_use_as_the_vault_key
 ```
 
 ### 4.3. Create `ansible.cfg` and set the `vault_password_file` to `.ansible-vault.key`
@@ -171,7 +171,7 @@ my_secret_ansible_vault_password
 
 ```ini
 [defaults]
-roles_path = .ansible-galaxy-roles:./roles
+roles_path = .ansible-galaxy-roles
 collections_paths = .ansible-galaxy-collections
 vault_password_file = .ansible-vault.key
 inventory = ./inventory/hosts-example.ini
