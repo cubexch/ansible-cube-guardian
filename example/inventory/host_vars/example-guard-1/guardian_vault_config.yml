@@ -18,8 +18,8 @@ guardian_instances:
 
 # It is strongly recommended to limit the CIDR's allowed to use the AppRole and Token created in Vault
 # Update the guardian_secret_id_bound_cidrs and guardian_token_bound_cidrs to correspond with the internal IP used by the Guardian to talk to the Vault cluster
-guardian_secret_id_bound_cidrs: '147.75.0.0/16'
-guardian_token_bound_cidrs: '147.75.0.0/16'
+guardian_secret_id_bound_cidrs: '127.0.0.0/8'
+guardian_token_bound_cidrs: '127.0.0.0/8'
 
 # The guardian_vault_config role is able to handle all the Vault configuration required, but you must explicitly enable the actions below to allow it to connect to your cluster and make changes.
 # Set vault_policy_deploy to false if you prefer to manually deploy the vault configurations

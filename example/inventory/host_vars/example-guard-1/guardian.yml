@@ -25,7 +25,7 @@ guardian_key_storage:
 
 # The Guardian will be configured to listen on the default port of 9420 for node-to-node communication.
 # You can use the settings below to use a different interface if needed:
-guardian_listen_node_port: 20106
+guardian_listen_node_port: 000000
 
 # If you would like Ansible to automatically create an iptables rule to allow the node-to-node traffic, set to guardian_listen_node_port_open_iptables: true
 guardian_listen_node_port_open_iptables: true
