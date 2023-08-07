@@ -12,6 +12,17 @@
 - name: Create Guardian Vault Backup Cron
   ansible.builtin.cron:
     name: "guardian-vault-backup"
+    state: absent
     minute: "{{ hashicorp_vault_backup_schedule_minute | string }}"
     hour: "{{ hashicorp_vault_backup_schedule_hour | string }}"
     job: "/usr/bin/vault operator raft snapshot save -address={{ hashicorp_vault_cluster_addr_api }} -ca-cert={{ hashicorp_vault_listener_tcp_tls_client_ca_file }} {{ hashicorp_vault_backup_snapshot_dir }}/guardian-{{ vault_cluster_fqdn }}.snap.$(date --iso-8601=ns --utc)"
+
+- name: Create Guardian Vault Backup Cron
+  ansible.builtin.cron:
+    name: "guardian-vault-backup"
+    state: "present"
+    user: "vault"
+    minute: "{{ hashicorp_vault_backup_schedule_minute | string }}"
+    hour: "{{ hashicorp_vault_backup_schedule_hour | string }}"
+    job: "/usr/bin/vault operator raft snapshot save -address={{ hashicorp_vault_cluster_addr_api }} -ca-cert={{ hashicorp_vault_listener_tcp_tls_client_ca_file }} {{ hashicorp_vault_backup_snapshot_dir }}/guardian-{{ vault_cluster_fqdn }}.snap.$(date --iso-8601=ns --utc)"
+    cron_file: "guardian-vault-backup"
