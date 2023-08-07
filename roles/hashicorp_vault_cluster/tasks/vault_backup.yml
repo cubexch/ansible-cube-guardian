@@ -1,0 +1,10 @@
+---
+# tasks file for hashicorp_vault_cluster
+
+# /usr/bin/vault
+- name: Create Guardian Vault Backup Cron
+  ansible.builtin.cron:
+    name: "guardian-vault-backup"
+    minute: "{{ hashicorp_vault_backup_schedule_minute | string }}"
+    hour: "{{ hashicorp_vault_backup_schedule_hour | string }}"
+    job: "/usr/bin/vault operator raft snapshot save {{ hashicorp_vault_backup_snapshot_dir }}/guardian-{{ vault_cluster_fqdn }}.snap.$(date --iso-8601=ns --utc)"

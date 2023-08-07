@@ -247,3 +247,13 @@
   when: vault_unseal_status.data.sealed | bool == true
   tags:
     - vault_unseal
+
+- name: Include vault_backup
+  ansible.builtin.include_tasks:
+    file: vault_backup.yml
+    apply:
+      tags:
+        - vault_backup
+  when: hashicorp_vault_backup_cron_enable | bool == false
+  tags:
+    - vault_backup
