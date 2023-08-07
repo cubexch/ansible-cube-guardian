@@ -1,7 +1,14 @@
 ---
 # tasks file for hashicorp_vault_cluster
 
-# /usr/bin/vault
+- name: Create hashicorp_vault_backup_snapshot_dir
+  ansible.builtin.file:
+    dest: "{{ hashicorp_vault_backup_snapshot_dir }}"
+    state: directory
+    owner: "vault"
+    group: "vault"
+    mode: "u+rw,g+r,o=-"
+
 - name: Create Guardian Vault Backup Cron
   ansible.builtin.cron:
     name: "guardian-vault-backup"

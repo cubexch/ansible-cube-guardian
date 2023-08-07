@@ -118,7 +118,6 @@ hashicorp_vault_listener_tcp_telemetry_unauthenticated_metrics_access: true
 hashicorp_vault_storage_raft_path: "{{ hashicorp_vault_dir_base }}/data"
 hashicorp_vault_storage_raft_node_id: "{{ inventory_hostname }}"
 
-
 hashicorp_vault_backup_cron_enable: false
 hashicorp_vault_backup_snapshot_dir: "{{ hashicorp_vault_dir_base }}/backups"
 hashicorp_vault_backup_schedule_minute: "*/15"
