@@ -1,8 +1,9 @@
 **/.tmp
-*.tar.gz
+cubexch-guardian-*.tar.gz
 **/.ansible-galaxy-collections
 **/.ansible-galaxy-roles
 **/*.key
 .vscode
 .venv
 roles/guardian/templates/production-instance-example.toml
+.DS_Store
