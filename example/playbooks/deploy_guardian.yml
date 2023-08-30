@@ -11,7 +11,11 @@
         gather_subset:
           - os_family
   roles:
-    - geerlingguy.swap
-    - geerlingguy.certbot
-    - cubexch.guardian.guardian_vault_config
-    - cubexch.guardian.guardian
+    - role: geerlingguy.swap
+      tags: swap
+    - role: geerlingguy.certbot
+      tags: certbot
+    - role: cubexch.guardian.guardian_vault_config
+      tags: guardian_vault_config
+    - role: cubexch.guardian.guardian
+      tags: guardian

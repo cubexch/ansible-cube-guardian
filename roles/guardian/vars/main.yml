@@ -1,31 +1,26 @@
 ---
 # vars file for guardian
 
-# public_guardian_list:
-#   - name: Cube Exchange Guardian Monitor
-#     guardian_id: 100
-#     public_fqdn: guardian-monitor.cube.exchange
-#     public_port_node: 9420
-#     public_port_web: 443
-
 public_guardian_list:
-  - name: Cube Exchange Temp Guardian 201
-    guardian_id: 201
-    public_fqdn: guardian-201.testing.cube.exchange
-    public_port_node: 20101
-    public_port_web: 20441
-  - name: Cube Exchange Temp Guardian 202
-    guardian_id: 202
-    public_fqdn: guardian-202.testing.cube.exchange
-    public_port_node: 20102
-    public_port_web: 20442
-  - name: Cube Exchange Temp Guardian 203
-    guardian_id: 203
-    public_fqdn: guardian-203.testing.cube.exchange
-    public_port_node: 20103
-    public_port_web: 20443
-  - name: Cube Exchange Temp Guardian 204
-    guardian_id: 204
-    public_fqdn: guardian-204.testing.cube.exchange
-    public_port_node: 20104
-    public_port_web: 20444
+  - name: Cube Exchange - Guardian Monitor
+    guardian_id: 100
+    public_fqdn: guardian-monitor.cube.exchange
+    public_port_node: 9420
+    public_port_web: 443
+  - name: Everstake Guardian
+    guardian_id: 101
+    public_fqdn: cube-guardian-01.everstake.one
+    public_port_node: 9420
+    public_port_web: 443
+  - name: Triton One Guardian
+    guardian_id: 102
+    public_fqdn: guardian.cubex.rpcpool.com
+    public_port_node: 9420
+    public_port_web: 443
+  - name: Solana Guardian
+    guardian_id: 103
+    public_fqdn: cubeguardian.solana.org
+    public_port_node: 9420
+    public_port_web: 443
+
+guardian_iridium_jwk_pubkey: "30ede8670efe8cf79c86bf48e170d555ab47296430edf26dca1fd2185dbc5360"
