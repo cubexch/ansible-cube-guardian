@@ -2,8 +2,11 @@ cube_id = {{ guardian_config_main.cube_id | int }}
 
 key_path = "{{ guardian_config_main.key_path }}"
 certs_path = "{{ guardian_config_main.certs_path }}"
+{% if guardian_use_ca_bundle | default(false) %}
+roots_path = "{{ guardian_ca_bundle_dest }}"
+{% else %}
 roots_path = "{{ guardian_config_main.roots_path }}"
-
+{% endif %}
 
 
 [nodes]

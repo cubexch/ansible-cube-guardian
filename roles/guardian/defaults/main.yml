@@ -48,6 +48,10 @@ guardian_certificates:
   tls_certificate_name: "cert.pem"
   tls_root_certificate_name: "fullchain.pem"
 
+guardian_use_ca_bundle: false
+guardian_ca_bundle_file: "guardian_ca_bundle.pem"
+guardian_ca_bundle_dest: "{{ guardian_dirs.config }}/{{ guardian_ca_bundle_file }}"
+
 guardian_instance:
   guardian_id: 000
   public_fqdn: example-guardian-1.testing.cube.exchange

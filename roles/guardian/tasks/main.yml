@@ -112,6 +112,17 @@
   notify:
     - Restart guardian service
 
+- name: Copy CA Bundle to Config Dir
+  ansible.builtin.copy:
+    src: "{{ guardian_ca_bundle_file }}"
+    dest: "{{ guardian_dirs.config }}/{{ guardian_ca_bundle_file }}"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rw,go=-
+  when: guardian_use_ca_bundle | default(false) | bool
+  notify:
+    - Restart guardian service
+
 - name: Find Remote Vault AppRole Credentials
   no_log: true
   ansible.builtin.find:
