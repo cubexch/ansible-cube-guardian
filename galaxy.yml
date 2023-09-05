@@ -1,6 +1,6 @@
 namespace: cubexch
 name: guardian
-version: 1.0.25
+version: 1.0.26
 description: Cube Exchange Guardian Collection
 
 repository: https://github.com/cubexch/ansible-cube-guardian
@@ -14,10 +14,10 @@ readme: README.md
 # A list of the collection's content authors. Can be just the name or in the format 'Full Name <email> (url)
 # @nicks:irc/im.site#channel'
 authors:
-- Rick Davis <rdavis@cube.xyz> (https://www.cube.exchange/)
+  - Rick Davis <rdavis@cube.xyz> (https://www.cube.exchange/)
 
 license:
-- MIT
+  - MIT
 
 # A list of tags you want to associate with the collection for indexing/searching. A tag name has the same character
 # requirements as 'namespace' and 'name'
@@ -38,19 +38,18 @@ tags:
 # range specifiers can be set and are separated by ','
 dependencies: {}
 
-
 # A list of file glob-like patterns used to filter any files or directories that should not be included in the build
 # artifact. A pattern is matched from the relative path of the file or directory of the collection directory. This
 # uses 'fnmatch' to match the files or directories. Some directories and files like 'galaxy.yml', '*.pyc', '*.retry',
 # and '.git' are always filtered
 build_ignore:
-- "**/.ansible-galaxy-collections"
-- "**/.ansible-galaxy-roles"
-- "**/*.key"
-- ".vscode"
-- ".tmp"
-- "**/.tmp"
-- ".venv"
-- "**/.venv"
-- "**/hashicorp-vault-certs"
-- "**/hashicorp-vault-init"
+  - "**/.ansible-galaxy-collections"
+  - "**/.ansible-galaxy-roles"
+  - "**/*.key"
+  - ".vscode"
+  - ".tmp"
+  - "**/.tmp"
+  - ".venv"
+  - "**/.venv"
+  - "**/hashicorp-vault-certs"
+  - "**/hashicorp-vault-init"

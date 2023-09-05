@@ -1,7 +1,7 @@
 ---
 # defaults file for guardian
 
-guardian_version: c1c191a4
+guardian_version: 7e1f697b
 guardian_archive_name: aurum-{{ guardian_version }}.tar.gz
 guardian_bin_name: cube-aurum
 guardian_app_environment: production
@@ -64,10 +64,10 @@ guardian_config_main:
 
 guardian_approle_copy_remote_src: /opt/cube-vault-configs
 
-vault_cluster_fqdn: 'example.hashicorp.vault.cluster.com'
-self_signed_certs_local_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
+vault_cluster_fqdn: "example.hashicorp.vault.cluster.com"
+self_signed_certs_local_dir: "{{ inventory_dir }}/hashicorp-vault-certs"
 self_signed_cert_files:
-  ca_cert: '{{ vault_cluster_fqdn }}.ca.cert.pem'
+  ca_cert: "{{ vault_cluster_fqdn }}.ca.cert.pem"
 
 guardian_key_storage:
   hashicorp_vault:
@@ -75,9 +75,9 @@ guardian_key_storage:
     approle_path_reader: "{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.reader.json"
     approle_path_writer: "{{ guardian_dirs.config }}/vault.guardian.{{ inventory_hostname }}.writer.json"
     approle_token_renew_seconds: 3600
-    vault_url: 'https://example-vault-1.example.hashicorp.vault.cluster.com:8200'
-    vault_tls_client_ca_filename: '{{ self_signed_cert_files.ca_cert }}'
-    vault_tls_client_ca_local_source_dir: '{{ inventory_dir }}/hashicorp-vault-certs'
+    vault_url: "https://example-vault-1.example.hashicorp.vault.cluster.com:8200"
+    vault_tls_client_ca_filename: "{{ self_signed_cert_files.ca_cert }}"
+    vault_tls_client_ca_local_source_dir: "{{ inventory_dir }}/hashicorp-vault-certs"
     access_log_filename: "access.json"
 
 guardian_config_manager:
