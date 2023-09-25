@@ -1,7 +1,7 @@
 ---
 # defaults file for guardian
 
-guardian_version: 7e1f697b
+guardian_version: v1.0.0
 guardian_archive_name: aurum-{{ guardian_version }}.tar.gz
 guardian_bin_name: cube-aurum
 guardian_app_environment: production
@@ -45,7 +45,7 @@ guardian_dirs:
 guardian_certificates:
   remote_path: "/etc/letsencrypt/live/{{ guardian_instance.public_fqdn }}"
   tls_private_key_name: "privkey.pem"
-  tls_certificate_name: "cert.pem"
+  tls_certificate_name: "fullchain.pem"
   tls_root_certificate_name: "fullchain.pem"
 
 guardian_use_ca_bundle: false
