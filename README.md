@@ -48,6 +48,7 @@
     - [8.4.4. Successful User Key Generation](#844-successful-user-key-generation)
     - [8.4.5. Failed Peer Connection - Received Invalid TLS Certificate Name](#845-failed-peer-connection---received-invalid-tls-certificate-name)
     - [8.4.6. Other Errors](#846-other-errors)
+    - [8.4.7. OpenMetrics](#847-openmetrics)
 
 ## 2. Requirements
 
@@ -861,3 +862,29 @@ tail -f /var/log/cube-guardian-204/aurum.log.$(date +'%F')
 - Generally logs tagged as `ERROR` represent a failure that should be investigated.
 - Log messages for errors will typically include a descriptive message (and parameters if applicable) to indicate the source of the issue.
 - Please reach out to Cube in our shared Slack channel if you run into any issues we haven't documented yet
+
+#### 8.4.7. OpenMetrics
+
+The Guardian software exposes an OpenMetric based endpoint at `/metrics` under the Web Admin port (REF: [`guardian_listen_webadmin_port: 10443`](#67-create-host_vars-for-your-non-sensitive-guardian-node-configuration)). To access the endpoint, http authorization with the Guardian access Bearer token is required (REF: [guardian_access_token_vault: 'create_a_super_secret_password_to_access_the_guardian_admin_interface'](#65-sensitive-create-host_vars-for-sensitive-guardian-node-configuration))
+
+Example curl:
+
+```bash
+curl --insecure https://10.0.0.100:10443/metrics -H 'authorization: Bearer create_a_super_secret_password_to_access_the_guardian_admin_interface'
+```
+
+Example DataDog/OpenMetrics Config:
+
+```yml
+# cat /etc/datadog-agent/conf.d/openmetrics.d/conf.yaml
+instances:
+  - openmetrics_endpoint: https://10.0.0.100:10443/metrics
+    tls_ignore_warning: true
+    tls_verify: false
+    headers:
+      authorization: Bearer create_a_super_secret_password_to_access_the_guardian_admin_interface
+    service: cube_guardian
+    namespace: cube_guardian
+    metrics:
+      - .*
+```
