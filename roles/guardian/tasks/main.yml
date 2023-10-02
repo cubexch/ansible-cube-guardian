@@ -25,7 +25,7 @@
     mode: "u+rw,g+r,o=-"
   with_items:
     - "{{ guardian_dirs.install }}"
-    - "{{ guardian_dirs.install }}/v{{ guardian_version }}"
+    - "{{ guardian_dirs.install }}/{{ guardian_version }}"
     - "{{ guardian_dirs.config }}"
 
 - name: Create install and config dirs
@@ -50,16 +50,16 @@
   ansible.builtin.unarchive:
     src: "{{ guardian_dirs.install }}/{{ guardian_archive_name }}"
     remote_src: true
-    dest: "{{ guardian_dirs.install }}/v{{ guardian_version }}"
+    dest: "{{ guardian_dirs.install }}/{{ guardian_version }}"
     owner: "{{ guardian_user.name }}"
     group: "{{ guardian_user.group }}"
-    creates: "{{ guardian_dirs.install }}/v{{ guardian_version }}/{{ guardian_bin_name }}"
+    creates: "{{ guardian_dirs.install }}/{{ guardian_version }}/{{ guardian_bin_name }}"
   notify:
     - Restart guardian service
 
 - name: Update symlinks for bins
   ansible.builtin.file:
-    src: "{{ guardian_dirs.install }}/v{{ guardian_version }}"
+    src: "{{ guardian_dirs.install }}/{{ guardian_version }}"
     dest: "{{ guardian_dirs.install }}/current"
     state: link
     owner: "{{ guardian_user.name }}"

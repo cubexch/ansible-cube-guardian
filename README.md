@@ -80,7 +80,7 @@
 
 Guardian software will only communicate with instances that have been added to the approved list by Cube Exchange. Cube Exchange will add new Guardians to the public list after they have been reviewed and approved.
 
-View the public list of Guardians at `public_guardian_list` in [roles/guardian/defaults/main.yml](roles/guardian/defaults/main.yml)
+View the public list of Guardians at `public_guardian_list` in [roles/guardian/vars/main.yml](roles/guardian/vars/main.yml)
 
 ## 3. Conventions
 
