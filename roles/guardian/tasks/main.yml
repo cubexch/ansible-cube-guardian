@@ -208,6 +208,23 @@
   notify:
     - Restart guardian service
 
+- name: Deploy certbot renew hook script
+  ansible.builtin.template:
+    src: "certbot-renewal-instance.sh.j2"
+    dest: "{{ guardian_dirs.install }}/current/certbot-renewal-{{ guardian_instance.public_fqdn }}.sh"
+    owner: "{{ guardian_user.name }}"
+    group: "{{ guardian_user.group }}"
+    mode: u=rwx,g=rx,o=-
+  when: deploy_certbot_renewal_hook | default(false) | bool
+
+- name: Configure certbot renew hook
+  community.general.ini_file:
+    path: "/etc/letsencrypt/renewal/{{ guardian_instance.public_fqdn }}.conf"
+    section: "renewalparams"
+    option: "renew_hook"
+    value: "{{ guardian_dirs.install }}/current/certbot-renewal-{{ guardian_instance.public_fqdn }}.sh"
+  when: deploy_certbot_renewal_hook | default(false) | bool
+
 - name: Install iptables if guardian_listen_node_port_open_iptables is true
   ansible.builtin.apt:
     name:

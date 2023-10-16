@@ -42,6 +42,9 @@ guardian_dirs:
   config: "/opt/cube-guardian-{{ guardian_instance.guardian_id }}/config"
   log: "/var/log/cube-guardian-{{ guardian_instance.guardian_id }}"
 
+# Deploy script to copy certificates and chown after certbot renewal
+deploy_certbot_renewal_hook: false
+
 guardian_certificates:
   remote_path: "/etc/letsencrypt/live/{{ guardian_instance.public_fqdn }}"
   tls_private_key_name: "privkey.pem"
