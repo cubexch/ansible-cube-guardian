@@ -56,3 +56,7 @@ guardian_listen_webadmin_port: 10443
 # guardian_listen_webadmin_ip: "{{ hostvars[inventory_hostname]['ansible_' ~ guardian_listen_webadmin_interface]['ipv4']['address'] }}"
 
 guardian_access_token: '{{ guardian_access_token_vault }}' # References value defined in guardian.ansible_vault.yml for clarity
+
+# Deploy script to copy certificates and chown them to the Guardian service user account
+deploy_certbot_renewal_hook: true
+

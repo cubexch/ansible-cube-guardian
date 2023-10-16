@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+cp {{ guardian_certificates.remote_path }}/{{ guardian_certificates.tls_private_key_name }} {{ guardian_dirs.config}}/
+cp {{ guardian_certificates.remote_path }}/{{ guardian_certificates.tls_certificate_name }} {{ guardian_dirs.config}}/
+cp {{ guardian_certificates.remote_path }}/{{ guardian_certificates.tls_root_certificate_name }} {{ guardian_dirs.config}}/
+
+chown -R {{ guardian_user.name }}:{{ guardian_user.group }} {{ guardian_dirs.config}}
+
+systemctl restart guardian-{{ guardian_instance.guardian_id }}.service
