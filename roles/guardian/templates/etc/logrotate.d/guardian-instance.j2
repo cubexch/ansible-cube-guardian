@@ -1,0 +1,13 @@
+{{ guardian_dirs.log }}/*.log {{ guardian_dirs.log }}/*.json {
+  compress
+  delaycompress
+  daily
+  rotate {{ logrotate_keep_days }}
+  dateext
+  dateyesterday
+  missingok
+  sharedscripts
+  postrotate
+    systemctl kill -s USR1 guardian-{{ guardian_instance.guardian_id }}.service
+  endscript
+}

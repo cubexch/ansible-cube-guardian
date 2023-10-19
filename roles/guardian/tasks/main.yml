@@ -256,6 +256,27 @@
   when:
     - guardian_listen_web_port_open_iptables | default(false) | bool == true
 
+- name: Install Logrotate
+  ansible.builtin.apt:
+    name:
+      - logrotate
+    state: "present"
+    cache_valid_time: 14400 # 4hrs
+  when: logrotate_enable | default(false) | bool
+  tags:
+    - logrotate_config
+
+- name: Deploy Logrotate Config
+  ansible.builtin.template:
+    src: "etc/logrotate.d/guardian-instance.j2"
+    dest: "/etc/logrotate.d/guardian-{{ guardian_instance.guardian_id }}"
+    owner: "root"
+    group: "root"
+    mode: u=rw,go=r
+  when: logrotate_enable | default(false) | bool
+  tags:
+    - logrotate_config
+
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
   tags:
