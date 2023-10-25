@@ -254,14 +254,14 @@
     url: "{{ vault_url }}"
     path: "sys/mounts/{{ guardian_secret_mount_path_prefix }}/guardian-{{ item.guardian_id }}"
     data:
-      type: 'kv'
-      description: 'Cube Exchange Secrets Engine - Guardian'
+      type: "kv"
+      description: "Cube Exchange Secrets Engine - Guardian"
       options:
         version: 2
       config:
         max_versions: 0
         cas_required: false
-        delete_version_after: '0s'
+        delete_version_after: "0s"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
@@ -279,14 +279,14 @@
     url: "{{ vault_url }}"
     path: "sys/mounts/{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
     data:
-      type: 'kv'
-      description: 'Cube Exchange Secrets Engine - Monitor'
+      type: "kv"
+      description: "Cube Exchange Secrets Engine - Monitor"
       options:
         version: 2
       config:
         max_versions: 0
         cas_required: false
-        delete_version_after: '0s'
+        delete_version_after: "0s"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
@@ -305,11 +305,11 @@
     url: "{{ vault_url }}"
     path: "sys/auth/approle"
     data:
-      type: 'approle'
-      description: 'Cube Exchange AppRole'
+      type: "approle"
+      description: "Cube Exchange AppRole"
       config:
-        default_lease_ttl: '0s'
-        max_lease_ttl: '0s'
+        default_lease_ttl: "0s"
+        max_lease_ttl: "0s"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
@@ -425,60 +425,3 @@
     - vault_approle_retrieve | default('false') | bool == true
   tags:
     - retrieve_approle
-
-- name: Write Fee Payer - Cubenet
-  no_log: true
-  community.hashi_vault.vault_kv2_write:
-    url: "{{ vault_url }}"
-    engine_mount_point: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
-    path: fee-payer/cube-aurum
-    data:
-      value: "{{ monitor_fee_payer_cubenet | string }}"
-    auth_method: "token"
-    token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert_path }}"
-  with_items:
-    - "{{ monitor_instances }}"
-  when:
-    - monitor_instances is defined
-  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
-  tags:
-    - write_fee_payers
-
-- name: Write Fee Payer - BTC
-  no_log: true
-  community.hashi_vault.vault_kv2_write:
-    url: "{{ vault_url }}"
-    engine_mount_point: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
-    path: fee-payer/btc
-    data:
-      value: '{{ monitor_fee_payer_btc }}'
-    auth_method: "token"
-    token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert_path }}"
-  with_items:
-    - "{{ monitor_instances }}"
-  when:
-    - monitor_instances is defined
-  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
-  tags:
-    - write_fee_payers
-
-- name: Write Fee Payer - ETH
-  no_log: true
-  community.hashi_vault.vault_kv2_write:
-    url: "{{ vault_url }}"
-    engine_mount_point: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
-    path: fee-payer/eth
-    data:
-      value: '{{ monitor_fee_payer_eth }}'
-    auth_method: "token"
-    token: "{{ loaded_vault_init_data.root_token }}"
-    ca_cert: "{{ vault_ca_cert_path }}"
-  with_items:
-    - "{{ monitor_instances }}"
-  when:
-    - monitor_instances is defined
-  ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
-  tags:
-    - write_fee_payers
