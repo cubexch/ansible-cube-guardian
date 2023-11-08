@@ -2,25 +2,29 @@
 # vars file for guardian
 
 public_guardian_list:
-  - name: Cube Exchange - Guardian Monitor
+  - name: Cube Exchange
     guardian_id: 100
     public_fqdn: guardian-monitor.cube.exchange
     public_port_node: 9420
     public_port_web: 443
-  - name: Everstake Guardian
+    external_url: https://www.cube.exchange/
+  - name: Everstake
     guardian_id: 101
     public_fqdn: cube-guardian-01.everstake.one
     public_port_node: 9420
     public_port_web: 443
-  - name: Triton One Guardian
+    external_url: https://everstake.one/
+  - name: Triton One
     guardian_id: 102
     public_fqdn: guardian.cubex.rpcpool.com
     public_port_node: 9420
     public_port_web: 443
-  - name: Solana Guardian
+    external_url: https://triton.one/
+  - name: Solana Foundation
     guardian_id: 103
     public_fqdn: cubeguardian.solana.org
     public_port_node: 9420
     public_port_web: 443
+    external_url: https://solana.org/
 
 guardian_iridium_jwk_pubkey: "30ede8670efe8cf79c86bf48e170d555ab47296430edf26dca1fd2185dbc5360"

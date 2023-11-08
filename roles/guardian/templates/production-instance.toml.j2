@@ -5,7 +5,7 @@ certs_path = "{{ guardian_config_main.certs_path }}"
 {% if guardian_use_ca_bundle | default(false) %}
 roots_path = "{{ guardian_ca_bundle_dest }}"
 {% else %}
-roots_path = "{{ guardian_config_main.roots_path }}"
+#roots_path = "{{ guardian_config_main.roots_path }}"
 {% endif %}
 
 
@@ -20,6 +20,10 @@ listen_port = {{ guardian_listen_node_port | int }}
 id = {{ guardian.guardian_id }}
 addr = "{{ guardian.public_fqdn }}:{{ guardian.public_port_node }}"
 tls_name = "{{ guardian.public_fqdn }}"
+name = "{{ guardian.name }}"
+
+[nodes.guardians.metadata]
+external_url = "{{ guardian.external_url }}"
 
 {% endfor %}
 
