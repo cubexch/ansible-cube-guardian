@@ -15,6 +15,8 @@
   ansible.builtin.setup:
     gather_subset:
       - default_ipv4
+  tags:
+    - guardian_config
 
 - name: Create install and config dirs
   ansible.builtin.file:
