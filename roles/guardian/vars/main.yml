@@ -26,5 +26,11 @@ public_guardian_list:
     public_port_node: 9420
     public_port_web: 443
     external_url: https://solana.org/
+  - name: Juicy Stake
+    guardian_id: 104
+    public_fqdn: juicy-guard.juicystake.io
+    public_port_node: 9420
+    public_port_web: 443
+    external_url: https://www.juicystake.io/
 
 guardian_iridium_jwk_pubkey: "30ede8670efe8cf79c86bf48e170d555ab47296430edf26dca1fd2185dbc5360"
