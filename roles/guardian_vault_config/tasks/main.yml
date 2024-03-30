@@ -329,6 +329,7 @@
       token_bound_cidrs: "{{ guardian_token_bound_cidrs }}"
       token_policies: "vault.guardian.{{ item.guardian_id }}.reader.policy"
       token_ttl: "{{ guardian_token_ttl }}"
+      period: '72h'
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
@@ -350,6 +351,7 @@
       token_bound_cidrs: "{{ guardian_token_bound_cidrs }}"
       token_policies: "vault.guardian.{{ item.guardian_id }}.writer.policy"
       token_ttl: "{{ guardian_token_ttl }}"
+      period: '72h'
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
@@ -371,6 +373,7 @@
       token_bound_cidrs: "{{ monitor_token_bound_cidrs }}"
       token_policies: "vault.monitor.{{ item.guardian_id }}.reader.policy"
       token_ttl: "{{ monitor_token_ttl }}"
+      period: '72h'
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
@@ -393,6 +396,7 @@
       token_bound_cidrs: "{{ monitor_token_bound_cidrs }}"
       token_policies: "vault.monitor.{{ item.guardian_id }}.writer.policy"
       token_ttl: "{{ monitor_token_ttl }}"
+      period: '72h'
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
