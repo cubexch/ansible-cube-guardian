@@ -56,7 +56,6 @@ guardian_secret_mount_path_prefix: "cube-guardian"
 guardian_token_ttl: "72h"
 guardian_secret_id_bound_cidrs: "127.0.0.0/8"
 guardian_token_bound_cidrs: "127.0.0.0/8"
-
 # monitor_instances:
 #   - guardian_hostname: cube_guardian_host
 #     guardian_id: 201
@@ -65,10 +64,3 @@ guardian_token_bound_cidrs: "127.0.0.0/8"
 # monitor_token_ttl: "72h"
 # monitor_secret_id_bound_cidrs: "127.0.0.0/24"
 # monitor_token_bound_cidrs: "127.0.0.0/24"
-
-# monitor_fee_payer_btc: "{{ monitor_fee_payer_btc_vault | string }}"
-# # monitor_fee_payer_btc_vault: 'my_monitor_fee_payer_btc_vault_private_key'
-# monitor_fee_payer_eth: "{{ monitor_fee_payer_eth_vault | string }}"
-# # monitor_fee_payer_eth_vault: 'my_monitor_fee_payer_eth_vault_private_key'
-# monitor_fee_payer_cubenet: "{{ monitor_fee_payer_cubenet_vault | string }}"
-# # monitor_fee_payer_cubenet_vault: "my_monitor_fee_payer_cubenet_vault_private_key"
