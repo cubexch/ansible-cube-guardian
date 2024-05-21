@@ -186,6 +186,8 @@
     mode: u=rw,g=r,o=-
   notify:
     - Restart guardian service
+  tags:
+    - guardian_config
 
 - name: Deploy Service File
   ansible.builtin.template:
@@ -196,6 +198,8 @@
     mode: ug=rw,o=r
   notify:
     - Restart guardian service
+  tags:
+    - guardian_config
 
 - name: Deploy certbot renew hook script
   ansible.builtin.template:
