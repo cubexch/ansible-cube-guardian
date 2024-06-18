@@ -1,6 +1,6 @@
 namespace: cubexch
 name: guardian
-version: "1.11.0"
+version: "1.12.0"
 description: Cube Exchange Guardian Collection
 
 repository: https://github.com/cubexch/ansible-cube-guardian
@@ -15,6 +15,7 @@ readme: README.md
 # @nicks:irc/im.site#channel'
 authors:
   - Rick Davis <rdavis@cube.xyz> (https://www.cube.exchange/)
+  - Miguel Sama <msama@cube.xyz> (https://www.cube.exchange/)
 
 license:
   - MIT

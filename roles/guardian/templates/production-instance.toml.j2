@@ -62,8 +62,31 @@ bind = "{{ snoop_bind_ip }}:{{ snoop_bind_port }}"
 
 {% if guardian_monitor is defined %}
 [monitor]
-cube_rpc_url = "{{ guardian_monitor.cubenet_rpc_url }}"
-quic_address = "{{ guardian_monitor.cubenet_quic_address }}"
-tradepool_program_id = "{{ guardian_monitor.tradepool_program_id }}"
 listen_address = "{{ guardian_listen_monitor_ip }}:{{ guardian_listen_monitor_port | int }}"
+{% endif %}
+
+{% if guardian_verification_enabled | default(false) %}
+[verification]
+quic_address = "{{ guardian_verification_cubenet_quic }}"
+cube_rpc_url = "{{ guardian_verification_cubenet_rpc }}"
+cubenet_trade_publisher_key = "{{ guardian_verification_cubenet_trade_publisher_key }}"
+cubenet_asset_publisher_key = "{{ guardian_verification_cubenet_asset_publisher_key }}"
+tradepool_program_id = "{{ guardian_verification_cubenet_tradepool_program_id }}"
+settle_utils_program_id = "{{ guardian_verification_cubenet_settle_utils_program_id }}"
+openid_jwk_archive = "{{ guardian_verification_openid_jwk_archive }}"
+openid_jwk_refresh_seconds = {{ guardian_verification_openid_jwk_refresh_seconds | int }}
+unsafe_lax_delta_check = {{ guardian_verification_cubenet_unsafe_lax_delta_check | bool | lower }}
+unsafe_lax_verification_key_check = {{ guardian_verification_cubenet_unsafe_lax_verification_key_check | bool | lower }}
+
+[verification.openid_jwk_providers]
+{% if guardian_verification_openid_jwk_providers_google is defined %}
+google = [
+  "{{ guardian_verification_openid_jwk_providers_google }}",
+]
+{% endif %}
+{% if guardian_verification_openid_jwk_providers_apple is defined %}
+apple = [
+  "{{ guardian_verification_openid_jwk_providers_apple }}",
+]
+{% endif %}
 {% endif %}
