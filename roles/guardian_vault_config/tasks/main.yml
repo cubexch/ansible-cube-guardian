@@ -59,14 +59,14 @@
 - name: Add /etc/hosts entries for vault servers
   ansible.builtin.lineinfile:
     path: "/etc/hosts"
-    regexp: "^{{ hostvars[item]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ vault_cluster_fqdn }}$"
-    line: "{{ hostvars[item]['ansible_' ~ hashicorp_vault_interface_api_interface]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ vault_cluster_fqdn }}"
+    regexp: "^{{ hostvars[item]['ansible_' ~ hostvars[item]['hashicorp_vault_interface_api_interface']]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ vault_cluster_fqdn }}$" # noqa yaml[line-length]
+    line: "{{ hostvars[item]['ansible_' ~ hostvars[item]['hashicorp_vault_interface_api_interface']]['ipv4']['address'] }} {{ hostvars[item]['inventory_hostname'] }}.{{ vault_cluster_fqdn }}" # noqa yaml[line-length]
     state: "present"
     owner: "root"
     group: "root"
   with_items:
     - "{{ groups[hashicorp_vault_cluster_group_name] }}"
-  when: create_etc_hosts_entries | default(false) | bool == true
+  when: create_etc_hosts_entries | default(false) | bool
 
 - name: Load vault_init_data
   no_log: true
@@ -254,14 +254,14 @@
     url: "{{ vault_url }}"
     path: "sys/mounts/{{ guardian_secret_mount_path_prefix }}/guardian-{{ item.guardian_id }}"
     data:
-      type: 'kv'
-      description: 'Cube Exchange Secrets Engine - Guardian'
+      type: "kv"
+      description: "Cube Exchange Secrets Engine - Guardian"
       options:
         version: 2
       config:
         max_versions: 0
         cas_required: false
-        delete_version_after: '0s'
+        delete_version_after: "0s"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
@@ -279,14 +279,14 @@
     url: "{{ vault_url }}"
     path: "sys/mounts/{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
     data:
-      type: 'kv'
-      description: 'Cube Exchange Secrets Engine - Monitor'
+      type: "kv"
+      description: "Cube Exchange Secrets Engine - Monitor"
       options:
         version: 2
       config:
         max_versions: 0
         cas_required: false
-        delete_version_after: '0s'
+        delete_version_after: "0s"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
@@ -305,11 +305,11 @@
     url: "{{ vault_url }}"
     path: "sys/auth/approle"
     data:
-      type: 'approle'
-      description: 'Cube Exchange AppRole'
+      type: "approle"
+      description: "Cube Exchange AppRole"
       config:
-        default_lease_ttl: '0s'
-        max_lease_ttl: '0s'
+        default_lease_ttl: "0s"
+        max_lease_ttl: "0s"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
@@ -452,7 +452,7 @@
     engine_mount_point: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
     path: fee-payer/btc
     data:
-      value: '{{ monitor_fee_payer_btc }}'
+      value: "{{ monitor_fee_payer_btc }}"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
@@ -471,7 +471,7 @@
     engine_mount_point: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}"
     path: fee-payer/eth
     data:
-      value: '{{ monitor_fee_payer_eth }}'
+      value: "{{ monitor_fee_payer_eth }}"
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
