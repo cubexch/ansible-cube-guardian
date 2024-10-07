@@ -325,6 +325,7 @@
   tags:
     - enable_secrets_engine
   when:
+    - monitor_instances is defined
     - vault_secrets_engine_deploy | default('false') | bool == true
 
 - name: Enable AppRole Authentication
