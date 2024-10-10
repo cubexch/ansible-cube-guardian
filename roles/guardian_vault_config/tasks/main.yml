@@ -258,16 +258,30 @@
       description: 'Cube Exchange Secrets Engine - Guardian'
       options:
         version: 2
-      config:
-        max_versions: 0
-        cas_required: false
-        delete_version_after: '0s'
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
   with_items:
     - "{{ guardian_instances }}"
+  tags:
+    - enable_secrets_engine
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+  when:
+    - vault_secrets_engine_deploy | default('false') | bool == true
+
+- name: Make sure Check-and-Set (cas) is enabled for secrets engine - Guardian
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "{{ guardian_secret_mount_path_prefix }}/guardian-{{ item.guardian_id }}/config"
+    data:
+      max_versions: 0
+      cas_required: true
+      delete_version_after: '0s'
+    auth_method: "token"
+    token: "{{ loaded_vault_init_data.root_token }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
+  with_items:
+    - "{{ guardian_instances }}"
   tags:
     - enable_secrets_engine
   when:
@@ -283,10 +297,6 @@
       description: 'Cube Exchange Secrets Engine - Monitor'
       options:
         version: 2
-      config:
-        max_versions: 0
-        cas_required: false
-        delete_version_after: '0s'
     auth_method: "token"
     token: "{{ loaded_vault_init_data.root_token }}"
     ca_cert: "{{ vault_ca_cert_path }}"
@@ -298,6 +308,25 @@
     - monitor_instances is defined
     - vault_secrets_engine_deploy | default('false') | bool == true
   ignore_errors: true # TODO: Check for existence before enabling, it causes an exception if path already exists.
+
+- name: Make sure Check-and-Set (cas) is enabled for secrets engine - Monitor
+  community.hashi_vault.vault_write:
+    url: "{{ vault_url }}"
+    path: "{{ monitor_secret_mount_path_prefix }}/monitor-{{ item.guardian_id }}/config"
+    data:
+      max_versions: 0
+      cas_required: true
+      delete_version_after: '0s'
+    auth_method: "token"
+    token: "{{ loaded_vault_init_data.root_token }}"
+    ca_cert: "{{ vault_ca_cert_path }}"
+  with_items:
+    - "{{ monitor_instances }}"
+  tags:
+    - enable_secrets_engine
+  when:
+    - monitor_instances is defined
+    - vault_secrets_engine_deploy | default('false') | bool == true
 
 - name: Enable AppRole Authentication
   no_log: true
