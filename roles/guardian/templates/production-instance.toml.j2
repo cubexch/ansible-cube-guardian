@@ -79,6 +79,7 @@ openid_jwk_archive = "{{ guardian_verification_openid_jwk_archive }}"
 openid_jwk_refresh_seconds = {{ guardian_verification_openid_jwk_refresh_seconds | int }}
 unsafe_lax_delta_check = {{ guardian_verification_cubenet_unsafe_lax_delta_check | bool | lower }}
 unsafe_lax_verification_key_check = {{ guardian_verification_cubenet_unsafe_lax_verification_key_check | bool | lower }}
+tesseract_program_id = "{{ guardian_verification_tesseract_program_id }}"
 
 [verification.openid_jwk_providers]
 {% if guardian_verification_openid_jwk_providers_google is defined %}
@@ -91,4 +92,14 @@ apple = [
   "{{ guardian_verification_openid_jwk_providers_apple }}",
 ]
 {% endif %}
+[verification.solana]
+settle_utils_program_id = "{{ guardian_verification_solana_settle_utils_program_id }}"
+router_program_id = "{{ guardian_verification_solana_router_program_id }}"
+message_transmitter_program_id = "{{ guardian_verification_solana_message_transmitter_program_id }}"
+token_messenger_program_id = "{{ guardian_verification_solana_token_messenger_program_id }}"
+
+[verification.ethereum]
+token_messenger_contract = "{{ guardian_verification_ethereum_token_messenger_contract }}"
+token_messenger_ext_contract = "{{ guardian_verification_ethereum_token_messenger_ext_contract }}"
+message_transmitter_contract = "{{ guardian_verification_ethereum_message_transmitter_contract }}"
 {% endif %}
