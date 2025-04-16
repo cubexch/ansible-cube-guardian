@@ -149,11 +149,26 @@
     name:
       - python3-pip
     cache_valid_time: 14400 # 4hrs
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_version = "20.04"
 
 - name: Install hvac pip lib
   ansible.builtin.pip:
     name:
       - hvac
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_version = "20.04"
+
+- name: Install python-hvac library
+  ansible.builtin.apt:
+    name: python3-hvac
+    state: present
+    cache_valid_time: 14400 # 4hrs
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_version = "24.04"
 
 - name: Check Cluster Creator ha_init_status
   delegate_to: "{{ cluster_creator_hostname }}"
