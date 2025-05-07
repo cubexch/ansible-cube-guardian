@@ -3,16 +3,33 @@
 
 - name: Install python pip
   ansible.builtin.apt:
-    name: python3-pip
-    state: present
+    name:
+      - python3-pip
     cache_valid_time: 14400 # 4hrs
+  when:
+    - ansible_facts['distribution'] == 'Ubuntu'
+    - ansible_facts['distribution_version'] == '20.04'
   tags:
     - install_prereqs
 
-- name: Install hvac pip library
+- name: Install hvac pip lib
   ansible.builtin.pip:
-    name: hvac
+    name:
+      - hvac
+  when:
+    - ansible_facts['distribution'] == 'Ubuntu'
+    - ansible_facts['distribution_version'] == '20.04'
+  tags:
+    - install_prereqs
+
+- name: Install python-hvac library
+  ansible.builtin.apt:
+    name: python3-hvac
     state: present
+    cache_valid_time: 14400 # 4hrs
+  when:
+    - ansible_facts['distribution'] == 'Ubuntu'
+    - ansible_facts['distribution_version'] == '24.04'
   tags:
     - install_prereqs
 
