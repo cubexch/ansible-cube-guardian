@@ -81,17 +81,22 @@ unsafe_lax_delta_check = {{ guardian_verification_cubenet_unsafe_lax_delta_check
 unsafe_lax_verification_key_check = {{ guardian_verification_cubenet_unsafe_lax_verification_key_check | bool | lower }}
 tesseract_program_id = "{{ guardian_verification_tesseract_program_id }}"
 
-[verification.openid_jwk_providers]
 {% if guardian_verification_openid_jwk_providers_google is defined %}
-google = [
+[[verification.openid_jwk_providers]]
+provider = "google"
+audience = [
   "{{ guardian_verification_openid_jwk_providers_google }}",
 ]
 {% endif %}
+
 {% if guardian_verification_openid_jwk_providers_apple is defined %}
-apple = [
+[[verification.openid_jwk_providers]]
+provider = "apple"
+audience = [
   "{{ guardian_verification_openid_jwk_providers_apple }}",
 ]
 {% endif %}
+
 [verification.solana]
 settle_utils_program_id = "{{ guardian_verification_solana_settle_utils_program_id }}"
 router_program_id = "{{ guardian_verification_solana_router_program_id }}"
