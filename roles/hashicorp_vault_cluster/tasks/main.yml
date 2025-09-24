@@ -71,6 +71,8 @@
     - "{{ self_signed_cert_files.client_key }}"
   notify:
     - Restart vault
+  tags:
+    - copy_local_certs
 
 - name: Deploy Vault Server Config
   ansible.builtin.template:
