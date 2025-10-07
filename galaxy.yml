@@ -1,6 +1,6 @@
 namespace: cubexch
 name: guardian
-version: "2.7.1"
+version: "2.9.1"
 description: Cube Exchange Guardian Collection
 
 repository: https://github.com/cubexch/ansible-cube-guardian
