@@ -32,11 +32,11 @@ public_guardian_list:
     public_port_node: 9420
     public_port_web: 443
     external_url: https://www.juicystake.io/
-  - name: Kiln
-    guardian_id: 105
-    public_fqdn: guardian.cube-guardian.mainnet.kiln.fi
-    public_port_node: 9420
-    public_port_web: 443
-    external_url: https://www.kiln.fi/
+  # - name: Kiln
+  #   guardian_id: 105
+  #   public_fqdn: guardian.cube-guardian.mainnet.kiln.fi
+  #   public_port_node: 9420
+  #   public_port_web: 443
+  #   external_url: https://www.kiln.fi/
 
 guardian_iridium_jwk_pubkey: "30ede8670efe8cf79c86bf48e170d555ab47296430edf26dca1fd2185dbc5360"
