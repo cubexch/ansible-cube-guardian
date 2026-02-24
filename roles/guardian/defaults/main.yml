@@ -1,7 +1,7 @@
 ---
 # defaults file for guardian
 
-guardian_version: au2.9.1
+guardian_version: au2.11.1
 guardian_archive_name: aurum-{{ guardian_version }}.tar.gz
 guardian_bin_name: cube-aurum
 guardian_app_environment: production
@@ -85,8 +85,8 @@ guardian_key_storage:
 
 guardian_config_manager:
   num_workers: 16
-  max_active_triple_jobs: 16
-  num_triples_to_cache: 256
+  max_active_triple_jobs: 8
+  num_triples_to_cache: 64
   public_shares_path: "{{ guardian_dirs.config }}/public_shares.json"
   cached_triples_path: "{{ guardian_dirs.config }}/triples.json"
 
