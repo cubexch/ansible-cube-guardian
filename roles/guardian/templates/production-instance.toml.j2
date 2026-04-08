@@ -74,7 +74,6 @@ sui_uri = "{{ guardian_verification_sui_uri }}"
 cubenet_trade_publisher_key = "{{ guardian_verification_cubenet_trade_publisher_key }}"
 cubenet_asset_publisher_key = "{{ guardian_verification_cubenet_asset_publisher_key }}"
 tradepool_program_id = "{{ guardian_verification_cubenet_tradepool_program_id }}"
-settle_utils_program_id = "{{ guardian_verification_cubenet_settle_utils_program_id }}"
 openid_jwk_archive = "{{ guardian_verification_openid_jwk_archive }}"
 openid_jwk_refresh_seconds = {{ guardian_verification_openid_jwk_refresh_seconds | int }}
 unsafe_lax_delta_check = {{ guardian_verification_cubenet_unsafe_lax_delta_check | bool | lower }}
@@ -97,7 +96,8 @@ audience = [
 ]
 {% endif %}
 
-[verification.solana]
+[verification.solana.mainnet]
+chain_source_id = 3
 settle_utils_program_id = "{{ guardian_verification_solana_settle_utils_program_id }}"
 router_program_id = "{{ guardian_verification_solana_router_program_id }}"
 message_transmitter_program_id = "{{ guardian_verification_solana_message_transmitter_program_id }}"
