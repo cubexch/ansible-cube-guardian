@@ -58,6 +58,7 @@
     - self_signed_cert_files is defined and self_signed_cert_files.ca_cert is defined
   tags:
     - molecule-notest
+    - vault_copy_ca_cert
 
 - name: Gather network facts
   ansible.builtin.setup:
