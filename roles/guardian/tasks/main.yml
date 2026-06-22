@@ -96,23 +96,8 @@
   tags:
     - molecule-notest
 
-- name: Copy Remote Guardian Certificates to Config Dir
-  no_log: true
-  ansible.builtin.copy:
-    src: "{{ guardian_certificates.remote_path }}/{{ item }}"
-    remote_src: true
-    dest: "{{ guardian_dirs.config }}/{{ item }}"
-    owner: "{{ guardian_user.name }}"
-    group: "{{ guardian_user.group }}"
-    mode: u=rw,go=-
-  with_items:
-    - "{{ guardian_certificates.tls_private_key_name }}"
-    - "{{ guardian_certificates.tls_certificate_name }}"
-    - "{{ guardian_certificates.tls_root_certificate_name }}"
-  tags:
-    - molecule-notest
-  notify:
-    - Restart guardian service
+- name: Include certificate tasks for Guardian
+  ansible.builtin.import_playbook: certs.yml
 
 - name: Find Remote Vault AppRole Credentials
   no_log: true
@@ -189,23 +174,6 @@
     - Restart guardian service
   tags:
     - guardian_config
-
-- name: Deploy certbot renew hook script
-  ansible.builtin.template:
-    src: "certbot-renewal-instance.sh.j2"
-    dest: "{{ guardian_dirs.install }}/current/certbot-renewal-{{ guardian_instance.public_fqdn }}.sh"
-    owner: "{{ guardian_user.name }}"
-    group: "{{ guardian_user.group }}"
-    mode: u=rwx,g=rx,o=-
-  when: deploy_certbot_renewal_hook | default(false) | bool
-
-- name: Configure certbot renew hook
-  community.general.ini_file:
-    path: "/etc/letsencrypt/renewal/{{ guardian_instance.public_fqdn }}.conf"
-    section: "renewalparams"
-    option: "renew_hook"
-    value: "{{ guardian_dirs.install }}/current/certbot-renewal-{{ guardian_instance.public_fqdn }}.sh"
-  when: deploy_certbot_renewal_hook | default(false) | bool
 
 - name: Install iptables if guardian_listen_node_port_open_iptables is true
   ansible.builtin.apt:
