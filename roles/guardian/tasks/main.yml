@@ -97,7 +97,7 @@
     - molecule-notest
 
 - name: Include certificate tasks for Guardian
-  ansible.builtin.import_playbook: certs.yml
+  ansible.builtin.import_tasks: certs.yml
 
 - name: Find Remote Vault AppRole Credentials
   no_log: true
