@@ -13,8 +13,8 @@
   roles:
     - role: geerlingguy.swap
       tags: swap
-    - role: geerlingguy.certbot
-      tags: certbot
+    # - role: geerlingguy.certbot
+    #   tags: certbot
     - role: cubexch.guardian.guardian_vault_config
       tags: guardian_vault_config
     - role: cubexch.guardian.guardian
