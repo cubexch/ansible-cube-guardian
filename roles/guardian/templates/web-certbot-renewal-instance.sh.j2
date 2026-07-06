@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+cp /etc/letsencrypt/live/web-{{ guardian_instance.public_fqdn }}/fullchain.pem {{ guardian_dirs.config}}/web-fullchain.pem
+cp /etc/letsencrypt/live/web-{{ guardian_instance.public_fqdn }}/privkey.pem {{ guardian_dirs.config}}/web-privkey.pem
+
+chown -R {{ guardian_user.name }}:{{ guardian_user.group }} {{ guardian_dirs.config}}
+
+systemctl restart guardian-{{ guardian_instance.guardian_id }}.service

@@ -28,6 +28,9 @@ external_url = "{{ guardian.external_url }}"
 public_listen_address = "{{ guardian_listen_web_ip }}:{{ guardian_listen_web_port }}"
 admin_listen_address = "{{ guardian_listen_webadmin_ip }}:{{ guardian_listen_webadmin_port }}"
 
+key_path = "{{ guardian_dirs.config }}/web-privkey.pem"
+certs_path = "{{ guardian_dirs.config }}/web-fullchain.pem"
+
 [keys]
 
 {% if guardian_key_storage.hashicorp_vault is defined %}
