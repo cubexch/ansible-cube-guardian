@@ -2,11 +2,6 @@ cube_id = {{ guardian_config_main.cube_id | int }}
 
 key_path = "{{ guardian_config_main.key_path }}"
 certs_path = "{{ guardian_config_main.certs_path }}"
-{% if guardian_use_ca_bundle | default(false) %}
-roots_path = "{{ guardian_ca_bundle_dest }}"
-{% else %}
-#roots_path = "{{ guardian_config_main.roots_path }}"
-{% endif %}
 
 
 [nodes]
@@ -32,6 +27,9 @@ external_url = "{{ guardian.external_url }}"
 [web]
 public_listen_address = "{{ guardian_listen_web_ip }}:{{ guardian_listen_web_port }}"
 admin_listen_address = "{{ guardian_listen_webadmin_ip }}:{{ guardian_listen_webadmin_port }}"
+
+key_path = "{{ guardian_dirs.config }}/web-privkey.pem"
+certs_path = "{{ guardian_dirs.config }}/web-fullchain.pem"
 
 [keys]
 

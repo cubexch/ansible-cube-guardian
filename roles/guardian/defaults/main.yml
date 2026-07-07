@@ -45,15 +45,16 @@ guardian_dirs:
 # Deploy script to copy certificates and chown after certbot renewal
 deploy_certbot_renewal_hook: false
 
-guardian_certificates:
-  remote_path: "/etc/letsencrypt/live/{{ guardian_instance.public_fqdn }}"
-  tls_private_key_name: "privkey.pem"
-  tls_certificate_name: "fullchain.pem"
-  tls_root_certificate_name: "fullchain.pem"
+cuba_ca_fqdn: ca.cube.exchange
+step_ca_acme_provisioner_name: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+certbot_admin_email: test@test.ie
 
-guardian_use_ca_bundle: false
-guardian_ca_bundle_file: "guardian_ca_bundle.pem"
-guardian_ca_bundle_dest: "{{ guardian_dirs.config }}/{{ guardian_ca_bundle_file }}"
+
+guardian_certificates:
+  remote_path: /etc/letsencrypt/live/{{ guardian_instance.public_fqdn }}
+  tls_private_key_name: privkey.pem
+  tls_certificate_name: fullchain.pem
+  tls_root_certificate_name: fullchain.pem
 
 guardian_instance:
   guardian_id: 000

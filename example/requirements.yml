@@ -4,4 +4,4 @@ collections:
 
 roles:
   - name: geerlingguy.swap
-  - name: geerlingguy.certbot
+#  - name: geerlingguy.certbot
